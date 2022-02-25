@@ -20,6 +20,8 @@ df <- df %>%
   rename(date = date_of_interest)
 ```
 
+# EDA
+
 ## Case Count per Borough
 
 ``` r
@@ -63,11 +65,43 @@ df %>%
 ``` r
 df %>%
   filter(hospitalized_count > 0) %>%
-  mutate(total = death_count/hospitalized_count) %>%
-  ggplot(aes(date, total)) + geom_line()
+  mutate(proportion = death_count/hospitalized_count) %>% 
+  filter(proportion <= 1) %>%
+  ggplot(aes(date, proportion)) + geom_line() +
+  scale_y_continuous(breaks = seq(0,1,0.2)) +
+  theme(panel.grid.minor = element_blank())
 ```
 
 ![](Covid_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+df %>%
+  select(date, death_count, hospitalized_count) %>%
+  filter(hospitalized_count > 0) %>%
+  mutate(proportion = death_count/hospitalized_count) %>%
+  filter(proportion > 1) 
+```
+
+    ## # A tibble: 3 x 4
+    ##   date                death_count hospitalized_count proportion
+    ##   <dttm>                    <dbl>              <dbl>      <dbl>
+    ## 1 2022-02-19 00:00:00          21                 13       1.62
+    ## 2 2022-02-20 00:00:00          12                  7       1.71
+    ## 3 2022-02-21 00:00:00           9                  1       9
+
+The 3 most recent dates have proportions &gt; 1. Could be a new trend or
+hospitalized counts have not been updated.
+
+### Death count
+
+``` r
+df %>%
+  head(60) %>%
+  ggplot(aes(date, death_count)) + geom_line() +
+  labs(title = "Last 90 days", y = "Deaths", x = "")
+```
+
+![](Covid_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ## Death count by borough
 
@@ -79,7 +113,7 @@ df %>%
   ggplot(aes(date, value, color = name)) + geom_line()
 ```
 
-![](Covid_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Covid_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ### Last 100 days
 
@@ -93,4 +127,4 @@ df %>%
   ggplot(aes(date, value, color = name)) + geom_line()
 ```
 
-![](Covid_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Covid_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
