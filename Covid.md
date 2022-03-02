@@ -82,12 +82,11 @@ df %>%
   filter(proportion > 1) 
 ```
 
-    ## # A tibble: 3 x 4
+    ## # A tibble: 2 x 4
     ##   date                death_count hospitalized_count proportion
     ##   <dttm>                    <dbl>              <dbl>      <dbl>
-    ## 1 2022-02-19 00:00:00          21                 13       1.62
-    ## 2 2022-02-20 00:00:00          12                  7       1.71
-    ## 3 2022-02-21 00:00:00           9                  1       9
+    ## 1 2022-02-26 00:00:00           5                  3       1.67
+    ## 2 2022-02-27 00:00:00           7                  4       1.75
 
 The 3 most recent dates have proportions &gt; 1. Could be a new trend or
 hospitalized counts have not been updated.
@@ -128,3 +127,15 @@ df %>%
 ```
 
 ![](Covid_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+df %>%
+  mutate(dow = weekdays(date),
+         dow = fct_relevel(dow, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")) %>%
+  filter(!is.na(dow)) %>%
+  group_by(dow) %>%
+  ggplot(aes(dow, fill = dow)) + geom_bar() +
+  theme(legend.position = "")
+```
+
+![](Covid_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
