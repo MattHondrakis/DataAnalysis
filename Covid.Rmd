@@ -103,13 +103,15 @@ df %>%
 
 
 
-```{r}
+```{r, dpi=600}
 df %>%
   mutate(dow = weekdays(date),
          dow = fct_relevel(dow, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")) %>%
   filter(!is.na(dow)) %>%
   group_by(dow) %>%
-  ggplot(aes(dow, fill = dow)) + geom_bar() +
-  theme(legend.position = "")
+  ggplot(aes(dow, case_count, fill = dow)) + geom_col() + 
+  labs(y = "", x = "", title = "Cases by day of the week") +
+  theme(legend.position = "", plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(labels = scales::label_comma())
 ```
 
