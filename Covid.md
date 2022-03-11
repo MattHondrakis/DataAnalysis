@@ -82,11 +82,10 @@ df %>%
   filter(proportion > 1) 
 ```
 
-    ## # A tibble: 2 x 4
+    ## # A tibble: 1 x 4
     ##   date                death_count hospitalized_count proportion
     ##   <dttm>                    <dbl>              <dbl>      <dbl>
-    ## 1 2022-02-26 00:00:00           5                  3       1.67
-    ## 2 2022-02-27 00:00:00           7                  4       1.75
+    ## 1 2022-03-07 00:00:00           4                  2          2
 
 The 3 most recent dates have proportions &gt; 1. Could be a new trend or
 hospitalized counts have not been updated.
@@ -137,7 +136,7 @@ df %>%
   ggplot(aes(dow, case_count, fill = dow)) + geom_col() + 
   labs(y = "", x = "", title = "Cases by day of the week") +
   theme(legend.position = "", plot.title = element_text(hjust = 0.5)) + 
-  scale_y_continuous(labels = scales::label_comma())
+  scale_y_continuous(labels = scales::comma)
 ```
 
 ![](Covid_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->

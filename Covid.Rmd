@@ -112,6 +112,6 @@ df %>%
   ggplot(aes(dow, case_count, fill = dow)) + geom_col() + 
   labs(y = "", x = "", title = "Cases by day of the week") +
   theme(legend.position = "", plot.title = element_text(hjust = 0.5)) + 
-  scale_y_continuous(labels = scales::label_comma())
+  scale_y_continuous(labels = scales::comma)
 ```
 
