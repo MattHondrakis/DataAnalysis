@@ -80,7 +80,7 @@ inspections %>%
 ![](Inspection_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
 
 ``` r
-inspections %>%
+(inspections %>%
   filter(grade %in% c("A", "B", "C")) %>%
   group_by(boro) %>%
   summarize(A = mean(grade == "A"),
@@ -88,27 +88,24 @@ inspections %>%
             C = mean(grade == "C")) %>%
   pivot_longer(-boro) %>%
   ggplot(aes(value, fct_rev(name), fill = boro)) + geom_col(position = "dodge") +
-  labs(y = "", x = "Proportion", title = "Percent of Restaurants by Grade and Borough") + 
+  labs(y = "", x = "", fill = "") + 
   scale_x_continuous(breaks = seq(0,1,0.1),
-                     labels = scales::percent_format())
+                     labels = scales::percent_format())) /
+  (inspections %>%
+    filter(grade %in% c("A", "B", "C")) %>%
+    group_by(boro) %>%
+    summarize(A = mean(grade == "A"),
+              B = mean(grade == "B"),
+              C = mean(grade == "C")) %>%
+    pivot_longer(-boro) %>%
+    ggplot(aes(value, fct_reorder(boro, value, .fun = max), fill = fct_rev(name))) + geom_col() +
+    labs(y = "", x = "", fill = "") +
+    scale_x_continuous(labels = scales::percent_format())) + 
+  plot_annotation(title = "Percent of Restaurants by Grade and Borough",
+                  theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
 ![](Inspection_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
-
-``` r
-inspections %>%
-  filter(grade %in% c("A", "B", "C")) %>%
-  group_by(boro) %>%
-  summarize(A = mean(grade == "A"),
-            B = mean(grade == "B"),
-            C = mean(grade == "C")) %>%
-  pivot_longer(-boro) %>%
-  ggplot(aes(value, fct_reorder(boro, value, .fun = max), fill = fct_rev(name))) + geom_col() +
-  labs(y = "", x = "Proportion", fill = "", title = "Percent of Restaurants' Grades by Borough") +
-  scale_x_continuous(labels = scales::percent_format())
-```
-
-![](Inspection_files/figure-gfm/unnamed-chunk-3-4.png)<!-- -->
 
 ``` r
 inspections %>%
