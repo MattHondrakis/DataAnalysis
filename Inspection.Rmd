@@ -76,12 +76,34 @@ inspections %>%
 ```
 
 
-
 ```{r}
-inspections %>%
-  filter(boro != 0, !is.na(score)) %>%
-  group_by(boro, cuisine_description) %>%
-  summarize(max_score = max(score)) %>%
-  arrange(boro, -max_score) %>% knitr::kable()
+borofun <- function(x){
+  inspections %>%
+    filter(boro == {{x}}, !is.na(score)) %>%
+    group_by(cuisine_description) %>%
+    summarize(max_score = max(score)) %>%
+    arrange(-max_score) 
+}
+
+
+tablefun <- function(x) {
+  borofun({{x}}) %>% 
+    head(5) %>%
+    mutate(Borough = paste({{x}}, " (Top)")) %>%
+    bind_rows(borofun({{x}}) %>%
+    tail(5) %>%
+    mutate(Borough = paste({{x}}, " (Bottom)")))
+}
+table <- tablefun("Bronx") %>%
+  bind_rows(tablefun("Brooklyn")) %>%
+  bind_rows(tablefun("Manhattan")) %>%
+  bind_rows(tablefun("Queens")) %>%
+  bind_rows(tablefun("Staten Island"))
+```
+
+
+### Table of Top 5 and Bottom 5 Cuisine Types for each Borough
+```{r}
+table[,c(3,1,2)] %>% knitr::kable()
 ```
 
