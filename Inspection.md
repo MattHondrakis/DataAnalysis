@@ -33,27 +33,27 @@ inspections %>%
     ## # A tibble: 1 x 2
     ##   `min(score)` `max(score)`
     ##          <dbl>        <dbl>
-    ## 1            0           97
+    ## 1            0          116
 
 ``` r
 inspections %>%
   count(score, sort = TRUE)
 ```
 
-    ## # A tibble: 76 x 2
+    ## # A tibble: 78 x 2
     ##    score     n
     ##    <dbl> <int>
-    ##  1    12    95
-    ##  2    13    78
-    ##  3    10    68
+    ##  1    12    85
+    ##  2    13    82
+    ##  3    10    74
     ##  4     9    54
-    ##  5    11    49
-    ##  6    NA    45
-    ##  7    21    31
-    ##  8    19    29
-    ##  9    22    27
-    ## 10    20    26
-    ## # ... with 66 more rows
+    ##  5    NA    40
+    ##  6    11    38
+    ##  7     7    36
+    ##  8    23    30
+    ##  9    19    26
+    ## 10    20    23
+    ## # ... with 68 more rows
 
 ## Analysis of Boroughs
 
@@ -140,53 +140,64 @@ table[,c(3,1,2)] %>% knitr::kable()
 
 | Borough                | cuisine\_description           | max\_score |
 |:-----------------------|:-------------------------------|-----------:|
-| Bronx (Top)            | Donuts                         |         69 |
-| Bronx (Top)            | Coffee/Tea                     |         68 |
-| Bronx (Top)            | Chinese                        |         63 |
-| Bronx (Top)            | Latin American                 |         52 |
-| Bronx (Top)            | Pizza                          |         47 |
-| Bronx (Bottom)         | Steakhouse                     |         18 |
-| Bronx (Bottom)         | Bakery Products/Desserts       |         17 |
-| Bronx (Bottom)         | Hamburgers                     |         13 |
-| Bronx (Bottom)         | Japanese                       |         13 |
-| Bronx (Bottom)         | Frozen Desserts                |          7 |
-| Brooklyn (Top)         | Bakery Products/Desserts       |         75 |
-| Brooklyn (Top)         | Caribbean                      |         63 |
-| Brooklyn (Top)         | American                       |         57 |
-| Brooklyn (Top)         | Indian                         |         57 |
-| Brooklyn (Top)         | Asian/Asian Fusion             |         54 |
-| Brooklyn (Bottom)      | Hamburgers                     |         11 |
-| Brooklyn (Bottom)      | African                        |         10 |
-| Brooklyn (Bottom)      | French                         |         10 |
-| Brooklyn (Bottom)      | Greek                          |         10 |
-| Brooklyn (Bottom)      | Soul Food                      |          7 |
-| Manhattan (Top)        | Pizza                          |         97 |
-| Manhattan (Top)        | Chinese                        |         85 |
-| Manhattan (Top)        | Italian                        |         78 |
-| Manhattan (Top)        | American                       |         70 |
+| Bronx (Top)            | Chicken                        |         75 |
+| Bronx (Top)            | Donuts                         |         68 |
+| Bronx (Top)            | Spanish                        |         65 |
+| Bronx (Top)            | Chinese                        |         57 |
+| Bronx (Top)            | Latin American                 |         53 |
+| Bronx (Bottom)         | Seafood                        |         13 |
+| Bronx (Bottom)         | Japanese                       |         12 |
+| Bronx (Bottom)         | Sandwiches                     |         12 |
+| Bronx (Bottom)         | Asian/Asian Fusion             |          9 |
+| Bronx (Bottom)         | Sandwiches/Salads/Mixed Buffet |          7 |
+| Brooklyn (Top)         | Hamburgers                     |         75 |
+| Brooklyn (Top)         | Caribbean                      |         60 |
+| Brooklyn (Top)         | Jewish/Kosher                  |         60 |
+| Brooklyn (Top)         | Thai                           |         60 |
+| Brooklyn (Top)         | Chicken                        |         59 |
+| Brooklyn (Bottom)      | Middle Eastern                 |         10 |
+| Brooklyn (Bottom)      | Australian                     |          9 |
+| Brooklyn (Bottom)      | Soups/Salads/Sandwiches        |          9 |
+| Brooklyn (Bottom)      | Vegan                          |          9 |
+| Brooklyn (Bottom)      | Juice, Smoothies, Fruit Salads |          7 |
+| Manhattan (Top)        | Chinese                        |        116 |
+| Manhattan (Top)        | American                       |        102 |
+| Manhattan (Top)        | Greek                          |         73 |
+| Manhattan (Top)        | Italian                        |         71 |
 | Manhattan (Top)        | African                        |         67 |
-| Manhattan (Bottom)     | Vegetarian                     |         12 |
-| Manhattan (Bottom)     | Hamburgers                     |         11 |
-| Manhattan (Bottom)     | Peruvian                       |         11 |
-| Manhattan (Bottom)     | Frozen Desserts                |          9 |
-| Manhattan (Bottom)     | Donuts                         |          6 |
-| Queens (Top)           | Sandwiches/Salads/Mixed Buffet |         91 |
-| Queens (Top)           | Chinese                        |         88 |
-| Queens (Top)           | Latin American                 |         83 |
-| Queens (Top)           | Sandwiches                     |         83 |
-| Queens (Top)           | American                       |         79 |
-| Queens (Bottom)        | Southeast Asian                |         12 |
-| Queens (Bottom)        | Continental                    |         11 |
-| Queens (Bottom)        | Frozen Desserts                |         11 |
-| Queens (Bottom)        | Seafood                        |          9 |
-| Queens (Bottom)        | Donuts                         |          8 |
-| Staten Island (Top)    | American                       |         76 |
-| Staten Island (Top)    | Chinese                        |         44 |
-| Staten Island (Top)    | Mexican                        |         36 |
-| Staten Island (Top)    | Russian                        |         32 |
-| Staten Island (Top)    | Chicken                        |         28 |
-| Staten Island (Bottom) | Hamburgers                     |         13 |
-| Staten Island (Bottom) | Sandwiches                     |         12 |
-| Staten Island (Bottom) | Japanese                       |          9 |
-| Staten Island (Bottom) | Spanish                        |          9 |
-| Staten Island (Bottom) | Coffee/Tea                     |          7 |
+| Manhattan (Bottom)     | Bagels/Pretzels                |          8 |
+| Manhattan (Bottom)     | Barbecue                       |          8 |
+| Manhattan (Bottom)     | Middle Eastern                 |          7 |
+| Manhattan (Bottom)     | Caribbean                      |          4 |
+| Manhattan (Bottom)     | Hotdogs/Pretzels               |          2 |
+| Queens (Top)           | Latin American                 |         94 |
+| Queens (Top)           | Peruvian                       |         93 |
+| Queens (Top)           | Mediterranean                  |         71 |
+| Queens (Top)           | Caribbean                      |         69 |
+| Queens (Top)           | Chinese                        |         67 |
+| Queens (Bottom)        | Donuts                         |          9 |
+| Queens (Bottom)        | Hamburgers                     |          9 |
+| Queens (Bottom)        | Polish                         |          9 |
+| Queens (Bottom)        | Pancakes/Waffles               |          5 |
+| Queens (Bottom)        | Soups/Salads/Sandwiches        |          3 |
+| Staten Island (Top)    | Caribbean                      |         63 |
+| Staten Island (Top)    | American                       |         49 |
+| Staten Island (Top)    | Pizza                          |         40 |
+| Staten Island (Top)    | Mexican                        |         31 |
+| Staten Island (Top)    | Italian                        |         30 |
+| Staten Island (Bottom) | Frozen Desserts                |         20 |
+| Staten Island (Bottom) | Soul Food                      |         20 |
+| Staten Island (Bottom) | Japanese                       |         19 |
+| Staten Island (Bottom) | Asian/Asian Fusion             |         12 |
+| Staten Island (Bottom) | Donuts                         |         12 |
+
+``` r
+inspections %>%
+  filter(grade %in% c("A", "B", "C")) %>%
+  group_by(grade) %>%
+  summarize(n = mean(score)) %>%
+  ggplot(aes(n, fct_rev(grade))) + geom_col(fill = "blue") +
+  labs(y = "Grade", x = "Average Score")
+```
+
+![](Inspection_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
