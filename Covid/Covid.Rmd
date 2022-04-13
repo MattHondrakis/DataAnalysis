@@ -103,7 +103,7 @@ df %>%
 
 
 
-```{r, dpi=600}
+```{r}
 df %>%
   mutate(dow = weekdays(date),
          dow = fct_relevel(dow, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")) %>%

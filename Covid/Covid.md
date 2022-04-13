@@ -7,13 +7,14 @@ Matthew
 df <- read_csv("https://data.cityofnewyork.us/resource/rc75-m7u3.csv")
 ```
 
-    ## 
+    ## Rows: 772 Columns: 62
     ## -- Column specification --------------------------------------------------------
-    ## cols(
-    ##   .default = col_double(),
-    ##   date_of_interest = col_datetime(format = "")
-    ## )
-    ## i Use `spec()` for the full column specifications.
+    ## Delimiter: ","
+    ## dbl  (61): case_count, probable_case_count, hospitalized_count, death_count,...
+    ## dttm  (1): date_of_interest
+    ## 
+    ## i Use `spec()` to retrieve the full column specification for this data.
+    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
 df <- df %>%
@@ -85,7 +86,7 @@ df %>%
     ## # A tibble: 1 x 4
     ##   date                death_count hospitalized_count proportion
     ##   <dttm>                    <dbl>              <dbl>      <dbl>
-    ## 1 2022-03-07 00:00:00           4                  2          2
+    ## 1 2022-04-10 00:00:00           4                  1          4
 
 The 3 most recent dates have proportions &gt; 1. Could be a new trend or
 hospitalized counts have not been updated.
