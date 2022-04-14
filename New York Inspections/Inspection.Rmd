@@ -8,7 +8,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 600)
 library(tidyverse)
 library(lubridate)
 library(patchwork)
@@ -35,7 +35,7 @@ inspections %>%
 
 
 ## Analysis of Boroughs
-```{r, dpi = 600}
+```{r}
 inspections %>%
   filter(!is.na(score), boro != 0) %>%
   group_by(boro) %>%
