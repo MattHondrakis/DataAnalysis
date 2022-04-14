@@ -132,7 +132,7 @@ table <- tablefun("Bronx") %>%
   bind_rows(tablefun("Staten Island"))
 ```
 
-### Table of Top 5 and Bottom 5 Cuisine Types for each Borough
+### Table of Top and Bottom 3 Inspection Score Violations by Borough
 
 ``` r
 table[,c(3,1,2)] %>% knitr::kable()
