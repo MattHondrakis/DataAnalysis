@@ -88,10 +88,10 @@ borofun <- function(x){
 
 tablefun <- function(x) {
   borofun({{x}}) %>% 
-    head(5) %>%
+    head(3) %>%
     mutate(Borough = paste({{x}}, " (Top)")) %>%
     bind_rows(borofun({{x}}) %>%
-    tail(5) %>%
+    tail(3) %>%
     mutate(Borough = paste({{x}}, " (Bottom)")))
 }
 table <- tablefun("Bronx") %>%

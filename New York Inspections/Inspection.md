@@ -119,10 +119,10 @@ borofun <- function(x){
 
 tablefun <- function(x) {
   borofun({{x}}) %>% 
-    head(5) %>%
+    head(3) %>%
     mutate(Borough = paste({{x}}, " (Top)")) %>%
     bind_rows(borofun({{x}}) %>%
-    tail(5) %>%
+    tail(3) %>%
     mutate(Borough = paste({{x}}, " (Bottom)")))
 }
 table <- tablefun("Bronx") %>%
@@ -143,50 +143,30 @@ table[,c(3,1,2)] %>% knitr::kable()
 | Bronx (Top)            | American                 |         71 |
 | Bronx (Top)            | Pizza                    |         57 |
 | Bronx (Top)            | African                  |         55 |
-| Bronx (Top)            | Chicken                  |         55 |
-| Bronx (Top)            | Latin American           |         44 |
-| Bronx (Bottom)         | Thai                     |         13 |
-| Bronx (Bottom)         | Italian                  |         12 |
 | Bronx (Bottom)         | Mediterranean            |          4 |
 | Bronx (Bottom)         | Tex-Mex                  |          4 |
 | Bronx (Bottom)         | Donuts                   |          2 |
 | Brooklyn (Top)         | Spanish                  |        141 |
 | Brooklyn (Top)         | Mexican                  |        104 |
 | Brooklyn (Top)         | Caribbean                |         88 |
-| Brooklyn (Top)         | American                 |         65 |
-| Brooklyn (Top)         | Chinese/Japanese         |         62 |
-| Brooklyn (Bottom)      | Mediterranean            |         11 |
-| Brooklyn (Bottom)      | Thai                     |         11 |
 | Brooklyn (Bottom)      | Polish                   |         10 |
 | Brooklyn (Bottom)      | Barbecue                 |          9 |
 | Brooklyn (Bottom)      | Other                    |          9 |
 | Manhattan (Top)        | Italian                  |         76 |
 | Manhattan (Top)        | Vegetarian               |         74 |
 | Manhattan (Top)        | American                 |         73 |
-| Manhattan (Top)        | Irish                    |         67 |
-| Manhattan (Top)        | Chinese                  |         63 |
-| Manhattan (Bottom)     | Moroccan                 |         12 |
-| Manhattan (Bottom)     | Seafood                  |         12 |
 | Manhattan (Bottom)     | Greek                    |         11 |
 | Manhattan (Bottom)     | Salads                   |         10 |
 | Manhattan (Bottom)     | Australian               |          4 |
 | Queens (Top)           | Latin American           |         90 |
 | Queens (Top)           | Caribbean                |         78 |
 | Queens (Top)           | American                 |         77 |
-| Queens (Top)           | Japanese                 |         70 |
-| Queens (Top)           | Indian                   |         65 |
-| Queens (Bottom)        | Irish                    |          9 |
-| Queens (Bottom)        | Pakistani                |          9 |
 | Queens (Bottom)        | Southeast Asian          |          8 |
 | Queens (Bottom)        | Hamburgers               |          7 |
 | Queens (Bottom)        | Southwestern             |          2 |
 | Staten Island (Top)    | Mexican                  |         48 |
 | Staten Island (Top)    | Chinese                  |         46 |
 | Staten Island (Top)    | Italian                  |         45 |
-| Staten Island (Top)    | American                 |         40 |
-| Staten Island (Top)    | Pizza                    |         21 |
-| Staten Island (Bottom) | Bagels/Pretzels          |         13 |
-| Staten Island (Bottom) | Greek                    |         12 |
 | Staten Island (Bottom) | Bakery Products/Desserts |          6 |
 | Staten Island (Bottom) | Asian/Asian Fusion       |          4 |
 | Staten Island (Bottom) | Donuts                   |          3 |
