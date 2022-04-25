@@ -1,0 +1,94 @@
+---
+title: "NYC House Prices"
+author: "Matthew"
+date: "4/24/2022"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 600)
+library(tidyverse)
+library(skimr)
+theme_set(theme_bw())
+```
+
+
+```{r}
+house <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/data_lat_long2.csv")
+house <- house[,-1]
+```
+
+# Explore Data and Clean
+```{r}
+house[1:20,] %>% 
+  View()
+
+skim(house)
+
+house <- 
+  house %>% rename_with(tolower) %>% 
+  rename_with( ~ gsub(" information", "", .x)) %>% 
+  rename_with( ~ gsub(" ", "_", .x))
+```
+
+
+```{r}
+house <- house %>% 
+  mutate(across(c(bath:sqft, tax:total_cost), ~ parse_number(.x)))
+
+house <- house %>% 
+  rename(by_car = commute) %>% 
+  mutate(by_car = parse_number(by_car))
+
+
+house <- house %>% 
+  mutate(type = sub(",.*","", home_details))
+```
+
+
+```{r}
+house %>% 
+  keep(is.numeric) %>% 
+  select(-lon, -lat) %>% 
+  gather() %>% 
+  ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+
+house %>% 
+  keep(is.numeric) %>% 
+  select(-lon, -lat) %>% 
+  pivot_longer(-price) %>% 
+  ggplot(aes(value, price)) + geom_point() +
+  scale_y_log10() + scale_x_log10() +
+  facet_wrap(~name)
+```
+
+
+```{r}
+house %>% 
+  select_if(is.numeric) %>% 
+  drop_na() %>% 
+  pivot_longer(-price) %>% 
+  group_by(name) %>% 
+  summarize(corr = cor(price, value)) %>% 
+  arrange(-abs(corr))
+
+
+tidy_model <- house %>% 
+  select_if(is.numeric) %>% 
+  drop_na() %>% 
+  pivot_longer(-price) %>% 
+  nest(-name) %>% 
+  mutate(mod = map(data, ~ lm(log(price) ~ value, .x)),
+         tidy = map(mod, broom::tidy)) %>% 
+  unnest(tidy)
+```
+
+
+```{r}
+tidy_model %>% 
+  filter(term == "value") %>% 
+  arrange(-abs(estimate))
+```
+
