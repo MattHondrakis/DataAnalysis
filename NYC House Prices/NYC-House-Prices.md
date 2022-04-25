@@ -225,3 +225,70 @@ house %>%
 ```
 
 ![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+
+## Plots of Price by numerics
+```{r}
+gplot2 <- function(x){
+  house %>% 
+    ggplot(aes({{x}}, price, color = fct_lump(type, 6))) + 
+    geom_point() +
+    scale_x_log10() + scale_y_log10()
+}
+(gplot2(tax) +
+gplot2(total_cost) +
+gplot2(land_assessment_cost)) /
+(gplot2(sqft) +
+gplot2(improvement_cost)) + plot_layout(guides = 'collect')
+```
+
+# Model
+## Preprocess
+```{r}
+house <- house %>% 
+  mutate(type_mod = fct_lump(type, 6))
+
+house_mod <- house %>% 
+  select(price, tax, total_cost, sqft, land_assessment_cost,
+         improvement_cost, type_mod, bath, bed) %>% 
+  drop_na() %>% 
+  filter_if(is.numeric, all_vars(. > 0))
+
+house_mod %>% 
+  keep(is.numeric) %>% 
+  cor()
+```
+
+
+```{r}
+house_mod %>% 
+  keep(is.numeric) %>% 
+  pivot_longer(-tax) %>% 
+  ggplot(aes(tax, value)) + geom_point() +
+  facet_wrap(~name, scales = "free")
+```
+
+
+```{r}
+updated_model <- 
+  lm(log(price) ~ (log(tax) + log(sqft) + 
+                     bath) * type_mod, 
+   house_mod)
+
+anova(updated_model)
+summary(updated_model)
+
+augment(updated_model) %>% 
+  ggplot(aes(`log(price)`,.fitted, color = type_mod)) + 
+  geom_point() + geom_abline()
+
+augment(updated_model) %>% 
+  mutate(residual = .fitted - `log(price)`) %>% 
+  ggplot(aes(.fitted, residual, color = type_mod)) + 
+  geom_point() +
+  geom_hline(yintercept = 0)
+
+hist(residuals(updated_model))
+```
+
+
