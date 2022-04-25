@@ -11,6 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 600)
 library(tidyverse)
 library(skimr)
+library(patchwork)
 theme_set(theme_bw())
 ```
 
@@ -20,7 +21,7 @@ house <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/data_lat_long2.
 house <- house[,-1]
 ```
 
-# Explore Data and Clean
+# Explore and Clean
 ```{r}
 house[1:20,] %>% 
   View()
@@ -92,5 +93,35 @@ tidy_model <- house %>%
 tidy_model %>% 
   filter(term == "value") %>% 
   arrange(-abs(estimate))
+```
+
+## Checking correlated variables
+```{r}
+gplot <- function(x){
+  (house %>% 
+    filter(!is.na({{x}}), !is.na(price)) %>% 
+    ggplot(aes({{x}}, price, group = {{x}})) + geom_boxplot() + scale_y_log10()) +
+  (house %>% 
+     filter(!is.na({{x}}), !is.na(price)) %>% 
+     group_by({{x}}) %>% 
+     summarize(m = mean(price, na.rm = TRUE)) %>% 
+     ggplot(aes({{x}}, m)) + geom_line() + scale_y_log10())
+}
+
+gplot(bath)
+gplot(bed)
+gplot(assessment_year)
+```
+
+
+```{r}
+house %>% 
+  filter(price != 0, !is.na(price)) %>% 
+  mutate(price = price/1e3,
+         type = fct_lump(type, 7),
+         type = fct_reorder(type, price, median)) %>% 
+  ggplot(aes(price, type)) + geom_boxplot() +
+  scale_x_log10(labels = scales::comma) + labs(x = "", title = "Price in thousands") +
+  theme(plot.margin = margin(10,50,10,0))
 ```
 

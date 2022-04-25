@@ -23,7 +23,7 @@ house <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/data_lat_long2.
 house <- house[,-1]
 ```
 
-# Explore Data and Clean
+# Explore and Clean
 
 ``` r
 house[1:20,] %>% 
@@ -181,3 +181,47 @@ tidy_model %>%
     ## 7 land_assessment_c~ <tibble> <lm>  value  7.16e-8   1.33e-8      5.39 7.70e-  8
     ## 8 improvement_cost   <tibble> <lm>  value  1.09e-8   3.26e-9      3.35 8.11e-  4
     ## 9 total_cost         <tibble> <lm>  value  1.00e-8   2.65e-9      3.80 1.50e-  4
+
+## Checking correlated variables
+
+``` r
+gplot <- function(x){
+  (house %>% 
+    filter(!is.na({{x}}), !is.na(price)) %>% 
+    ggplot(aes({{x}}, price, group = {{x}})) + geom_boxplot() + scale_y_log10()) +
+  (house %>% 
+     filter(!is.na({{x}}), !is.na(price)) %>% 
+     group_by({{x}}) %>% 
+     summarize(m = mean(price, na.rm = TRUE)) %>% 
+     ggplot(aes({{x}}, m)) + geom_line() + scale_y_log10())
+}
+
+gplot(bath)
+```
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+gplot(bed)
+```
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+``` r
+gplot(assessment_year)
+```
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+
+``` r
+house %>% 
+  filter(price != 0, !is.na(price)) %>% 
+  mutate(price = price/1e3,
+         type = fct_lump(type, 7),
+         type = fct_reorder(type, price, median)) %>% 
+  ggplot(aes(price, type)) + geom_boxplot() +
+  scale_x_log10(labels = scales::comma) + labs(x = "", title = "Price in thousands") +
+  theme(plot.margin = margin(10,50,10,0))
+```
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
