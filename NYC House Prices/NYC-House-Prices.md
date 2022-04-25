@@ -226,9 +226,9 @@ house %>%
 
 ![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
-
 ## Plots of Price by numerics
-```{r}
+
+``` r
 gplot2 <- function(x){
   house %>% 
     ggplot(aes({{x}}, price, color = fct_lump(type, 6))) + 
@@ -242,9 +242,13 @@ gplot2(land_assessment_cost)) /
 gplot2(improvement_cost)) + plot_layout(guides = 'collect')
 ```
 
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
 # Model
+
 ## Preprocess
-```{r}
+
+``` r
 house <- house %>% 
   mutate(type_mod = fct_lump(type, 6))
 
@@ -259,8 +263,35 @@ house_mod %>%
   cor()
 ```
 
+    ##                           price         tax  total_cost        sqft
+    ## price                1.00000000  0.07593635  0.06624251  0.07727393
+    ## tax                  0.07593635  1.00000000  0.99086226  0.48728324
+    ## total_cost           0.06624251  0.99086226  1.00000000  0.44406856
+    ## sqft                 0.07727393  0.48728324  0.44406856  1.00000000
+    ## land_assessment_cost 0.07131328  0.94467569  0.96450910  0.38640371
+    ## improvement_cost     0.06414354  0.99137901  0.99761312  0.45396698
+    ## bath                 0.44701449 -0.07189192 -0.07345366 -0.06450716
+    ## bed                  0.21414699 -0.16695827 -0.15946214 -0.13076296
+    ##                      land_assessment_cost improvement_cost        bath
+    ## price                          0.07131328       0.06414354  0.44701449
+    ## tax                            0.94467569       0.99137901 -0.07189192
+    ## total_cost                     0.96450910       0.99761312 -0.07345366
+    ## sqft                           0.38640371       0.45396698 -0.06450716
+    ## land_assessment_cost           1.00000000       0.94397401 -0.04720870
+    ## improvement_cost               0.94397401       1.00000000 -0.07945988
+    ## bath                          -0.04720870      -0.07945988  1.00000000
+    ## bed                           -0.12324898      -0.16707156  0.62187514
+    ##                             bed
+    ## price                 0.2141470
+    ## tax                  -0.1669583
+    ## total_cost           -0.1594621
+    ## sqft                 -0.1307630
+    ## land_assessment_cost -0.1232490
+    ## improvement_cost     -0.1670716
+    ## bath                  0.6218751
+    ## bed                   1.0000000
 
-```{r}
+``` r
 house_mod %>% 
   keep(is.numeric) %>% 
   pivot_longer(-tax) %>% 
@@ -268,27 +299,102 @@ house_mod %>%
   facet_wrap(~name, scales = "free")
 ```
 
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
-```{r}
+``` r
 updated_model <- 
   lm(log(price) ~ (log(tax) + log(sqft) + 
                      bath) * type_mod, 
    house_mod)
 
 anova(updated_model)
-summary(updated_model)
+```
 
+    ## Analysis of Variance Table
+    ## 
+    ## Response: log(price)
+    ##                      Df Sum Sq Mean Sq  F value    Pr(>F)    
+    ## log(tax)              1  34.97   34.97  138.836 < 2.2e-16 ***
+    ## log(sqft)             1 189.70  189.70  753.171 < 2.2e-16 ***
+    ## bath                  1 771.45  771.45 3062.876 < 2.2e-16 ***
+    ## type_mod              6 344.56   57.43  228.003 < 2.2e-16 ***
+    ## log(tax):type_mod     5  74.57   14.91   59.215 < 2.2e-16 ***
+    ## log(sqft):type_mod    5 133.09   26.62  105.680 < 2.2e-16 ***
+    ## bath:type_mod         5 146.88   29.38  116.633 < 2.2e-16 ***
+    ## Residuals          3058 770.22    0.25                       
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+summary(updated_model)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = log(price) ~ (log(tax) + log(sqft) + bath) * type_mod, 
+    ##     data = house_mod)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -4.6162 -0.2469 -0.0219  0.2375  3.1464 
+    ## 
+    ## Coefficients: (3 not defined because of singularities)
+    ##                                       Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)                           12.19048    0.67783  17.985  < 2e-16 ***
+    ## log(tax)                               0.03633    0.05185   0.701  0.48353    
+    ## log(sqft)                             -0.02840    0.05846  -0.486  0.62710    
+    ## bath                                   0.68004    0.11856   5.736 1.07e-08 ***
+    ## type_modCondo                         -8.05309    0.96481  -8.347  < 2e-16 ***
+    ## type_modCoop                          -1.44071    0.71916  -2.003  0.04523 *  
+    ## type_modMulti Family                  -4.33679    0.82684  -5.245 1.67e-07 ***
+    ## type_modSingle Family Home            -4.23697    0.71429  -5.932 3.33e-09 ***
+    ## type_modTownhouse                    -10.15189    0.88895 -11.420  < 2e-16 ***
+    ## type_modOther                         -3.03641    0.73193  -4.149 3.44e-05 ***
+    ## log(tax):type_modCondo                 0.08954    0.05735   1.561  0.11857    
+    ## log(tax):type_modCoop                  0.04712    0.05528   0.852  0.39409    
+    ## log(tax):type_modMulti Family          0.31363    0.06619   4.738 2.26e-06 ***
+    ## log(tax):type_modSingle Family Home    0.41476    0.05990   6.924 5.32e-12 ***
+    ## log(tax):type_modTownhouse             0.48069    0.06979   6.888 6.84e-12 ***
+    ## log(tax):type_modOther                      NA         NA      NA       NA    
+    ## log(sqft):type_modCondo                1.14003    0.12494   9.124  < 2e-16 ***
+    ## log(sqft):type_modCoop                 0.08402    0.05937   1.415  0.15708    
+    ## log(sqft):type_modMulti Family         0.38250    0.08653   4.420 1.02e-05 ***
+    ## log(sqft):type_modSingle Family Home   0.21924    0.06837   3.207  0.00136 ** 
+    ## log(sqft):type_modTownhouse            1.01197    0.11804   8.573  < 2e-16 ***
+    ## log(sqft):type_modOther                     NA         NA      NA       NA    
+    ## bath:type_modCondo                    -0.39376    0.12706  -3.099  0.00196 ** 
+    ## bath:type_modCoop                     -0.09088    0.12048  -0.754  0.45074    
+    ## bath:type_modMulti Family             -0.62703    0.11920  -5.261 1.54e-07 ***
+    ## bath:type_modSingle Family Home       -0.58201    0.11898  -4.892 1.05e-06 ***
+    ## bath:type_modTownhouse                -0.70280    0.12093  -5.812 6.83e-09 ***
+    ## bath:type_modOther                          NA         NA      NA       NA    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.5019 on 3058 degrees of freedom
+    ## Multiple R-squared:  0.6876, Adjusted R-squared:  0.6851 
+    ## F-statistic: 280.4 on 24 and 3058 DF,  p-value: < 2.2e-16
+
+``` r
 augment(updated_model) %>% 
   ggplot(aes(`log(price)`,.fitted, color = type_mod)) + 
   geom_point() + geom_abline()
+```
 
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
 augment(updated_model) %>% 
   mutate(residual = .fitted - `log(price)`) %>% 
   ggplot(aes(.fitted, residual, color = type_mod)) + 
   geom_point() +
   geom_hline(yintercept = 0)
+```
 
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+
+``` r
 hist(residuals(updated_model))
 ```
 
-
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-12-3.png)<!-- -->
