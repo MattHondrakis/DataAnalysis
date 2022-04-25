@@ -130,6 +130,7 @@ house %>%
 ``` r
 house %>% 
   select_if(is.numeric) %>% 
+  select(-lon, -lat) %>% 
   drop_na() %>% 
   pivot_longer(-price) %>% 
   group_by(name) %>% 
@@ -137,24 +138,23 @@ house %>%
   arrange(-abs(corr))
 ```
 
-    ## # A tibble: 11 x 2
-    ##    name                     corr
-    ##    <chr>                   <dbl>
-    ##  1 bath                  0.445  
-    ##  2 by_car               -0.251  
-    ##  3 bed                   0.220  
-    ##  4 lat                   0.139  
-    ##  5 land_assessment_cost  0.123  
-    ##  6 assessment_year       0.120  
-    ##  7 tax                   0.111  
-    ##  8 total_cost            0.106  
-    ##  9 improvement_cost      0.101  
-    ## 10 sqft                  0.0889 
-    ## 11 lon                  -0.00669
+    ## # A tibble: 9 x 2
+    ##   name                    corr
+    ##   <chr>                  <dbl>
+    ## 1 bath                  0.428 
+    ## 2 by_car               -0.245 
+    ## 3 bed                   0.214 
+    ## 4 land_assessment_cost  0.145 
+    ## 5 tax                   0.133 
+    ## 6 total_cost            0.130 
+    ## 7 improvement_cost      0.124 
+    ## 8 sqft                  0.100 
+    ## 9 assessment_year       0.0955
 
 ``` r
 tidy_model <- house %>% 
   select_if(is.numeric) %>% 
+  select(-lon, -lat) %>% 
   drop_na() %>% 
   pivot_longer(-price) %>% 
   nest(-name) %>% 
@@ -169,17 +169,15 @@ tidy_model %>%
   arrange(-abs(estimate))
 ```
 
-    ## # A tibble: 11 x 8
-    ##    name              data     mod   term  estimate std.error statistic   p.value
-    ##    <chr>             <list>   <lis> <chr>    <dbl>     <dbl>     <dbl>     <dbl>
-    ##  1 lat               <tibble> <lm>  value  9.52e-1   1.73e-1     5.51  3.98e-  8
-    ##  2 assessment_year   <tibble> <lm>  value  3.34e-1   4.38e-2     7.63  3.47e- 14
-    ##  3 bath              <tibble> <lm>  value  2.86e-1   7.97e-3    35.9   2.00e-223
-    ##  4 bed               <tibble> <lm>  value  1.85e-1   8.21e-3    22.5   3.08e-101
-    ##  5 lon               <tibble> <lm>  value -1.61e-1   1.69e-1    -0.951 3.42e-  1
-    ##  6 by_car            <tibble> <lm>  value -1.40e-2   8.54e-4   -16.4   6.12e- 57
-    ##  7 sqft              <tibble> <lm>  value  4.56e-7   3.35e-7     1.36  1.74e-  1
-    ##  8 tax               <tibble> <lm>  value  9.04e-8   2.63e-8     3.43  6.13e-  4
-    ##  9 land_assessment_~ <tibble> <lm>  value  6.93e-8   1.46e-8     4.74  2.29e-  6
-    ## 10 improvement_cost  <tibble> <lm>  value  1.03e-8   3.61e-9     2.87  4.20e-  3
-    ## 11 total_cost        <tibble> <lm>  value  9.59e-9   2.93e-9     3.27  1.08e-  3
+    ## # A tibble: 9 x 8
+    ##   name               data     mod   term  estimate std.error statistic   p.value
+    ##   <chr>              <list>   <lis> <chr>    <dbl>     <dbl>     <dbl>     <dbl>
+    ## 1 assessment_year    <tibble> <lm>  value  3.00e-1   3.92e-2      7.65 2.80e- 14
+    ## 2 bath               <tibble> <lm>  value  2.75e-1   6.90e-3     39.8  1.71e-276
+    ## 3 bed                <tibble> <lm>  value  1.80e-1   7.00e-3     25.8  6.10e-132
+    ## 4 by_car             <tibble> <lm>  value -1.24e-2   7.21e-4    -17.2  2.53e- 63
+    ## 5 sqft               <tibble> <lm>  value  3.87e-7   2.93e-7      1.32 1.86e-  1
+    ## 6 tax                <tibble> <lm>  value  9.22e-8   2.38e-8      3.88 1.09e-  4
+    ## 7 land_assessment_c~ <tibble> <lm>  value  7.16e-8   1.33e-8      5.39 7.70e-  8
+    ## 8 improvement_cost   <tibble> <lm>  value  1.09e-8   3.26e-9      3.35 8.11e-  4
+    ## 9 total_cost         <tibble> <lm>  value  1.00e-8   2.65e-9      3.80 1.50e-  4

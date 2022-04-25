@@ -68,6 +68,7 @@ house %>%
 ```{r}
 house %>% 
   select_if(is.numeric) %>% 
+  select(-lon, -lat) %>% 
   drop_na() %>% 
   pivot_longer(-price) %>% 
   group_by(name) %>% 
@@ -77,6 +78,7 @@ house %>%
 
 tidy_model <- house %>% 
   select_if(is.numeric) %>% 
+  select(-lon, -lat) %>% 
   drop_na() %>% 
   pivot_longer(-price) %>% 
   nest(-name) %>% 
