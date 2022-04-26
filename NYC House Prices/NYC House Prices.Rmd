@@ -245,3 +245,30 @@ three_metrics(house_res, price, .pred) %>%
   ggplot(aes(.pred, price, color = type_mod)) + 
   geom_point(alpha = 0.5) + geom_abline()) + plot_layout(guide = "collect")
 ```
+
+
+```{r}
+three_metrics <- metric_set(rsq, rmse, mae)
+
+three_metrics(augment(updated_model) %>% 
+      rename(price = `log(price)`),
+    price, .fitted)
+three_metrics(house_res, price, .pred)
+
+joined_metrics <- three_metrics(augment(updated_model) %>% 
+      rename(price = `log(price)`),
+    price, .fitted) %>% 
+  mutate(model = "1") %>% 
+  bind_rows(three_metrics(house_res, price, .pred) %>% 
+              mutate(model = "2"))
+```
+
+
+```{r}
+joined_metrics %>% 
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") +
+  labs(title = "Base R model (1) vs Tidymodels (2)",
+       caption = "Comparison is not equal; the fit methods were done differently. \n
+       Did not separate a training/testing dataset for the first model")
+```
