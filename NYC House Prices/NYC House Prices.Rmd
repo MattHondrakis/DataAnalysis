@@ -190,3 +190,58 @@ augment(updated_model) %>%
 
 hist(residuals(updated_model))
 ```
+
+## Tidymodels
+
+### Set up and data split
+```{r}
+set.seed(123)
+house_split <- initial_split(house_mod %>% 
+                               mutate(price = log(price),
+                                      tax = log(tax),
+                                      sqft = log(sqft)), strata = type_mod)
+house_test <- testing(house_split)
+house_train <- training(house_split)
+```
+
+
+### Model creating and fit
+```{r}
+mod <- linear_reg() %>% 
+  set_mode("regression") %>% 
+  set_engine("lm")
+
+rec <- recipe(price ~ tax + sqft + 
+                     bath + type_mod, house_train) %>% 
+  step_dummy(all_nominal_predictors()) %>%
+  step_interact(terms = ~ starts_with("type"):all_predictors())
+
+wkfl <- workflow() %>% 
+  add_model(mod) %>% 
+  add_recipe(rec)
+
+wkfl_fit <- fit(wkfl, house_train)
+```
+
+
+### Analysis
+```{r}
+house_res <- 
+  house_test %>% 
+  bind_cols(predict(wkfl_fit, house_test))
+
+three_metrics <- metric_set(rmse, rsq, mae)
+three_metrics(house_res, price, .pred) %>% 
+  arrange(-.estimate)
+```
+
+
+```{r}
+(house_res %>%
+  mutate(residuals = price - .pred) %>% 
+  ggplot(aes(.pred, residuals, color = type_mod)) + 
+  geom_point(alpha = 0.5) + geom_hline(yintercept = 0)) +
+(house_res %>%  
+  ggplot(aes(.pred, price, color = type_mod)) + 
+  geom_point(alpha = 0.5) + geom_abline()) + plot_layout(guide = "collect")
+```
