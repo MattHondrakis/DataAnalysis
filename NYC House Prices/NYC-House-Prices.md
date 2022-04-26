@@ -398,3 +398,79 @@ hist(residuals(updated_model))
 ```
 
 ![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-12-3.png)<!-- -->
+
+
+## Tidymodels
+
+### Set up and data split
+```{r}
+set.seed(123)
+house_split <- initial_split(house_mod %>% 
+                               mutate(price = log(price),
+                                      tax = log(tax),
+                                      sqft = log(sqft),
+                                      bath = as.factor(bath)), 
+                             strata = bath)
+house_test <- testing(house_split)
+house_train <- training(house_split)
+```
+
+
+### Model creating and fit
+```{r}
+mod <- linear_reg() %>% 
+  set_mode("regression") %>% 
+  set_engine("lm")
+rec <- recipe(price ~ tax + sqft + 
+                     bath + type_mod, house_train) %>% 
+  step_dummy(all_nominal_predictors()) %>%
+  step_interact(terms = ~ starts_with("type"):all_predictors())
+wkfl <- workflow() %>% 
+  add_model(mod) %>% 
+  add_recipe(rec)
+wkfl_fit <- fit(wkfl, house_train)
+```
+
+
+### Analysis
+```{r}
+house_res <- 
+  house_test %>% 
+  bind_cols(predict(wkfl_fit, house_test))
+```
+
+
+```{r}
+(house_res %>%
+  mutate(residuals = price - .pred) %>% 
+  ggplot(aes(.pred, residuals, color = type_mod)) + 
+  geom_point(alpha = 0.5) + geom_hline(yintercept = 0)) +
+(house_res %>%  
+  ggplot(aes(.pred, price, color = type_mod)) + 
+  geom_point(alpha = 0.5) + geom_abline()) + plot_layout(guide = "collect")
+```
+
+
+```{r}
+three_metrics <- metric_set(rsq, rmse, mae)
+three_metrics(augment(updated_model) %>% 
+      rename(price = `log(price)`),
+    price, .fitted)
+three_metrics(house_res, price, .pred)
+joined_metrics <- three_metrics(augment(updated_model) %>% 
+      rename(price = `log(price)`),
+    price, .fitted) %>% 
+  mutate(model = "1") %>% 
+  bind_rows(three_metrics(house_res, price, .pred) %>% 
+              mutate(model = "2"))
+```
+
+
+```{r}
+joined_metrics %>% 
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") +
+  labs(title = "Base R model (1) vs Tidymodels (2)",
+       caption = "Comparison is not equal; the fit methods were done differently. \n
+       Did not separate a training/testing dataset for the first model")
+```
