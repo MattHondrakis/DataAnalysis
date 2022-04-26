@@ -199,7 +199,7 @@ set.seed(123)
 house_split <- initial_split(house_mod %>% 
                                mutate(price = log(price),
                                       tax = log(tax),
-                                      sqft = log(sqft)), strata = type_mod)
+                                      sqft = log(sqft)), strata = bath)
 house_test <- testing(house_split)
 house_train <- training(house_split)
 ```
