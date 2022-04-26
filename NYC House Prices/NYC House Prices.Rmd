@@ -199,7 +199,9 @@ set.seed(123)
 house_split <- initial_split(house_mod %>% 
                                mutate(price = log(price),
                                       tax = log(tax),
-                                      sqft = log(sqft)), strata = bath)
+                                      sqft = log(sqft),
+                                      bath = as.factor(bath)), 
+                             strata = bath)
 house_test <- testing(house_split)
 house_train <- training(house_split)
 ```
@@ -210,16 +212,13 @@ house_train <- training(house_split)
 mod <- linear_reg() %>% 
   set_mode("regression") %>% 
   set_engine("lm")
-
 rec <- recipe(price ~ tax + sqft + 
                      bath + type_mod, house_train) %>% 
   step_dummy(all_nominal_predictors()) %>%
   step_interact(terms = ~ starts_with("type"):all_predictors())
-
 wkfl <- workflow() %>% 
   add_model(mod) %>% 
   add_recipe(rec)
-
 wkfl_fit <- fit(wkfl, house_train)
 ```
 
@@ -229,10 +228,6 @@ wkfl_fit <- fit(wkfl, house_train)
 house_res <- 
   house_test %>% 
   bind_cols(predict(wkfl_fit, house_test))
-
-three_metrics <- metric_set(rmse, rsq, mae)
-three_metrics(house_res, price, .pred) %>% 
-  arrange(-.estimate)
 ```
 
 
@@ -249,12 +244,10 @@ three_metrics(house_res, price, .pred) %>%
 
 ```{r}
 three_metrics <- metric_set(rsq, rmse, mae)
-
 three_metrics(augment(updated_model) %>% 
       rename(price = `log(price)`),
     price, .fitted)
 three_metrics(house_res, price, .pred)
-
 joined_metrics <- three_metrics(augment(updated_model) %>% 
       rename(price = `log(price)`),
     price, .fitted) %>% 
