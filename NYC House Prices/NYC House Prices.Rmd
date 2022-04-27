@@ -279,7 +279,8 @@ ggplot(world) + geom_sf() +
     xlim = c(-74.35, -73.6), 
     ylim = c(min(house$lat, na.rm = TRUE), 40.95), expand = FALSE) + 
   geom_point(data = house %>% filter(!is.na(price)) %>% mutate(price = log(price)), 
-             aes(lon, lat, color = price))
+             aes(lon, lat, color = price, alpha = 0.3)) +
+  scale_color_viridis_c()
 ```
 
 
