@@ -265,3 +265,40 @@ joined_metrics %>%
        caption = "Comparison is not equal; the fit methods were done differently. \n
        Did not separate a training/testing dataset for the first model")
 ```
+
+
+# Scrap work
+```{r}
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+range(house$lon, na.rm = TRUE)
+range(house$lat, na.rm = TRUE)
+
+ggplot(world) + geom_sf() +
+  coord_sf(
+    xlim = c(-74.35, -73.6), 
+    ylim = c(min(house$lat, na.rm = TRUE), 40.95), expand = FALSE) + 
+  geom_point(data = house %>% filter(!is.na(price)) %>% mutate(price = log(price)), 
+             aes(lon, lat, color = price))
+```
+
+
+```{r}
+house <- house %>% 
+  mutate(zip_code = str_sub(address, - 5, - 1))
+
+x <- house %>% 
+  filter(!is.na(price)) %>% 
+  group_by(zip_code) %>% 
+  summarize(m = median(price)) %>% 
+  arrange(-m) %>% 
+  head(20) %>% 
+  pull(zip_code)
+  
+house %>% 
+  select(zip_code, price) %>% group_by(zip_code) %>% 
+  filter(!is.na(price), zip_code %in% x) %>% 
+  group_by(zip_code) %>% 
+  ggplot(aes(price, fct_reorder(zip_code, price, median))) + geom_boxplot()
+```
+
