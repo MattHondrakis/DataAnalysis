@@ -400,7 +400,7 @@ modrf <- rand_forest() %>%
   set_engine("ranger")
 
 
-recrf <- recipe(price ~ tax + sqft + bath + type_mod + zip_code, train2) %>% 
+recrf <- recipe(price ~ sqft + type_mod + zip_code, train2) %>% 
   step_dummy(all_nominal_predictors()) %>%
   step_interact(terms = ~ starts_with("zip"):all_predictors())
 
@@ -428,7 +428,10 @@ all_metrics_rf %>%
 
 ```{r}
 all_metrics_rf %>% 
-  ggplot(aes(.estimate, .metric, fill = fct_relevel(model, c("3","2","4","1")))) +
-  geom_col(position = "dodge") + labs(fill = "Model")
+  ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
+  geom_col(position = "dodge") + 
+  labs(title = "All 4 Models", 
+       subtitle = "Base R lm (Red), TM lm (Blue), TM no tax lm (Purple), Random Forrest (Green)") +
+  theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))
 ```
 
