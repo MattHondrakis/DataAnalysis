@@ -345,3 +345,17 @@ all_metrics %>%
 all_metrics %>% 
   arrange(desc(.metric), -.estimate)
 ```
+
+# Borough?
+```{r}
+house %>% 
+  mutate(borough = case_when(
+    str_detect(address, "New York") ~ "New York",
+    str_detect(address, "Brooklyn") ~ "Brooklyn",
+    str_detect(address, "Queens") ~ "Queens",
+    str_detect(address, "Bronx") ~ "Bronx",
+    str_detect(address, "Staten Island") ~ "Staten Island"
+  )) %>% 
+  filter(!is.na(borough), !is.na(price)) %>% 
+  ggplot(aes(price, borough)) + geom_boxplot() + scale_x_log10()
+```
