@@ -254,7 +254,7 @@ house <- house %>%
 
 house_mod <- house %>% 
   select(price, tax, total_cost, sqft, land_assessment_cost,
-         improvement_cost, type_mod, bath, bed) %>% 
+         improvement_cost, type_mod, bath, bed, address) %>% 
   drop_na() %>% 
   filter_if(is.numeric, all_vars(. > 0))
 
@@ -303,8 +303,7 @@ house_mod %>%
 
 ``` r
 updated_model <- 
-  lm(log(price) ~ (log(tax) + log(sqft) + 
-                     bath) * type_mod, 
+  lm(log(price) ~ (log(sqft) + log(tax) + bath) * type_mod, 
    house_mod)
 
 anova(updated_model)
@@ -313,15 +312,15 @@ anova(updated_model)
     ## Analysis of Variance Table
     ## 
     ## Response: log(price)
-    ##                      Df Sum Sq Mean Sq  F value    Pr(>F)    
-    ## log(tax)              1  34.97   34.97  138.836 < 2.2e-16 ***
-    ## log(sqft)             1 189.70  189.70  753.171 < 2.2e-16 ***
-    ## bath                  1 771.45  771.45 3062.876 < 2.2e-16 ***
-    ## type_mod              6 344.56   57.43  228.003 < 2.2e-16 ***
-    ## log(tax):type_mod     5  74.57   14.91   59.215 < 2.2e-16 ***
-    ## log(sqft):type_mod    5 133.09   26.62  105.680 < 2.2e-16 ***
-    ## bath:type_mod         5 146.88   29.38  116.633 < 2.2e-16 ***
-    ## Residuals          3058 770.22    0.25                       
+    ##                      Df Sum Sq Mean Sq   F value  Pr(>F)    
+    ## log(sqft)             1 223.79  223.79  888.5009 < 2e-16 ***
+    ## log(tax)              1   0.88    0.88    3.5067 0.06122 .  
+    ## bath                  1 771.45  771.45 3062.8759 < 2e-16 ***
+    ## type_mod              6 344.56   57.43  228.0026 < 2e-16 ***
+    ## log(sqft):type_mod    5 182.22   36.44  144.6928 < 2e-16 ***
+    ## log(tax):type_mod     5  25.44    5.09   20.2023 < 2e-16 ***
+    ## bath:type_mod         5 146.88   29.38  116.6327 < 2e-16 ***
+    ## Residuals          3058 770.22    0.25                      
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -331,7 +330,7 @@ summary(updated_model)
 
     ## 
     ## Call:
-    ## lm(formula = log(price) ~ (log(tax) + log(sqft) + bath) * type_mod, 
+    ## lm(formula = log(price) ~ (log(sqft) + log(tax) + bath) * type_mod, 
     ##     data = house_mod)
     ## 
     ## Residuals:
@@ -341,8 +340,8 @@ summary(updated_model)
     ## Coefficients: (3 not defined because of singularities)
     ##                                       Estimate Std. Error t value Pr(>|t|)    
     ## (Intercept)                           12.19048    0.67783  17.985  < 2e-16 ***
-    ## log(tax)                               0.03633    0.05185   0.701  0.48353    
     ## log(sqft)                             -0.02840    0.05846  -0.486  0.62710    
+    ## log(tax)                               0.03633    0.05185   0.701  0.48353    
     ## bath                                   0.68004    0.11856   5.736 1.07e-08 ***
     ## type_modCondo                         -8.05309    0.96481  -8.347  < 2e-16 ***
     ## type_modCoop                          -1.44071    0.71916  -2.003  0.04523 *  
@@ -350,18 +349,18 @@ summary(updated_model)
     ## type_modSingle Family Home            -4.23697    0.71429  -5.932 3.33e-09 ***
     ## type_modTownhouse                    -10.15189    0.88895 -11.420  < 2e-16 ***
     ## type_modOther                         -3.03641    0.73193  -4.149 3.44e-05 ***
-    ## log(tax):type_modCondo                 0.08954    0.05735   1.561  0.11857    
-    ## log(tax):type_modCoop                  0.04712    0.05528   0.852  0.39409    
-    ## log(tax):type_modMulti Family          0.31363    0.06619   4.738 2.26e-06 ***
-    ## log(tax):type_modSingle Family Home    0.41476    0.05990   6.924 5.32e-12 ***
-    ## log(tax):type_modTownhouse             0.48069    0.06979   6.888 6.84e-12 ***
-    ## log(tax):type_modOther                      NA         NA      NA       NA    
     ## log(sqft):type_modCondo                1.14003    0.12494   9.124  < 2e-16 ***
     ## log(sqft):type_modCoop                 0.08402    0.05937   1.415  0.15708    
     ## log(sqft):type_modMulti Family         0.38250    0.08653   4.420 1.02e-05 ***
     ## log(sqft):type_modSingle Family Home   0.21924    0.06837   3.207  0.00136 ** 
     ## log(sqft):type_modTownhouse            1.01197    0.11804   8.573  < 2e-16 ***
     ## log(sqft):type_modOther                     NA         NA      NA       NA    
+    ## log(tax):type_modCondo                 0.08954    0.05735   1.561  0.11857    
+    ## log(tax):type_modCoop                  0.04712    0.05528   0.852  0.39409    
+    ## log(tax):type_modMulti Family          0.31363    0.06619   4.738 2.26e-06 ***
+    ## log(tax):type_modSingle Family Home    0.41476    0.05990   6.924 5.32e-12 ***
+    ## log(tax):type_modTownhouse             0.48069    0.06979   6.888 6.84e-12 ***
+    ## log(tax):type_modOther                      NA         NA      NA       NA    
     ## bath:type_modCondo                    -0.39376    0.12706  -3.099  0.00196 ** 
     ## bath:type_modCoop                     -0.09088    0.12048  -0.754  0.45074    
     ## bath:type_modMulti Family             -0.62703    0.11920  -5.261 1.54e-07 ***
@@ -453,37 +452,26 @@ house_res <-
 
 ``` r
 three_metrics <- metric_set(rsq, rmse, mae)
-three_metrics(augment(updated_model) %>% 
-      rename(price = `log(price)`),
-    price, .fitted)
-```
 
-    ## # A tibble: 3 x 3
-    ##   .metric .estimator .estimate
-    ##   <chr>   <chr>          <dbl>
-    ## 1 rsq     standard       0.688
-    ## 2 rmse    standard       0.500
-    ## 3 mae     standard       0.346
-
-``` r
-three_metrics(house_res, price, .pred)
-```
-
-    ## # A tibble: 3 x 3
-    ##   .metric .estimator .estimate
-    ##   <chr>   <chr>          <dbl>
-    ## 1 rsq     standard       0.669
-    ## 2 rmse    standard       0.509
-    ## 3 mae     standard       0.354
-
-``` r
 joined_metrics <- three_metrics(augment(updated_model) %>% 
       rename(price = `log(price)`),
     price, .fitted) %>% 
   mutate(model = "1") %>% 
   bind_rows(three_metrics(house_res, price, .pred) %>% 
               mutate(model = "2"))
+
+joined_metrics %>% arrange(desc(.metric))
 ```
+
+    ## # A tibble: 6 x 4
+    ##   .metric .estimator .estimate model
+    ##   <chr>   <chr>          <dbl> <chr>
+    ## 1 rsq     standard       0.688 1    
+    ## 2 rsq     standard       0.669 2    
+    ## 3 rmse    standard       0.500 1    
+    ## 4 rmse    standard       0.509 2    
+    ## 5 mae     standard       0.346 1    
+    ## 6 mae     standard       0.354 2
 
 ``` r
 joined_metrics %>% 
@@ -524,6 +512,9 @@ ggplot(world) + geom_sf() +
 
 ![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
+Because of the lack of precision in longitude/latitude variables, the
+points on the map are slightly off.
+
 ``` r
 house <- house %>% 
   mutate(zip_code = str_sub(address, - 5, - 1))
@@ -552,3 +543,156 @@ house %>%
 ```
 
 ![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+## No Taxes!
+
+``` r
+wkfl2 <- workflow() %>% 
+  add_model(mod) %>% 
+  add_recipe(recipe(price ~ sqft + 
+                     bath + type_mod, house_train) %>% 
+  step_dummy(all_nominal_predictors()) %>%
+  step_interact(terms = ~ starts_with("type"):all_predictors()))
+
+wkfl_fit2 <- fit(wkfl2, house_train)
+```
+
+``` r
+house_res2 <- house_test %>%
+  bind_cols(predict(wkfl_fit2, house_test))
+  
+all_metrics <- joined_metrics %>% 
+  bind_rows(three_metrics(house_res2, price, .pred) %>% 
+              mutate(model = "3"))
+```
+
+``` r
+all_metrics %>% 
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge")
+```
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+
+``` r
+all_metrics %>% 
+  arrange(desc(.metric), -.estimate)
+```
+
+    ## # A tibble: 9 x 4
+    ##   .metric .estimator .estimate model
+    ##   <chr>   <chr>          <dbl> <chr>
+    ## 1 rsq     standard       0.688 1    
+    ## 2 rsq     standard       0.669 2    
+    ## 3 rsq     standard       0.630 3    
+    ## 4 rmse    standard       0.538 3    
+    ## 5 rmse    standard       0.509 2    
+    ## 6 rmse    standard       0.500 1    
+    ## 7 mae     standard       0.389 3    
+    ## 8 mae     standard       0.354 2    
+    ## 9 mae     standard       0.346 1
+
+# Borough?
+
+``` r
+house %>% 
+  mutate(borough = case_when(
+    str_detect(address, "New York") ~ "New York",
+    str_detect(address, "Brooklyn") ~ "Brooklyn",
+    str_detect(address, "Queens") ~ "Queens",
+    str_detect(address, "Bronx") ~ "Bronx",
+    str_detect(address, "Staten Island") ~ "Staten Island"
+  )) %>% 
+  filter(!is.na(borough), !is.na(price)) %>% 
+  ggplot(aes(price, borough)) + geom_boxplot() + scale_x_log10()
+```
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+
+## Don’t miss the forrest for the trees
+
+``` r
+house_mod <- house_mod %>%
+  mutate(zip_code = str_sub(address, -5, -1))
+
+house_mod %>% 
+  ggplot(aes(tax, price, color = zip_code)) + geom_point() +
+  theme(legend.position = "none") + scale_x_log10() +
+  scale_y_log10()
+```
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
+``` r
+house_mod2 <- house_mod %>% 
+  mutate(zip_code = fct_lump(zip_code, prop = 0.003))
+```
+
+``` r
+set.seed(123)
+split2 <- initial_split(house_mod2 %>% 
+                               mutate(price = log(price),
+                                      tax = log(tax),
+                                      sqft = log(sqft),
+                                      zip_code = factor(zip_code),
+                                      bath = factor(bath)),
+                        strata = zip_code)
+
+
+train2 <- training(split2)
+test2 <- testing(split2)
+```
+
+``` r
+modrf <- rand_forest() %>% 
+  set_mode("regression") %>% 
+  set_engine("ranger")
+
+
+recrf <- recipe(price ~ tax + sqft + bath + type_mod + zip_code, train2) %>% 
+  step_dummy(all_nominal_predictors()) %>%
+  step_interact(terms = ~ starts_with("zip"):all_predictors())
+
+wkflrf <- workflow() %>% 
+  add_model(modrf) %>% 
+  add_recipe(recrf)
+```
+
+``` r
+wkflrf_fit <- fit(wkfl2, train2)
+
+house_res2 <- 
+  test2 %>% 
+  bind_cols(predict(wkflrf_fit, test2))
+
+all_metrics_rf <- all_metrics %>% 
+  bind_rows(three_metrics(house_res2, price, .pred) %>% 
+              mutate(model = "4"))
+
+all_metrics_rf %>% 
+  arrange(desc(.metric), -.estimate)
+```
+
+    ## # A tibble: 12 x 4
+    ##    .metric .estimator .estimate model
+    ##    <chr>   <chr>          <dbl> <chr>
+    ##  1 rsq     standard       0.688 1    
+    ##  2 rsq     standard       0.669 2    
+    ##  3 rsq     standard       0.630 3    
+    ##  4 rsq     standard       0.580 4    
+    ##  5 rmse    standard       0.593 4    
+    ##  6 rmse    standard       0.538 3    
+    ##  7 rmse    standard       0.509 2    
+    ##  8 rmse    standard       0.500 1    
+    ##  9 mae     standard       0.412 4    
+    ## 10 mae     standard       0.389 3    
+    ## 11 mae     standard       0.354 2    
+    ## 12 mae     standard       0.346 1
+
+``` r
+all_metrics_rf %>% 
+  ggplot(aes(.estimate, .metric, fill = fct_relevel(model, c("3","2","4","1")))) +
+  geom_col(position = "dodge") + labs(fill = "Model")
+```
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->

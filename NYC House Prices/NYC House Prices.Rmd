@@ -153,7 +153,7 @@ house <- house %>%
 
 house_mod <- house %>% 
   select(price, tax, total_cost, sqft, land_assessment_cost,
-         improvement_cost, type_mod, bath, bed) %>% 
+         improvement_cost, type_mod, bath, bed, address) %>% 
   drop_na() %>% 
   filter_if(is.numeric, all_vars(. > 0))
 
@@ -174,8 +174,7 @@ house_mod %>%
 
 ```{r}
 updated_model <- 
-  lm(log(price) ~ (log(tax) + log(sqft) + 
-                     bath) * type_mod, 
+  lm(log(price) ~ (log(sqft) + log(tax) + bath) * type_mod, 
    house_mod)
 
 anova(updated_model)
@@ -247,16 +246,15 @@ house_res <-
 
 ```{r}
 three_metrics <- metric_set(rsq, rmse, mae)
-three_metrics(augment(updated_model) %>% 
-      rename(price = `log(price)`),
-    price, .fitted)
-three_metrics(house_res, price, .pred)
+
 joined_metrics <- three_metrics(augment(updated_model) %>% 
       rename(price = `log(price)`),
     price, .fitted) %>% 
   mutate(model = "1") %>% 
   bind_rows(three_metrics(house_res, price, .pred) %>% 
               mutate(model = "2"))
+
+joined_metrics %>% arrange(desc(.metric))
 ```
 
 
@@ -286,6 +284,7 @@ ggplot(world) + geom_sf() +
   scale_color_viridis_c()
 ```
 
+Because of the lack of precision in longitude/latitude variables, the points on the map are slightly off.
 
 ```{r}
 house <- house %>% 
@@ -346,6 +345,7 @@ all_metrics %>%
   arrange(desc(.metric), -.estimate)
 ```
 
+
 # Borough?
 ```{r}
 house %>% 
@@ -359,3 +359,76 @@ house %>%
   filter(!is.na(borough), !is.na(price)) %>% 
   ggplot(aes(price, borough)) + geom_boxplot() + scale_x_log10()
 ```
+
+
+
+## Don't miss the forrest for the trees
+
+```{r}
+house_mod <- house_mod %>%
+  mutate(zip_code = str_sub(address, -5, -1))
+
+house_mod %>% 
+  ggplot(aes(tax, price, color = zip_code)) + geom_point() +
+  theme(legend.position = "none") + scale_x_log10() +
+  scale_y_log10()
+
+house_mod2 <- house_mod %>% 
+  mutate(zip_code = fct_lump(zip_code, prop = 0.003))
+```
+
+
+```{r}
+set.seed(123)
+split2 <- initial_split(house_mod2 %>% 
+                               mutate(price = log(price),
+                                      tax = log(tax),
+                                      sqft = log(sqft),
+                                      zip_code = factor(zip_code),
+                                      bath = factor(bath)),
+                        strata = zip_code)
+
+
+train2 <- training(split2)
+test2 <- testing(split2)
+```
+
+
+```{r}
+modrf <- rand_forest() %>% 
+  set_mode("regression") %>% 
+  set_engine("ranger")
+
+
+recrf <- recipe(price ~ tax + sqft + bath + type_mod + zip_code, train2) %>% 
+  step_dummy(all_nominal_predictors()) %>%
+  step_interact(terms = ~ starts_with("zip"):all_predictors())
+
+wkflrf <- workflow() %>% 
+  add_model(modrf) %>% 
+  add_recipe(recrf)
+```
+
+
+```{r}
+wkflrf_fit <- fit(wkfl2, train2)
+
+house_res2 <- 
+  test2 %>% 
+  bind_cols(predict(wkflrf_fit, test2))
+
+all_metrics_rf <- all_metrics %>% 
+  bind_rows(three_metrics(house_res2, price, .pred) %>% 
+              mutate(model = "4"))
+
+all_metrics_rf %>% 
+  arrange(desc(.metric), -.estimate)
+```
+
+
+```{r}
+all_metrics_rf %>% 
+  ggplot(aes(.estimate, .metric, fill = fct_relevel(model, c("3","2","4","1")))) +
+  geom_col(position = "dodge") + labs(fill = "Model")
+```
+
