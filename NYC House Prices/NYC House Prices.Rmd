@@ -314,3 +314,34 @@ house %>%
   scale_x_log10() + labs(y = "", title = "House Prices in NYC by zipcode", x = "Price (log10 scale)")
 ```
 
+## No Taxes!
+```{r}
+wkfl2 <- workflow() %>% 
+  add_model(mod) %>% 
+  add_recipe(recipe(price ~ sqft + 
+                     bath + type_mod, house_train) %>% 
+  step_dummy(all_nominal_predictors()) %>%
+  step_interact(terms = ~ starts_with("type"):all_predictors()))
+
+wkfl_fit2 <- fit(wkfl2, house_train)
+```
+
+
+```{r}
+house_res2 <- house_test %>%
+  bind_cols(predict(wkfl_fit2, house_test))
+  
+all_metrics <- joined_metrics %>% 
+  bind_rows(three_metrics(house_res2, price, .pred) %>% 
+              mutate(model = "3"))
+```
+
+
+```{r}
+all_metrics %>% 
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge")
+
+all_metrics %>% 
+  arrange(desc(.metric), -.estimate)
+```
