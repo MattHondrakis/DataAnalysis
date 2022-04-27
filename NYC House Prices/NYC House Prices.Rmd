@@ -13,6 +13,9 @@ library(tidyverse)
 library(skimr)
 library(patchwork)
 library(broom)
+library(tidymodels)
+library(rnaturalearth)
+library(rnaturalearthdata)
 theme_set(theme_bw())
 ```
 
@@ -308,6 +311,6 @@ house %>%
   filter(!is.na(price), zip_code %in% c(x,y)) %>% 
   group_by(zip_code) %>% 
   ggplot(aes(price, fct_reorder(zip_code, price, median))) + geom_boxplot() +
-  scale_x_log10()
+  scale_x_log10() + labs(y = "", title = "House Prices in NYC by zipcode", x = "Price (log10 scale)")
 ```
 

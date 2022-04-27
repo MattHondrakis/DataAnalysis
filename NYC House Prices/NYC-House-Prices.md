@@ -399,11 +399,11 @@ hist(residuals(updated_model))
 
 ![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-12-3.png)<!-- -->
 
-
 ## Tidymodels
 
 ### Set up and data split
-```{r}
+
+``` r
 set.seed(123)
 house_split <- initial_split(house_mod %>% 
                                mutate(price = log(price),
@@ -415,9 +415,9 @@ house_test <- testing(house_split)
 house_train <- training(house_split)
 ```
 
-
 ### Model creating and fit
-```{r}
+
+``` r
 mod <- linear_reg() %>% 
   set_mode("regression") %>% 
   set_engine("lm")
@@ -431,16 +431,15 @@ wkfl <- workflow() %>%
 wkfl_fit <- fit(wkfl, house_train)
 ```
 
-
 ### Analysis
-```{r}
+
+``` r
 house_res <- 
   house_test %>% 
   bind_cols(predict(wkfl_fit, house_test))
 ```
 
-
-```{r}
+``` r
 (house_res %>%
   mutate(residuals = price - .pred) %>% 
   ggplot(aes(.pred, residuals, color = type_mod)) + 
@@ -450,13 +449,34 @@ house_res <-
   geom_point(alpha = 0.5) + geom_abline()) + plot_layout(guide = "collect")
 ```
 
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
-```{r}
+``` r
 three_metrics <- metric_set(rsq, rmse, mae)
 three_metrics(augment(updated_model) %>% 
       rename(price = `log(price)`),
     price, .fitted)
+```
+
+    ## # A tibble: 3 x 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 rsq     standard       0.688
+    ## 2 rmse    standard       0.500
+    ## 3 mae     standard       0.346
+
+``` r
 three_metrics(house_res, price, .pred)
+```
+
+    ## # A tibble: 3 x 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 rsq     standard       0.669
+    ## 2 rmse    standard       0.509
+    ## 3 mae     standard       0.354
+
+``` r
 joined_metrics <- three_metrics(augment(updated_model) %>% 
       rename(price = `log(price)`),
     price, .fitted) %>% 
@@ -465,8 +485,7 @@ joined_metrics <- three_metrics(augment(updated_model) %>%
               mutate(model = "2"))
 ```
 
-
-```{r}
+``` r
 joined_metrics %>% 
   ggplot(aes(.estimate, .metric, fill = model)) +
   geom_col(position = "dodge") +
@@ -475,13 +494,25 @@ joined_metrics %>%
        Did not separate a training/testing dataset for the first model")
 ```
 
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
 # Scrap work
-```{r}
+
+``` r
 world <- ne_countries(scale = "medium", returnclass = "sf")
 
 range(house$lon, na.rm = TRUE)
-range(house$lat, na.rm = TRUE)
+```
 
+    ## [1] -77.59145 -72.64771
+
+``` r
+range(house$lat, na.rm = TRUE)
+```
+
+    ## [1] 40.49896 43.16907
+
+``` r
 ggplot(world) + geom_sf() +
   coord_sf(
     xlim = c(-74.35, -73.6), 
@@ -491,8 +522,9 @@ ggplot(world) + geom_sf() +
   scale_color_viridis_c()
 ```
 
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
-```{r}
+``` r
 house <- house %>% 
   mutate(zip_code = str_sub(address, - 5, - 1))
 
@@ -516,6 +548,7 @@ house %>%
   filter(!is.na(price), zip_code %in% c(x,y)) %>% 
   group_by(zip_code) %>% 
   ggplot(aes(price, fct_reorder(zip_code, price, median))) + geom_boxplot() +
-  scale_x_log10()
+  scale_x_log10() + labs(y = "", title = "House Prices in NYC by zipcode", x = "Price (log10 scale)")
 ```
 
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
