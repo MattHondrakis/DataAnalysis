@@ -295,11 +295,19 @@ x <- house %>%
   arrange(-m) %>% 
   head(20) %>% 
   pull(zip_code)
+y <- house %>% 
+  filter(!is.na(price)) %>% 
+  group_by(zip_code) %>% 
+  summarize(m = median(price)) %>% 
+  arrange(-m) %>% 
+  tail(20) %>% 
+  pull(zip_code)
   
 house %>% 
   select(zip_code, price) %>% group_by(zip_code) %>% 
-  filter(!is.na(price), zip_code %in% x) %>% 
+  filter(!is.na(price), zip_code %in% c(x,y)) %>% 
   group_by(zip_code) %>% 
-  ggplot(aes(price, fct_reorder(zip_code, price, median))) + geom_boxplot()
+  ggplot(aes(price, fct_reorder(zip_code, price, median))) + geom_boxplot() +
+  scale_x_log10()
 ```
 
