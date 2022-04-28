@@ -838,7 +838,7 @@ all_metrics_rf %>%
   ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
   geom_col(position = "dodge") + 
   labs(title = "All 4 Models", 
-       subtitle = "Base R lm (Red), TM lm (Blue), TM no tax lm (Purple), Random Forrest (Green), Gam (5)") +
+       subtitle = "Base R lm (Brownish-Yellow), TM lm (Green), TM no tax lm (Blue), Random Forrest (Purple), Gam (Red)") +
   theme(legend.position = "none")
 ```
 
