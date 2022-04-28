@@ -426,27 +426,34 @@ all_metrics_rf %>%
 # Just let Gam figure it out
 ```{r}
 library(mgcv)
-
+set.seed(10)
 gam_data <- house %>% 
   select(price, tax, sqft, bath, lon, lat, type_mod) %>% 
   mutate(price = log(price)) %>% 
   drop_na()
 
-gam_mod <- gam(price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + s(lon, lat), gaussian, gam_data)
+gam_split <- initial_split(gam_data, strata = type_mod)
+
+gam_train <- training(gam_split)
+gam_test <- testing(gam_split)
+
+gam_mod <- gam(price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + s(lon, lat), gaussian, gam_train)
 
 summary(gam_mod)
 
 augment(gam_mod) %>% 
   three_metrics(price, .fitted)
 
-(augment(gam_mod) %>% 
-  ggplot(aes(price,.fitted, color = type_mod)) + 
-  geom_point(alpha = 0.5) + geom_abline()) /
-(augment(gam_mod) %>% 
-  mutate(residual = .fitted - price) %>% 
-  ggplot(aes(.fitted, residual, color = type_mod)) + 
-  geom_point(alpha = 0.5) +
+(gam_test %>% 
+  mutate(predict = predict(gam_mod, gam_test)) %>% 
+  ggplot(aes(price, predict, color = type_mod)) + geom_point(alpha = 0.3) +
+  geom_abline()) /
+(gam_test %>% 
+  mutate(predict = predict(gam_mod, gam_test),
+         resid = price - predict) %>% 
+  ggplot(aes(predict, resid, color = type_mod)) + geom_point(alpha = 0.3) +
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
+
 
 gam.check(gam_mod)
 ```
