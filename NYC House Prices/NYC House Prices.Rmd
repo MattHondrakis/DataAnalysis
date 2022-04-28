@@ -16,6 +16,7 @@ library(broom)
 library(tidymodels)
 library(rnaturalearth)
 library(rnaturalearthdata)
+library(splines)
 theme_set(theme_bw())
 ```
 
@@ -169,6 +170,10 @@ house_mod %>%
   pivot_longer(-tax) %>% 
   ggplot(aes(tax, value)) + geom_point() +
   facet_wrap(~name, scales = "free")
+
+house_mod %>% 
+  ggplot(aes(bath, price)) + geom_point() + scale_y_log10() +
+  geom_smooth()
 ```
 
 
@@ -180,15 +185,14 @@ updated_model <-
 anova(updated_model)
 summary(updated_model)
 
-augment(updated_model) %>% 
+(augment(updated_model) %>% 
   ggplot(aes(`log(price)`,.fitted, color = type_mod)) + 
-  geom_point() + geom_abline()
-
-augment(updated_model) %>% 
+  geom_point(alpha = 0.5) + geom_abline()) /
+(augment(updated_model) %>% 
   mutate(residual = .fitted - `log(price)`) %>% 
   ggplot(aes(.fitted, residual, color = type_mod)) + 
-  geom_point() +
-  geom_hline(yintercept = 0)
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 
 hist(residuals(updated_model))
 ```
@@ -202,8 +206,8 @@ house_split <- initial_split(house_mod %>%
                                mutate(price = log(price),
                                       tax = log(tax),
                                       sqft = log(sqft),
-                                      bath = as.factor(bath)), 
-                             strata = bath)
+                                      bath = log(bath), 
+                             strata = bath))
 house_test <- testing(house_split)
 house_train <- training(house_split)
 ```
@@ -237,7 +241,7 @@ house_res <-
 (house_res %>%
   mutate(residuals = price - .pred) %>% 
   ggplot(aes(.pred, residuals, color = type_mod)) + 
-  geom_point(alpha = 0.5) + geom_hline(yintercept = 0)) +
+  geom_point(alpha = 0.5) + geom_hline(yintercept = 0)) /
 (house_res %>%  
   ggplot(aes(.pred, price, color = type_mod)) + 
   geom_point(alpha = 0.5) + geom_abline()) + plot_layout(guide = "collect")
@@ -268,23 +272,6 @@ joined_metrics %>%
 ```
 
 
-# Scrap work
-```{r}
-world <- ne_countries(scale = "medium", returnclass = "sf")
-
-range(house$lon, na.rm = TRUE)
-range(house$lat, na.rm = TRUE)
-
-ggplot(world) + geom_sf() +
-  coord_sf(
-    xlim = c(-74.35, -73.6), 
-    ylim = c(min(house$lat, na.rm = TRUE), 40.95), expand = FALSE) + 
-  geom_point(data = house %>% filter(!is.na(price)) %>% mutate(price = log(price)), 
-             aes(lon, lat, color = price, alpha = 0.3)) +
-  scale_color_viridis_c()
-```
-
-Because of the lack of precision in longitude/latitude variables, the points on the map are slightly off.
 
 ```{r}
 house <- house %>% 
@@ -363,7 +350,6 @@ house %>%
 
 
 ## Don't miss the forrest for the trees
-
 ```{r}
 house_mod <- house_mod %>%
   mutate(zip_code = str_sub(address, -5, -1))
@@ -434,4 +420,84 @@ all_metrics_rf %>%
        subtitle = "Base R lm (Red), TM lm (Blue), TM no tax lm (Purple), Random Forrest (Green)") +
   theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))
 ```
+
+
+
+# Just let Gam figure it out
+```{r}
+library(mgcv)
+
+gam_data <- house %>% 
+  select(price, tax, sqft, bath, lon, lat, type_mod) %>% 
+  mutate(price = log(price)) %>% 
+  drop_na()
+
+gam_mod <- gam(price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + s(lon, lat), gaussian, gam_data)
+
+summary(gam_mod)
+
+augment(gam_mod) %>% 
+  three_metrics(price, .fitted)
+
+(augment(gam_mod) %>% 
+  ggplot(aes(price,.fitted, color = type_mod)) + 
+  geom_point(alpha = 0.5) + geom_abline()) /
+(augment(gam_mod) %>% 
+  mutate(residual = .fitted - price) %>% 
+  ggplot(aes(.fitted, residual, color = type_mod)) + 
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
+
+hist(residuals(gam_mod))
+```
+
+
+```{r}
+all_metrics_rf %>% 
+  bind_rows(augment(gam_mod) %>% 
+    three_metrics(price, .fitted) %>% mutate(model = "5")) %>% 
+  arrange(desc(.metric), -.estimate)
+
+all_metrics_rf %>% 
+  arrange(desc(.metric), -.estimate) %>% 
+  bind_rows(augment(gam_mod) %>% 
+  three_metrics(price, .fitted) %>% 
+    mutate(model = "5")) %>% 
+  ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
+  geom_col(position = "dodge") + 
+  labs(title = "All 4 Models", 
+       subtitle = "Base R lm (Red), TM lm (Blue), TM no tax lm (Purple), Random Forrest (Green), Gam (5)") +
+  theme(legend.position = "none")
+```
+
+
+
+# Scrap work
+```{r}
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+range(house$lon, na.rm = TRUE)
+range(house$lat, na.rm = TRUE)
+
+ggplot(world) + geom_sf() +
+  coord_sf(
+    xlim = c(-74.35, -73.6), 
+    ylim = c(min(house$lat, na.rm = TRUE), 40.95), expand = FALSE) + 
+  geom_point(data = house %>% filter(!is.na(price)) %>% mutate(price = log(price)), 
+             aes(lon, lat, color = price, alpha = 0.3)) +
+  scale_color_viridis_c()
+```
+
+Because of the lack of precision in longitude/latitude variables, the points on the map are slightly off.
+
+
+```{r}
+house %>% 
+  filter(!is.na(price), between(lon, -75, -73), between(lat, 40, 41)) %>% 
+  select(price, lon, lat) %>% 
+  pivot_longer(-price) %>% 
+  ggplot(aes(value, log(price))) + geom_point() + geom_smooth(formula = y ~ ns(x, 5)) +
+  facet_wrap(~name, scales = "free")
+```
+
 

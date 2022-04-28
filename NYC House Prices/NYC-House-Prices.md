@@ -302,6 +302,16 @@ house_mod %>%
 ![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
+house_mod %>% 
+  ggplot(aes(bath, price)) + geom_point() + scale_y_log10() +
+  geom_smooth()
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+
+``` r
 updated_model <- 
   lm(log(price) ~ (log(sqft) + log(tax) + bath) * type_mod, 
    house_mod)
@@ -375,28 +385,23 @@ summary(updated_model)
     ## F-statistic: 280.4 on 24 and 3058 DF,  p-value: < 2.2e-16
 
 ``` r
-augment(updated_model) %>% 
+(augment(updated_model) %>% 
   ggplot(aes(`log(price)`,.fitted, color = type_mod)) + 
-  geom_point() + geom_abline()
+  geom_point(alpha = 0.5) + geom_abline()) /
+(augment(updated_model) %>% 
+  mutate(residual = .fitted - `log(price)`) %>% 
+  ggplot(aes(.fitted, residual, color = type_mod)) + 
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 ```
 
 ![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
-augment(updated_model) %>% 
-  mutate(residual = .fitted - `log(price)`) %>% 
-  ggplot(aes(.fitted, residual, color = type_mod)) + 
-  geom_point() +
-  geom_hline(yintercept = 0)
-```
-
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
-
-``` r
 hist(residuals(updated_model))
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-12-3.png)<!-- -->
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
 
 ## Tidymodels
 
@@ -408,8 +413,8 @@ house_split <- initial_split(house_mod %>%
                                mutate(price = log(price),
                                       tax = log(tax),
                                       sqft = log(sqft),
-                                      bath = as.factor(bath)), 
-                             strata = bath)
+                                      bath = log(bath), 
+                             strata = bath))
 house_test <- testing(house_split)
 house_train <- training(house_split)
 ```
@@ -442,7 +447,7 @@ house_res <-
 (house_res %>%
   mutate(residuals = price - .pred) %>% 
   ggplot(aes(.pred, residuals, color = type_mod)) + 
-  geom_point(alpha = 0.5) + geom_hline(yintercept = 0)) +
+  geom_point(alpha = 0.5) + geom_hline(yintercept = 0)) /
 (house_res %>%  
   ggplot(aes(.pred, price, color = type_mod)) + 
   geom_point(alpha = 0.5) + geom_abline()) + plot_layout(guide = "collect")
@@ -467,11 +472,11 @@ joined_metrics %>% arrange(desc(.metric))
     ##   .metric .estimator .estimate model
     ##   <chr>   <chr>          <dbl> <chr>
     ## 1 rsq     standard       0.688 1    
-    ## 2 rsq     standard       0.669 2    
+    ## 2 rsq     standard       0.681 2    
     ## 3 rmse    standard       0.500 1    
-    ## 4 rmse    standard       0.509 2    
+    ## 4 rmse    standard       0.508 2    
     ## 5 mae     standard       0.346 1    
-    ## 6 mae     standard       0.354 2
+    ## 6 mae     standard       0.349 2
 
 ``` r
 joined_metrics %>% 
@@ -483,37 +488,6 @@ joined_metrics %>%
 ```
 
 ![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
-
-# Scrap work
-
-``` r
-world <- ne_countries(scale = "medium", returnclass = "sf")
-
-range(house$lon, na.rm = TRUE)
-```
-
-    ## [1] -77.59145 -72.64771
-
-``` r
-range(house$lat, na.rm = TRUE)
-```
-
-    ## [1] 40.49896 43.16907
-
-``` r
-ggplot(world) + geom_sf() +
-  coord_sf(
-    xlim = c(-74.35, -73.6), 
-    ylim = c(min(house$lat, na.rm = TRUE), 40.95), expand = FALSE) + 
-  geom_point(data = house %>% filter(!is.na(price)) %>% mutate(price = log(price)), 
-             aes(lon, lat, color = price, alpha = 0.3)) +
-  scale_color_viridis_c()
-```
-
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
-
-Because of the lack of precision in longitude/latitude variables, the
-points on the map are slightly off.
 
 ``` r
 house <- house %>% 
@@ -542,7 +516,7 @@ house %>%
   scale_x_log10() + labs(y = "", title = "House Prices in NYC by zipcode", x = "Price (log10 scale)")
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 ## No Taxes!
 
@@ -572,7 +546,7 @@ all_metrics %>%
   geom_col(position = "dodge")
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 ``` r
 all_metrics %>% 
@@ -583,13 +557,13 @@ all_metrics %>%
     ##   .metric .estimator .estimate model
     ##   <chr>   <chr>          <dbl> <chr>
     ## 1 rsq     standard       0.688 1    
-    ## 2 rsq     standard       0.669 2    
-    ## 3 rsq     standard       0.630 3    
-    ## 4 rmse    standard       0.538 3    
-    ## 5 rmse    standard       0.509 2    
+    ## 2 rsq     standard       0.681 2    
+    ## 3 rsq     standard       0.655 3    
+    ## 4 rmse    standard       0.530 3    
+    ## 5 rmse    standard       0.508 2    
     ## 6 rmse    standard       0.500 1    
-    ## 7 mae     standard       0.389 3    
-    ## 8 mae     standard       0.354 2    
+    ## 7 mae     standard       0.383 3    
+    ## 8 mae     standard       0.349 2    
     ## 9 mae     standard       0.346 1
 
 # Borough?
@@ -607,7 +581,7 @@ house %>%
   ggplot(aes(price, borough)) + geom_boxplot() + scale_x_log10()
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 ## Don’t miss the forrest for the trees
 
@@ -621,7 +595,7 @@ house_mod %>%
   scale_y_log10()
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 ``` r
 house_mod2 <- house_mod %>% 
@@ -677,16 +651,16 @@ all_metrics_rf %>%
     ##    .metric .estimator .estimate model
     ##    <chr>   <chr>          <dbl> <chr>
     ##  1 rsq     standard       0.688 1    
-    ##  2 rsq     standard       0.669 2    
-    ##  3 rsq     standard       0.630 3    
+    ##  2 rsq     standard       0.681 2    
+    ##  3 rsq     standard       0.655 3    
     ##  4 rsq     standard       0.580 4    
     ##  5 rmse    standard       0.593 4    
-    ##  6 rmse    standard       0.538 3    
-    ##  7 rmse    standard       0.509 2    
+    ##  6 rmse    standard       0.530 3    
+    ##  7 rmse    standard       0.508 2    
     ##  8 rmse    standard       0.500 1    
     ##  9 mae     standard       0.412 4    
-    ## 10 mae     standard       0.389 3    
-    ## 11 mae     standard       0.354 2    
+    ## 10 mae     standard       0.383 3    
+    ## 11 mae     standard       0.349 2    
     ## 12 mae     standard       0.346 1
 
 ``` r
@@ -698,4 +672,186 @@ all_metrics_rf %>%
   theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))
 ```
 
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+
+# Just let Gam figure it out
+
+``` r
+library(mgcv)
+```
+
+    ## Loading required package: nlme
+
+    ## 
+    ## Attaching package: 'nlme'
+
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     collapse
+
+    ## This is mgcv 1.8-39. For overview type 'help("mgcv-package")'.
+
+``` r
+gam_data <- house %>% 
+  select(price, tax, sqft, bath, lon, lat, type_mod) %>% 
+  mutate(price = log(price)) %>% 
+  drop_na()
+
+gam_mod <- gam(price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + s(lon, lat), gaussian, gam_data)
+
+summary(gam_mod)
+```
+
+    ## 
+    ## Family: gaussian 
+    ## Link function: identity 
+    ## 
+    ## Formula:
+    ## price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + s(lon, 
+    ##     lat)
+    ## 
+    ## Parametric coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)   13.817      0.102   135.5   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Approximate significance of smooth terms:
+    ##                                         edf   Ref.df       F  p-value    
+    ## s(sqft):type_modApartment           1.14762  1.27771   0.587    0.547    
+    ## s(sqft):type_modCondo               2.95673  3.00033  49.394  < 2e-16 ***
+    ## s(sqft):type_modCoop                8.74024  8.97767   6.977  < 2e-16 ***
+    ## s(sqft):type_modMulti Family        2.68999  2.90931  50.588  < 2e-16 ***
+    ## s(sqft):type_modSingle Family Home  3.95058  3.99742 108.157  < 2e-16 ***
+    ## s(sqft):type_modTownhouse           3.91775  3.99340  58.305  < 2e-16 ***
+    ## s(sqft):type_modOther               0.01406  0.01406   0.000    1.000    
+    ## s(bath):type_modApartment           1.03164  1.06189  43.250  < 2e-16 ***
+    ## s(bath):type_modCondo               4.59388  4.89985   7.894 2.61e-06 ***
+    ## s(bath):type_modCoop                8.10865  8.27027 177.450  < 2e-16 ***
+    ## s(bath):type_modMulti Family        2.21309  2.73164  10.817 3.27e-06 ***
+    ## s(bath):type_modSingle Family Home  5.15663  5.87436  17.461  < 2e-16 ***
+    ## s(bath):type_modTownhouse           6.18198  6.38992  13.478  < 2e-16 ***
+    ## s(bath):type_modOther               0.98594  0.98594   0.000    0.500    
+    ## s(lon,lat)                         27.81172 28.90220  98.179  < 2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Rank: 155/156
+    ## R-sq.(adj) =  0.862   Deviance explained = 86.7%
+    ## GCV = 0.1349  Scale est. = 0.13069   n = 2581
+
+``` r
+augment(gam_mod) %>% 
+  three_metrics(price, .fitted)
+```
+
+    ## # A tibble: 3 x 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 rsq     standard       0.867
+    ## 2 rmse    standard       0.356
+    ## 3 mae     standard       0.245
+
+``` r
+(augment(gam_mod) %>% 
+  ggplot(aes(price,.fitted, color = type_mod)) + 
+  geom_point(alpha = 0.5) + geom_abline()) /
+(augment(gam_mod) %>% 
+  mutate(residual = .fitted - price) %>% 
+  ggplot(aes(.fitted, residual, color = type_mod)) + 
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
+```
+
 ![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+
+``` r
+hist(residuals(gam_mod))
+```
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
+
+``` r
+all_metrics_rf %>% 
+  bind_rows(augment(gam_mod) %>% 
+    three_metrics(price, .fitted) %>% mutate(model = "5")) %>% 
+  arrange(desc(.metric), -.estimate)
+```
+
+    ## # A tibble: 15 x 4
+    ##    .metric .estimator .estimate model
+    ##    <chr>   <chr>          <dbl> <chr>
+    ##  1 rsq     standard       0.867 5    
+    ##  2 rsq     standard       0.688 1    
+    ##  3 rsq     standard       0.681 2    
+    ##  4 rsq     standard       0.655 3    
+    ##  5 rsq     standard       0.580 4    
+    ##  6 rmse    standard       0.593 4    
+    ##  7 rmse    standard       0.530 3    
+    ##  8 rmse    standard       0.508 2    
+    ##  9 rmse    standard       0.500 1    
+    ## 10 rmse    standard       0.356 5    
+    ## 11 mae     standard       0.412 4    
+    ## 12 mae     standard       0.383 3    
+    ## 13 mae     standard       0.349 2    
+    ## 14 mae     standard       0.346 1    
+    ## 15 mae     standard       0.245 5
+
+``` r
+all_metrics_rf %>% 
+  arrange(desc(.metric), -.estimate) %>% 
+  bind_rows(augment(gam_mod) %>% 
+  three_metrics(price, .fitted) %>% 
+    mutate(model = "5")) %>% 
+  ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
+  geom_col(position = "dodge") + 
+  labs(title = "All 4 Models", 
+       subtitle = "Base R lm (Red), TM lm (Blue), TM no tax lm (Purple), Random Forrest (Green), Gam (5)") +
+  theme(legend.position = "none")
+```
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+
+# Scrap work
+
+``` r
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+range(house$lon, na.rm = TRUE)
+```
+
+    ## [1] -77.59145 -72.64771
+
+``` r
+range(house$lat, na.rm = TRUE)
+```
+
+    ## [1] 40.49896 43.16907
+
+``` r
+ggplot(world) + geom_sf() +
+  coord_sf(
+    xlim = c(-74.35, -73.6), 
+    ylim = c(min(house$lat, na.rm = TRUE), 40.95), expand = FALSE) + 
+  geom_point(data = house %>% filter(!is.na(price)) %>% mutate(price = log(price)), 
+             aes(lon, lat, color = price, alpha = 0.3)) +
+  scale_color_viridis_c()
+```
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+
+Because of the lack of precision in longitude/latitude variables, the
+points on the map are slightly off.
+
+``` r
+house %>% 
+  filter(!is.na(price), between(lon, -75, -73), between(lat, 40, 41)) %>% 
+  select(price, lon, lat) %>% 
+  pivot_longer(-price) %>% 
+  ggplot(aes(value, log(price))) + geom_point() + geom_smooth(formula = y ~ ns(x, 5)) +
+  facet_wrap(~name, scales = "free")
+```
+
+    ## `geom_smooth()` using method = 'gam'
+
+![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
