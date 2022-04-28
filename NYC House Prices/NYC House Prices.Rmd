@@ -448,7 +448,7 @@ augment(gam_mod) %>%
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 
-hist(residuals(gam_mod))
+gam.check(gam_mod)
 ```
 
 

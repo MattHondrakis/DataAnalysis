@@ -766,10 +766,39 @@ augment(gam_mod) %>%
 ![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
-hist(residuals(gam_mod))
+gam.check(gam_mod)
 ```
 
 ![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
+
+    ## 
+    ## Method: GCV   Optimizer: magic
+    ## Smoothing parameter selection converged after 43 iterations.
+    ## The RMS GCV score gradient at convergence was 2.448667e-05 .
+    ## The Hessian was not positive definite.
+    ## Model rank =  155 / 156 
+    ## 
+    ## Basis dimension (k) checking results. Low p-value (k-index<1) may
+    ## indicate that k is too low, especially if edf is close to k'.
+    ## 
+    ##                                         k'     edf k-index p-value    
+    ## s(sqft):type_modApartment           9.0000  1.1476    0.93  <2e-16 ***
+    ## s(sqft):type_modCondo               9.0000  2.9567    0.93  <2e-16 ***
+    ## s(sqft):type_modCoop                9.0000  8.7402    0.93  <2e-16 ***
+    ## s(sqft):type_modMulti Family        9.0000  2.6900    0.93  <2e-16 ***
+    ## s(sqft):type_modSingle Family Home  9.0000  3.9506    0.93  <2e-16 ***
+    ## s(sqft):type_modTownhouse           9.0000  3.9178    0.93  <2e-16 ***
+    ## s(sqft):type_modOther               9.0000  0.0141    0.93  <2e-16 ***
+    ## s(bath):type_modApartment           9.0000  1.0316    0.93  <2e-16 ***
+    ## s(bath):type_modCondo               9.0000  4.5939    0.93   0.005 ** 
+    ## s(bath):type_modCoop                9.0000  8.1087    0.93  <2e-16 ***
+    ## s(bath):type_modMulti Family        9.0000  2.2131    0.93  <2e-16 ***
+    ## s(bath):type_modSingle Family Home  9.0000  5.1566    0.93  <2e-16 ***
+    ## s(bath):type_modTownhouse           9.0000  6.1820    0.93  <2e-16 ***
+    ## s(bath):type_modOther               9.0000  0.9859    0.93  <2e-16 ***
+    ## s(lon,lat)                         29.0000 27.8117    0.75  <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
 all_metrics_rf %>% 
