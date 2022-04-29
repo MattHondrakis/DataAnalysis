@@ -113,7 +113,7 @@ house %>%
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
 house %>% 
@@ -125,7 +125,7 @@ house %>%
   facet_wrap(~name)
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
 
 ``` r
 house %>% 
@@ -199,19 +199,19 @@ gplot <- function(x){
 gplot(bath)
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 gplot(bed)
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
 
 ``` r
 gplot(assessment_year)
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
 
 ``` r
 house %>% 
@@ -224,7 +224,7 @@ house %>%
   theme(plot.margin = margin(10,50,10,0))
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ## Plots of Price by numerics
 
@@ -242,7 +242,7 @@ gplot2(land_assessment_cost)) /
 gplot2(improvement_cost)) + plot_layout(guides = 'collect')
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 # Model
 
@@ -299,7 +299,7 @@ house_mod %>%
   facet_wrap(~name, scales = "free")
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 house_mod %>% 
@@ -309,7 +309,7 @@ house_mod %>%
 
     ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
 
 ``` r
 updated_model <- 
@@ -395,13 +395,13 @@ summary(updated_model)
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 hist(residuals(updated_model))
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
 
 ## Tidymodels
 
@@ -453,7 +453,7 @@ house_res <-
   geom_point(alpha = 0.5) + geom_abline()) + plot_layout(guide = "collect")
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 ``` r
 three_metrics <- metric_set(rsq, rmse, mae)
@@ -487,7 +487,7 @@ joined_metrics %>%
        Did not separate a training/testing dataset for the first model")
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 house <- house %>% 
@@ -516,7 +516,7 @@ house %>%
   scale_x_log10() + labs(y = "", title = "House Prices in NYC by zipcode", x = "Price (log10 scale)")
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 ## No Taxes!
 
@@ -546,7 +546,7 @@ all_metrics %>%
   geom_col(position = "dodge")
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 ``` r
 all_metrics %>% 
@@ -581,7 +581,7 @@ house %>%
   ggplot(aes(price, borough)) + geom_boxplot() + scale_x_log10()
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 ## Don’t miss the forrest for the trees
 
@@ -595,7 +595,7 @@ house_mod %>%
   scale_y_log10()
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 ``` r
 house_mod2 <- house_mod %>% 
@@ -672,26 +672,12 @@ all_metrics_rf %>%
   theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 # Just let Gam figure it out
 
 ``` r
 library(mgcv)
-```
-
-    ## Loading required package: nlme
-
-    ## 
-    ## Attaching package: 'nlme'
-
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     collapse
-
-    ## This is mgcv 1.8-39. For overview type 'help("mgcv-package")'.
-
-``` r
 set.seed(10)
 gam_data <- house %>% 
   select(price, tax, sqft, bath, lon, lat, type_mod) %>% 
@@ -703,7 +689,8 @@ gam_split <- initial_split(gam_data, strata = type_mod)
 gam_train <- training(gam_split)
 gam_test <- testing(gam_split)
 
-gam_mod <- gam(price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + s(lon, lat), gaussian, gam_train)
+gam_mod <- gam(price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + 
+                 s(lon, lat), gaussian, gam_train)
 
 summary(gam_mod)
 ```
@@ -768,13 +755,13 @@ augment(gam_mod) %>%
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
 gam.check(gam_mod)
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
 
     ## 
     ## Method: GCV   Optimizer: magic
@@ -802,6 +789,11 @@ gam.check(gam_mod)
     ## s(lon,lat)                         29.00 27.50    0.81  <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+I would correct the ‘k’ value for the bath and lon/lat variables, but it
+took too long for my computer to run. So, we will leave it like this!
+
+And if you are wondering, its metrics did improve.
 
 ``` r
 all_metrics_rf %>% 
@@ -843,7 +835,7 @@ all_metrics_rf %>%
   theme(legend.position = "none")
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 # Scrap work
 
@@ -871,7 +863,7 @@ ggplot(world) + geom_sf() +
   scale_color_viridis_c()
 ```
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 Because of the lack of precision in longitude/latitude variables, the
 points on the map are slightly off.
@@ -887,4 +879,4 @@ house %>%
 
     ## `geom_smooth()` using method = 'gam'
 
-![](NYC-House-Prices_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->

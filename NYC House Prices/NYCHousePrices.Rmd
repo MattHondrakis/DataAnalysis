@@ -424,7 +424,7 @@ all_metrics_rf %>%
 
 
 # Just let Gam figure it out
-```{r}
+```{r, cache=TRUE}
 library(mgcv)
 set.seed(10)
 gam_data <- house %>% 
@@ -437,7 +437,8 @@ gam_split <- initial_split(gam_data, strata = type_mod)
 gam_train <- training(gam_split)
 gam_test <- testing(gam_split)
 
-gam_mod <- gam(price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + s(lon, lat), gaussian, gam_train)
+gam_mod <- gam(price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + 
+                 s(lon, lat), gaussian, gam_train)
 
 summary(gam_mod)
 
@@ -457,6 +458,11 @@ augment(gam_mod) %>%
 
 gam.check(gam_mod)
 ```
+
+I would correct the 'k' value for the bath and lon/lat variables, but it took too long for my computer to run. So, we will leave it like this!
+
+And if you are wondering, its metrics did improve.
+
 
 
 ```{r}
