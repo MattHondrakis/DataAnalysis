@@ -424,7 +424,7 @@ all_metrics_rf %>%
 
 
 # Just let Gam figure it out
-```{r, cache=TRUE}
+```{r}
 library(mgcv)
 set.seed(10)
 gam_data <- house %>% 
