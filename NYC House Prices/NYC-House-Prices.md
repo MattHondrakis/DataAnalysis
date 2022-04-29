@@ -625,7 +625,7 @@ modrf <- rand_forest() %>%
 
 recrf <- recipe(price ~ sqft + type_mod + zip_code, train2) %>% 
   step_dummy(all_nominal_predictors()) %>%
-  step_interact(terms = ~ starts_with("zip"):all_predictors())
+  step_interact(terms = ~ starts_with("type"):all_predictors())
 
 wkflrf <- workflow() %>% 
   add_model(modrf) %>% 
