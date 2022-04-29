@@ -668,7 +668,7 @@ all_metrics_rf %>%
   ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
   geom_col(position = "dodge") + 
   labs(title = "All 4 Models", 
-       subtitle = "Base R lm (Red), TM lm (Blue), TM no tax lm (Purple), Random Forrest (Green)") +
+       subtitle = "Base R lm (Red), TM lm (Green), TM no tax lm (Blue), Random Forrest (Purple)") +
   theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))
 ```
 
@@ -837,8 +837,9 @@ all_metrics_rf %>%
     mutate(model = "5")) %>% 
   ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
   geom_col(position = "dodge") + 
-  labs(title = "All 4 Models", 
-       subtitle = "Base R lm (Brownish-Yellow), TM lm (Green), TM no tax lm (Blue), Random Forrest (Purple), Gam (Red)") +
+  labs(title = "All 5 Models", 
+       subtitle = "Base R lm (Brownish-Yellow), TM lm (Green), TM no tax lm (Blue), \n
+       Random Forrest (Purple), Gam (Red)") +
   theme(legend.position = "none")
 ```
 
