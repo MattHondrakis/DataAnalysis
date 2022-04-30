@@ -438,7 +438,7 @@ gam_train <- training(gam_split)
 gam_test <- testing(gam_split)
 
 gam_mod <- gam(price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + 
-                 s(lon, lat), gaussian, gam_train)
+                 te(lon, lat), gaussian, gam_train)
 
 summary(gam_mod)
 
