@@ -704,7 +704,7 @@ gam_train <- training(gam_split)
 gam_test <- testing(gam_split)
 
 gam_mod <- gam(price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + 
-                 te(lon, lat), gaussian, gam_train)
+                 s(lon, lat), gaussian, gam_train)
 
 summary(gam_mod)
 ```
@@ -714,36 +714,36 @@ summary(gam_mod)
     ## Link function: identity 
     ## 
     ## Formula:
-    ## price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + te(lon, 
+    ## price ~ s(sqft, by = type_mod) + s(bath, by = type_mod) + s(lon, 
     ##     lat)
     ## 
     ## Parametric coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  13.8154     0.1491   92.64   <2e-16 ***
+    ## (Intercept)  13.7306     0.1524   90.09   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Approximate significance of smooth terms:
     ##                                       edf Ref.df       F  p-value    
-    ## s(sqft):type_modApartment           1.001  1.001   0.970  0.32507    
-    ## s(sqft):type_modCondo               2.943  2.997  26.827  < 2e-16 ***
-    ## s(sqft):type_modCoop                8.660  8.961   5.590 3.52e-07 ***
-    ## s(sqft):type_modMulti Family        3.584  3.817  20.441  < 2e-16 ***
-    ## s(sqft):type_modSingle Family Home  2.632  2.865  93.285  < 2e-16 ***
-    ## s(sqft):type_modTownhouse           3.898  3.990  37.434  < 2e-16 ***
-    ## s(bath):type_modApartment           1.666  1.959  17.863 1.68e-06 ***
-    ## s(bath):type_modCondo               3.785  4.157   6.737 4.76e-05 ***
-    ## s(bath):type_modCoop                6.060  6.366 155.575  < 2e-16 ***
-    ## s(bath):type_modMulti Family        4.812  5.588   3.441  0.00274 ** 
-    ## s(bath):type_modSingle Family Home  5.360  6.174  15.841  < 2e-16 ***
-    ## s(bath):type_modTownhouse           6.744  6.963  11.643  < 2e-16 ***
-    ## te(lon,lat)                        23.793 23.974  66.378  < 2e-16 ***
+    ## s(sqft):type_modApartment           1.000  1.001   0.716  0.39775    
+    ## s(sqft):type_modCondo               2.928  2.996  33.022  < 2e-16 ***
+    ## s(sqft):type_modCoop                8.516  8.923   5.534 4.38e-07 ***
+    ## s(sqft):type_modMulti Family        3.259  3.443  27.063  < 2e-16 ***
+    ## s(sqft):type_modSingle Family Home  2.801  2.962 102.157  < 2e-16 ***
+    ## s(sqft):type_modTownhouse           3.896  3.989  37.626  < 2e-16 ***
+    ## s(bath):type_modApartment           1.749  2.043  16.745 2.15e-07 ***
+    ## s(bath):type_modCondo               3.869  4.225   6.561 8.25e-05 ***
+    ## s(bath):type_modCoop                6.098  6.398 152.674  < 2e-16 ***
+    ## s(bath):type_modMulti Family        5.352  6.095   3.909  0.00057 ***
+    ## s(bath):type_modSingle Family Home  5.382  6.194  15.990  < 2e-16 ***
+    ## s(bath):type_modTownhouse           6.749  6.965  12.817  < 2e-16 ***
+    ## s(lon,lat)                         27.501 28.851  65.915  < 2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Rank: 128/133
-    ## R-sq.(adj) =  0.843   Deviance explained = 84.9%
-    ## GCV = 0.15554  Scale est. = 0.14943   n = 1934
+    ## Rank: 132/138
+    ## R-sq.(adj) =  0.857   Deviance explained = 86.3%
+    ## GCV = 0.14226  Scale est. = 0.13636   n = 1934
 
 ``` r
 augment(gam_mod) %>% 
@@ -753,9 +753,9 @@ augment(gam_mod) %>%
     ## # A tibble: 3 x 3
     ##   .metric .estimator .estimate
     ##   <chr>   <chr>          <dbl>
-    ## 1 rsq     standard       0.849
-    ## 2 rmse    standard       0.379
-    ## 3 mae     standard       0.266
+    ## 1 rsq     standard       0.863
+    ## 2 rmse    standard       0.362
+    ## 3 mae     standard       0.246
 
 ``` r
 (gam_test %>% 
@@ -779,28 +779,28 @@ gam.check(gam_mod)
 
     ## 
     ## Method: GCV   Optimizer: magic
-    ## Smoothing parameter selection converged after 57 iterations.
-    ## The RMS GCV score gradient at convergence was 2.372017e-06 .
+    ## Smoothing parameter selection converged after 64 iterations.
+    ## The RMS GCV score gradient at convergence was 6.260063e-06 .
     ## The Hessian was positive definite.
-    ## Model rank =  128 / 133 
+    ## Model rank =  132 / 138 
     ## 
     ## Basis dimension (k) checking results. Low p-value (k-index<1) may
     ## indicate that k is too low, especially if edf is close to k'.
     ## 
     ##                                       k'   edf k-index p-value    
-    ## s(sqft):type_modApartment           9.00  1.00    0.94   0.005 ** 
-    ## s(sqft):type_modCondo               9.00  2.94    0.94  <2e-16 ***
-    ## s(sqft):type_modCoop                9.00  8.66    0.94  <2e-16 ***
-    ## s(sqft):type_modMulti Family        9.00  3.58    0.94  <2e-16 ***
-    ## s(sqft):type_modSingle Family Home  9.00  2.63    0.94  <2e-16 ***
-    ## s(sqft):type_modTownhouse           9.00  3.90    0.94   0.010 ** 
-    ## s(bath):type_modApartment           9.00  1.67    0.95  <2e-16 ***
-    ## s(bath):type_modCondo               9.00  3.78    0.95   0.020 *  
-    ## s(bath):type_modCoop                9.00  6.06    0.95   0.025 *  
-    ## s(bath):type_modMulti Family        9.00  4.81    0.95   0.010 ** 
-    ## s(bath):type_modSingle Family Home  9.00  5.36    0.95   0.020 *  
-    ## s(bath):type_modTownhouse           9.00  6.74    0.95   0.005 ** 
-    ## te(lon,lat)                        24.00 23.79    0.72  <2e-16 ***
+    ## s(sqft):type_modApartment           9.00  1.00    0.94  <2e-16 ***
+    ## s(sqft):type_modCondo               9.00  2.93    0.94  <2e-16 ***
+    ## s(sqft):type_modCoop                9.00  8.52    0.94  <2e-16 ***
+    ## s(sqft):type_modMulti Family        9.00  3.26    0.94  <2e-16 ***
+    ## s(sqft):type_modSingle Family Home  9.00  2.80    0.94   0.005 ** 
+    ## s(sqft):type_modTownhouse           9.00  3.90    0.94  <2e-16 ***
+    ## s(bath):type_modApartment           9.00  1.75    0.94  <2e-16 ***
+    ## s(bath):type_modCondo               9.00  3.87    0.94   0.005 ** 
+    ## s(bath):type_modCoop                9.00  6.10    0.94   0.010 ** 
+    ## s(bath):type_modMulti Family        9.00  5.35    0.94  <2e-16 ***
+    ## s(bath):type_modSingle Family Home  9.00  5.38    0.94  <2e-16 ***
+    ## s(bath):type_modTownhouse           9.00  6.75    0.94   0.005 ** 
+    ## s(lon,lat)                         29.00 27.50    0.81  <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -819,7 +819,7 @@ all_metrics_rf %>%
     ## # A tibble: 15 x 4
     ##    .metric .estimator .estimate model
     ##    <chr>   <chr>          <dbl> <chr>
-    ##  1 rsq     standard       0.849 5    
+    ##  1 rsq     standard       0.863 5    
     ##  2 rsq     standard       0.688 1    
     ##  3 rsq     standard       0.681 2    
     ##  4 rsq     standard       0.655 3    
@@ -828,12 +828,12 @@ all_metrics_rf %>%
     ##  7 rmse    standard       0.530 3    
     ##  8 rmse    standard       0.508 2    
     ##  9 rmse    standard       0.500 1    
-    ## 10 rmse    standard       0.379 5    
+    ## 10 rmse    standard       0.362 5    
     ## 11 mae     standard       0.412 4    
     ## 12 mae     standard       0.383 3    
     ## 13 mae     standard       0.349 2    
     ## 14 mae     standard       0.346 1    
-    ## 15 mae     standard       0.266 5
+    ## 15 mae     standard       0.246 5
 
 ``` r
 all_metrics_rf %>% 
