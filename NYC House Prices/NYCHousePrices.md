@@ -765,10 +765,22 @@ appraise(gam_mod)
 ![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
-draw(gam_mod)
+draw(gam_mod, select = smooths(gam_mod)[1:6])
 ```
 
 ![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
+
+``` r
+draw(gam_mod, select = smooths(gam_mod)[7:12])
+```
+
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-3.png)<!-- -->
+
+``` r
+draw(gam_mod, select = smooths(gam_mod)[13])
+```
+
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-4.png)<!-- -->
 
 ``` r
 augment(gam_mod) %>% 
@@ -794,7 +806,7 @@ augment(gam_mod) %>%
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-3.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-5.png)<!-- -->
 
 ``` r
 k.check(gam_mod)

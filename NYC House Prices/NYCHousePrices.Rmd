@@ -448,7 +448,11 @@ summary(gam_mod)
 
 appraise(gam_mod)
 
-draw(gam_mod)
+draw(gam_mod, select = smooths(gam_mod)[1:6])
+
+draw(gam_mod, select = smooths(gam_mod)[7:12])
+
+draw(gam_mod, select = smooths(gam_mod)[13])
 
 augment(gam_mod) %>% 
   three_metrics(price, .fitted)
