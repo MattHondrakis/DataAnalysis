@@ -7,7 +7,7 @@ Matthew
 df <- read_csv("https://data.cityofnewyork.us/resource/rc75-m7u3.csv")
 ```
 
-    ## Rows: 772 Columns: 62
+    ## Rows: 805 Columns: 62
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
     ## dbl  (61): case_count, probable_case_count, hospitalized_count, death_count,...
@@ -83,10 +83,9 @@ df %>%
   filter(proportion > 1) 
 ```
 
-    ## # A tibble: 1 x 4
-    ##   date                death_count hospitalized_count proportion
-    ##   <dttm>                    <dbl>              <dbl>      <dbl>
-    ## 1 2022-04-10 00:00:00           4                  1          4
+    ## # A tibble: 0 x 4
+    ## # ... with 4 variables: date <dttm>, death_count <dbl>,
+    ## #   hospitalized_count <dbl>, proportion <dbl>
 
 The 3 most recent dates have proportions &gt; 1. Could be a new trend or
 hospitalized counts have not been updated.
