@@ -112,3 +112,61 @@ NYCmap %>%
 ![](NYC-Emergency-Visits_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 # Part 4
+
+## Census Data
+
+``` r
+census_api_key("aa512886c5449a582d837da8d3a07af66a043fe5", install=TRUE, overwrite=T)
+```
+
+    ## Your original .Renviron will be backed up and stored in your R HOME directory if needed.
+
+    ## Your API key has been stored in your .Renviron and can be accessed by Sys.getenv("CENSUS_API_KEY"). 
+    ## To use now, restart R or run `readRenviron("~/.Renviron")`
+
+    ## [1] "aa512886c5449a582d837da8d3a07af66a043fe5"
+
+``` r
+readRenviron("~/.Renviron")
+
+censusData <- load_variables(2018, "acs5", cache=T)
+
+populationData <- get_acs(geography = "zcta", variables = 'B01003_001', geometry = FALSE)
+```
+
+    ## Getting data from the 2016-2020 5-year ACS
+
+``` r
+populationData <- populationData %>% 
+  mutate(ZIPCODE = sub("ZCTA5 ", "", NAME)) %>% 
+  rename(population = estimate)
+```
+
+## Join population data with emergency visits
+
+``` r
+pop_ed_visits <- last300 %>% 
+  inner_join(populationData)
+```
+
+    ## Joining, by = "ZIPCODE"
+
+## Visits per inhabitant by zip code
+
+``` r
+pop_ed_visits <- pop_ed_visits %>% 
+  group_by(ZIPCODE) %>% 
+  mutate(total = sum(total_ed_visits),
+         ed_ratio = total_ed_visits/population)
+```
+
+# Part 5
+
+## Poverty Dat
+
+``` r
+vars <- c(poverty = 'B17001_002')
+povertyData <- get_acs(geography = "zcta", variables = vars, geometry = FALSE)
+```
+
+    ## Getting data from the 2016-2020 5-year ACS

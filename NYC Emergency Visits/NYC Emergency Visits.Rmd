@@ -129,5 +129,11 @@ pop_ed_visits <- pop_ed_visits %>%
 ```
 
 
+# Part 5
+## Poverty Dat
+```{r}
+vars <- c(poverty = 'B17001_002')
+povertyData <- get_acs(geography = "zcta", variables = vars, geometry = FALSE)
+```
 
 
