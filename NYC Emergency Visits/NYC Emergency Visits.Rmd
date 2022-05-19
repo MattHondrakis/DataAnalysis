@@ -1,0 +1,39 @@
+---
+title: "NYC Emergency Visits"
+author: "Matthew"
+date: "5/19/2022"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
+library(rvest)
+library(sf)
+library(tidyverse)
+library(jsonlite)
+library(tidycensus)
+theme_set(theme_bw())
+```
+
+# Read Data
+```{r}
+emergencyVisits <- 
+fromJSON("https://data.cityofnewyork.us/resource/2nwg-uqyg.json?$limit=3000")
+```
+
+
+# EDA
+## Alter date column and remove 'extract_date'
+```{r}
+emergencyVisits <- emergencyVisits %>% 
+  mutate(date = as.POSIXct(date)) %>% 
+  select(-extract_date)
+```
+
+## Last 300 Visits
+```{r}
+last300 <- emergencyVisits %>% 
+  arrange(desc(date)) %>% 
+  head(300)
+```
+
