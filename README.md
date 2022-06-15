@@ -10,3 +10,4 @@ The datasets in this repository tend be updated regularly, and thus the code and
 * [New York Restaurant Inspections](https://github.com/MattHondrakis/DataAnalysis/blob/main/New%20York%20Inspections/Inspection.md)
 * [New York House Prices](https://github.com/MattHondrakis/DataAnalysis/blob/main/NYC%20House%20Prices/NYCHousePrices.md)
 * [NYC Emergency Visits](https://github.com/MattHondrakis/DataAnalysis/blob/main/NYC%20Emergency%20Visits/NYC-Emergency-Visits.md)
+* [Office Supplies](https://github.com/MattHondrakis/DataAnalysis/blob/main/Office%20Supplies/Office-Supplies.md)
