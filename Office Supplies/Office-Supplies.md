@@ -129,7 +129,7 @@ office_supplies %>%
 | South   | Technology      | 60.515640 |
 
 ``` r
-ggplot(office_supplies, aes(region, profit)) + geom_boxplot() +
+ggplot(office_supplies, aes(region, quantity)) + geom_boxplot() +
   facet_wrap(~category, scales = "free")
 ```
 
