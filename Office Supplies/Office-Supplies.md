@@ -3,6 +3,10 @@ Office
 Matthew
 2022-06-15
 
+# Office Supplies
+
+## Read and Clean Up
+
 ``` r
 office_supplies <- read_csv("C:/Users/Matthew Hondrakis/Downloads/office_supplies.csv")
 ```
@@ -22,6 +26,8 @@ office_supplies <- office_supplies %>%
   rename_with(tolower) %>% 
   rename_with(~ gsub(" ", "_", .))
 ```
+
+## EDA
 
 ``` r
 skimr::skim(office_supplies)
@@ -197,3 +203,58 @@ office_supplies %>%
     ## `.groups` argument.
 
 ![](Office-Supplies_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+gplot3 <- function(x){
+  office_supplies %>% 
+    filter(region == {{x}}) %>% 
+    group_by(month = month(order_date, label = TRUE), category) %>% 
+    summarize(sum = sum(quantity)) %>% 
+    arrange(-sum) %>% 
+    slice_max(sum, n = 3) %>% 
+    ggplot(aes(sum, month, fill = category)) + geom_col(position = "dodge") +
+    geom_text(aes(label = sum), position = position_dodge(width = 1), size = 3, hjust = -0.3)
+}
+count(office_supplies, region)
+```
+
+    ## # A tibble: 4 x 2
+    ##   region      n
+    ##   <chr>   <int>
+    ## 1 Central  2322
+    ## 2 East     2848
+    ## 3 South    1620
+    ## 4 West     3203
+
+``` r
+( (gplot3("West") + xlim(0,1250) + labs(title = "West")) + (gplot3("East") + xlim(0,1250) + labs(title = "East"))) /
+( (gplot3("Central") + xlim(0,1250) + labs(title = "Central")) + (gplot3("South") + xlim(0,1250) + labs(title = "South"))) + 
+ plot_layout(guides = 'collect')
+```
+
+    ## `summarise()` has grouped output by 'month'. You can override using the
+    ## `.groups` argument.
+    ## `summarise()` has grouped output by 'month'. You can override using the
+    ## `.groups` argument.
+    ## `summarise()` has grouped output by 'month'. You can override using the
+    ## `.groups` argument.
+    ## `summarise()` has grouped output by 'month'. You can override using the
+    ## `.groups` argument.
+
+![](Office-Supplies_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+office_supplies %>% 
+  group_by(wday = wday(order_date, label = TRUE), category) %>% 
+  summarize(sum = sum(quantity)) %>% 
+  arrange(-sum) %>% 
+  slice_max(sum, n = 3) %>% 
+  ggplot(aes(sum, wday, label = sum, fill = fct_reorder2(category, wday, sum, .desc = FALSE))) + geom_col() +
+  geom_text(color = "white", position = position_stack(vjust = 0.5), size = 3) +
+  labs(fill = "", x = "Total Quantity Sold")
+```
+
+    ## `summarise()` has grouped output by 'wday'. You can override using the
+    ## `.groups` argument.
+
+![](Office-Supplies_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
