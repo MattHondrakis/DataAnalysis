@@ -219,7 +219,9 @@ office_supplies %>%
              fct_reorder(region, m), 
              fill = fct_reorder(product_name, m, max, .desc = TRUE))) +
   geom_col(position = "dodge") + scale_fill_brewer(palette = "Paired") +
-  labs(x = "Total Quantity Sold", y = "", fill = "") 
+  geom_text(aes(label = `product_name`), position = position_dodge(width = 1), size = 3, hjust = 1) +
+  labs(x = "Total Quantity Sold", y = "", fill = "") +
+  theme(legend.position = "none")
 ```
 
     ## `summarise()` has grouped output by 'region'. You can override using the
