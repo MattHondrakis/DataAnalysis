@@ -140,6 +140,7 @@ gplot <- function(x, ...){
 office_supplies %>% 
   group_by(region, ...) %>% 
   summarize(m = mean({{x}}, na.rm = TRUE)) %>% 
+  slice_head(n = 6) %>% 
   ggplot(aes(m, region))
 }
 
@@ -151,6 +152,28 @@ gplot(quantity, category) +
     ## `.groups` argument.
 
 ![](Office-Supplies_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+gplot(quantity, `sub-category`) + 
+  geom_col(position = "dodge", aes(fill = `sub-category`)) + 
+  geom_text(aes(label = `sub-category`, group = `sub-category`), position = position_dodge(0.9), size = 3, hjust = 1.5)
+```
+
+    ## `summarise()` has grouped output by 'region'. You can override using the
+    ## `.groups` argument.
+
+![](Office-Supplies_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+
+``` r
+gplot(quantity, product_name) + 
+  geom_col(position = "dodge", aes(fill = product_name)) + theme(legend.position = "none") +
+  geom_text(aes(label = product_name, group = product_name), position = position_dodge(0.9), size = 2.65, hjust = 1) 
+```
+
+    ## `summarise()` has grouped output by 'region'. You can override using the
+    ## `.groups` argument.
+
+![](Office-Supplies_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
 
 ``` r
 office_supplies %>% 
@@ -258,3 +281,125 @@ office_supplies %>%
     ## `.groups` argument.
 
 ![](Office-Supplies_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+# Rstudio Cloud
+
+``` r
+summary(aov(quantity ~ region:`sub-category`, office_supplies))
+```
+
+    ##                         Df Sum Sq Mean Sq F value Pr(>F)  
+    ## region:`sub-category`   67    452   6.750   1.367 0.0253 *
+    ## Residuals             9925  49024   4.939                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+office_supplies %>% 
+  ggplot(aes(`sub-category`, quantity, fill = region)) + geom_boxplot()
+```
+
+![](Office-Supplies_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+## Check Tables sold
+
+``` r
+office_supplies %>% 
+  filter(`sub-category` == "Tables") %>% 
+  ggplot(aes(region, quantity)) + geom_boxplot() + geom_jitter(width = 0.25)
+```
+
+![](Office-Supplies_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+office_supplies %>% 
+  filter(`sub-category` == "Tables") %>% 
+  group_by(region) %>% 
+  summarize(n = n()) %>% 
+  arrange(-n)
+```
+
+    ## # A tibble: 4 x 2
+    ##   region      n
+    ##   <chr>   <int>
+    ## 1 West      116
+    ## 2 East       80
+    ## 3 Central    72
+    ## 4 South      51
+
+``` r
+office_supplies %>%
+  group_by(region, `sub-category`) %>% 
+  summarize(m = mean(quantity, na.rm = TRUE),
+            sd = sd(quantity, na.rm = TRUE)) %>% 
+  ggplot(aes(fct_reorder(`sub-category`, m, max), m, fill = region)) +
+  geom_col(position = "dodge") + 
+  geom_errorbar(aes(ymin = m-sd, ymax = m+sd), width = 0.5, 
+                position = position_dodge(0.9), alpha = 0.4)
+```
+
+    ## `summarise()` has grouped output by 'region'. You can override using the
+    ## `.groups` argument.
+
+![](Office-Supplies_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+office_supplies %>% 
+  ggplot(aes(quantity)) + geom_density()
+```
+
+![](Office-Supplies_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+office_supplies %>% 
+  group_by(month = month(order_date, label = TRUE), `sub-category`, region) %>% 
+  summarize(m = mean(quantity)) %>% 
+  ggplot(aes(m, `sub-category`, fill = region)) + 
+  geom_col(position = "dodge") +
+  facet_wrap(~month)
+```
+
+    ## `summarise()` has grouped output by 'month', 'sub-category'. You can override
+    ## using the `.groups` argument.
+
+![](Office-Supplies_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+office_supplies %>% 
+  select(discount, sales, quantity) %>% 
+  pivot_longer(-discount) %>% 
+  ggplot(aes(discount, value)) + geom_point() +
+  facet_wrap(~name, scales = "free")
+```
+
+![](Office-Supplies_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+``` r
+nested_data <- office_supplies %>% 
+  mutate(month = month(order_date, label = TRUE)) %>% 
+  select(region, category, `sub-category`, quantity, month) %>% 
+  nest(-month) 
+
+nested_data %>% 
+  mutate(model = map(data, ~lm(quantity ~ region:`sub-category`, .x)),
+         tidy = map(model, broom::tidy)) %>% 
+  unnest(tidy) %>% 
+  filter(term != "(Intercept)", p.value < 0.05) %>% 
+  mutate(term = gsub('region|`sub-category`', '', term)) %>% 
+  arrange(-abs(estimate))
+```
+
+    ## # A tibble: 59 x 8
+    ##    month data                 model  term   estimate std.error statistic p.value
+    ##    <ord> <list>               <list> <chr>     <dbl>     <dbl>     <dbl>   <dbl>
+    ##  1 Jan   <tibble [381 x 4]>   <lm>   South~     9.00     2.74       3.29 1.12e-3
+    ##  2 Jul   <tibble [710 x 4]>   <lm>   East:~     5.50     2.36       2.33 1.99e-2
+    ##  3 Sep   <tibble [1,383 x 4]> <lm>   South~     4.50     2.20       2.04 4.13e-2
+    ##  4 Apr   <tibble [668 x 4]>   <lm>   East:~     4.50     1.71       2.63 8.85e-3
+    ##  5 Jun   <tibble [717 x 4]>   <lm>   South~    -3.72     1.69      -2.20 2.83e-2
+    ##  6 Jul   <tibble [710 x 4]>   <lm>   South~     3.50     1.50       2.33 2.03e-2
+    ##  7 Apr   <tibble [668 x 4]>   <lm>   South~     3.50     1.35       2.58 1.00e-2
+    ##  8 Nov   <tibble [1,470 x 4]> <lm>   Centr~    -3.29     1.43      -2.31 2.13e-2
+    ##  9 Mar   <tibble [696 x 4]>   <lm>   Centr~    -3.00     1.53      -1.97 4.98e-2
+    ## 10 Dec   <tibble [1,408 x 4]> <lm>   Centr~    -2.94     0.652     -4.51 7.11e-6
+    ## # ... with 49 more rows

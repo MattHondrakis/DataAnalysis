@@ -64,11 +64,20 @@ gplot <- function(x, ...){
 office_supplies %>% 
   group_by(region, ...) %>% 
   summarize(m = mean({{x}}, na.rm = TRUE)) %>% 
+  slice_head(n = 6) %>% 
   ggplot(aes(m, region))
 }
 
 gplot(quantity, category) + 
   geom_col(position = "dodge", aes(fill = category))
+
+gplot(quantity, `sub-category`) + 
+  geom_col(position = "dodge", aes(fill = `sub-category`)) + 
+  geom_text(aes(label = `sub-category`, group = `sub-category`), position = position_dodge(0.9), size = 3, hjust = 1.5)
+
+gplot(quantity, product_name) + 
+  geom_col(position = "dodge", aes(fill = product_name)) + theme(legend.position = "none") +
+  geom_text(aes(label = product_name, group = product_name), position = position_dodge(0.9), size = 2.65, hjust = 1) 
 ```
 
 
@@ -147,3 +156,89 @@ office_supplies %>%
   geom_text(color = "white", position = position_stack(vjust = 0.5), size = 3) +
   labs(fill = "", x = "Total Quantity Sold")
 ```
+
+
+
+
+# Rstudio Cloud
+```{r}
+summary(aov(quantity ~ region:`sub-category`, office_supplies))
+
+office_supplies %>% 
+  ggplot(aes(`sub-category`, quantity, fill = region)) + geom_boxplot()
+```
+
+
+## Check Tables sold
+```{r}
+office_supplies %>% 
+  filter(`sub-category` == "Tables") %>% 
+  ggplot(aes(region, quantity)) + geom_boxplot() + geom_jitter(width = 0.25)
+
+office_supplies %>% 
+  filter(`sub-category` == "Tables") %>% 
+  group_by(region) %>% 
+  summarize(n = n()) %>% 
+  arrange(-n)
+```
+
+
+```{r}
+office_supplies %>%
+  group_by(region, `sub-category`) %>% 
+  summarize(m = mean(quantity, na.rm = TRUE),
+            sd = sd(quantity, na.rm = TRUE)) %>% 
+  ggplot(aes(fct_reorder(`sub-category`, m, max), m, fill = region)) +
+  geom_col(position = "dodge") + 
+  geom_errorbar(aes(ymin = m-sd, ymax = m+sd), width = 0.5, 
+                position = position_dodge(0.9), alpha = 0.4)
+```
+
+
+```{r}
+office_supplies %>% 
+  ggplot(aes(quantity)) + geom_density()
+```
+
+
+```{r}
+office_supplies %>% 
+  group_by(month = month(order_date, label = TRUE), `sub-category`, region) %>% 
+  summarize(m = mean(quantity)) %>% 
+  ggplot(aes(m, `sub-category`, fill = region)) + 
+  geom_col(position = "dodge") +
+  facet_wrap(~month)
+```
+
+
+```{r}
+office_supplies %>% 
+  select(discount, sales, quantity) %>% 
+  pivot_longer(-discount) %>% 
+  ggplot(aes(discount, value)) + geom_point() +
+  facet_wrap(~name, scales = "free")
+```
+
+
+
+```{r}
+nested_data <- office_supplies %>% 
+  mutate(month = month(order_date, label = TRUE)) %>% 
+  select(region, category, `sub-category`, quantity, month) %>% 
+  nest(-month) 
+
+nested_data %>% 
+  mutate(model = map(data, ~lm(quantity ~ region:`sub-category`, .x)),
+         tidy = map(model, broom::tidy)) %>% 
+  unnest(tidy) %>% 
+  filter(term != "(Intercept)", p.value < 0.05) %>% 
+  mutate(term = gsub('region|`sub-category`', '', term)) %>% 
+  arrange(-abs(estimate))
+```
+
+
+
+
+
+
+
