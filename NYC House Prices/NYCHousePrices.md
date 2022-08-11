@@ -3,6 +3,29 @@ NYC House Prices
 Matthew
 4/24/2022
 
+-   <a href="#explore-and-clean" id="toc-explore-and-clean">Explore and
+    Clean</a>
+    -   <a href="#checking-correlated-variables"
+        id="toc-checking-correlated-variables">Checking correlated variables</a>
+    -   <a href="#plots-of-price-by-numerics"
+        id="toc-plots-of-price-by-numerics">Plots of Price by numerics</a>
+-   <a href="#model" id="toc-model">Model</a>
+    -   <a href="#preprocess" id="toc-preprocess">Preprocess</a>
+    -   <a href="#tidymodels" id="toc-tidymodels">Tidymodels</a>
+        -   <a href="#set-up-and-data-split" id="toc-set-up-and-data-split">Set up
+            and data split</a>
+        -   <a href="#model-creating-and-fit" id="toc-model-creating-and-fit">Model
+            creating and fit</a>
+        -   <a href="#analysis" id="toc-analysis">Analysis</a>
+    -   <a href="#no-taxes" id="toc-no-taxes">No Taxes!</a>
+-   <a href="#borough" id="toc-borough">Borough?</a>
+    -   <a href="#dont-miss-the-forrest-for-the-trees"
+        id="toc-dont-miss-the-forrest-for-the-trees">Don’t miss the forrest for
+        the trees</a>
+-   <a href="#just-let-gam-figure-it-out"
+    id="toc-just-let-gam-figure-it-out">Just let Gam figure it out</a>
+-   <a href="#scrap-work" id="toc-scrap-work">Scrap work</a>
+
 ``` r
 house <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/data_lat_long2.csv")
 ```
@@ -48,40 +71,40 @@ Data summary
 
 **Variable type: character**
 
-| skim\_variable                               | n\_missing | complete\_rate | min |  max | empty | n\_unique | whitespace |
-|:---------------------------------------------|-----------:|---------------:|----:|-----:|------:|----------:|-----------:|
-| bath                                         |        270 |           0.96 |   6 |    9 |     0 |        26 |          0 |
-| bed                                          |        210 |           0.97 |   5 |    7 |     0 |        25 |          0 |
-| sqft                                         |        364 |           0.94 |   6 |   12 |     0 |      2274 |          0 |
-| address                                      |          0 |           1.00 |  25 |   53 |     0 |      5370 |          0 |
-| estimated mortage                            |        201 |           0.97 |  19 |   26 |     0 |      4189 |          0 |
-| school information                           |          0 |           1.00 |  21 |   61 |     0 |        50 |          0 |
-| crime information                            |          0 |           1.00 |  37 |   62 |     0 |        33 |          0 |
-| commute information                          |          0 |           1.00 |  40 |   47 |     0 |        65 |          0 |
-| shop and eat information                     |          0 |           1.00 |  36 |   56 |     0 |      5027 |          0 |
-| description                                  |         14 |           1.00 |   1 | 3003 |     0 |      5751 |          0 |
-| home details                                 |          1 |           1.00 |   8 |  882 |     0 |      5975 |          0 |
-| price details                                |       1581 |           0.74 |  11 | 8859 |     0 |      4183 |          0 |
-| tax                                          |       1629 |           0.74 |   3 |  363 |     0 |      3076 |          0 |
-| land assessment cost                         |       1629 |           0.74 |   3 |  138 |     0 |      3517 |          0 |
-| improvement cost                             |       1630 |           0.74 |   2 |  171 |     0 |      3824 |          0 |
-| total cost                                   |       1630 |           0.74 |   4 |  693 |     0 |      3095 |          0 |
-| neighborhood name                            |         40 |           0.99 |   4 |   35 |     0 |       248 |          0 |
-| what local say about the neighborhood        |         67 |           0.99 |   6 |  454 |     0 |       528 |          0 |
-| comments of residents and previous residents |         58 |           0.99 |   7 | 8260 |     0 |       619 |          0 |
-| comparable properties                        |       1567 |           0.75 |   7 | 6722 |     0 |      4511 |          0 |
-| provider info                                |        392 |           0.94 |   7 | 4027 |     0 |      3960 |          0 |
-| seo description                              |          0 |           1.00 |  14 | 1163 |     0 |      5812 |          0 |
-| linktoproperty                               |          0 |           1.00 |  68 | 4952 |     0 |      5812 |          0 |
+| skim_variable                                | n_missing | complete_rate | min |  max | empty | n_unique | whitespace |
+|:---------------------------------------------|----------:|--------------:|----:|-----:|------:|---------:|-----------:|
+| bath                                         |       270 |          0.96 |   6 |    9 |     0 |       26 |          0 |
+| bed                                          |       210 |          0.97 |   5 |    7 |     0 |       25 |          0 |
+| sqft                                         |       364 |          0.94 |   6 |   12 |     0 |     2274 |          0 |
+| address                                      |         0 |          1.00 |  25 |   53 |     0 |     5370 |          0 |
+| estimated mortage                            |       201 |          0.97 |  19 |   26 |     0 |     4189 |          0 |
+| school information                           |         0 |          1.00 |  21 |   61 |     0 |       50 |          0 |
+| crime information                            |         0 |          1.00 |  37 |   62 |     0 |       33 |          0 |
+| commute information                          |         0 |          1.00 |  40 |   47 |     0 |       65 |          0 |
+| shop and eat information                     |         0 |          1.00 |  36 |   56 |     0 |     5027 |          0 |
+| description                                  |        14 |          1.00 |   1 | 3003 |     0 |     5751 |          0 |
+| home details                                 |         1 |          1.00 |   8 |  882 |     0 |     5975 |          0 |
+| price details                                |      1581 |          0.74 |  11 | 8859 |     0 |     4183 |          0 |
+| tax                                          |      1629 |          0.74 |   3 |  363 |     0 |     3076 |          0 |
+| land assessment cost                         |      1629 |          0.74 |   3 |  138 |     0 |     3517 |          0 |
+| improvement cost                             |      1630 |          0.74 |   2 |  171 |     0 |     3824 |          0 |
+| total cost                                   |      1630 |          0.74 |   4 |  693 |     0 |     3095 |          0 |
+| neighborhood name                            |        40 |          0.99 |   4 |   35 |     0 |      248 |          0 |
+| what local say about the neighborhood        |        67 |          0.99 |   6 |  454 |     0 |      528 |          0 |
+| comments of residents and previous residents |        58 |          0.99 |   7 | 8260 |     0 |      619 |          0 |
+| comparable properties                        |      1567 |          0.75 |   7 | 6722 |     0 |     4511 |          0 |
+| provider info                                |       392 |          0.94 |   7 | 4027 |     0 |     3960 |          0 |
+| seo description                              |         0 |          1.00 |  14 | 1163 |     0 |     5812 |          0 |
+| linktoproperty                               |         0 |          1.00 |  68 | 4952 |     0 |     5812 |          0 |
 
 **Variable type: numeric**
 
-| skim\_variable  | n\_missing | complete\_rate |       mean |         sd |       p0 |       p25 |       p50 |        p75 |       p100 | hist  |
-|:----------------|-----------:|---------------:|-----------:|-----------:|---------:|----------:|----------:|-----------:|-----------:|:------|
-| Price           |       2065 |           0.66 | 2324633.85 | 5814353.04 | 40000.00 | 528952.00 | 785000.00 | 1325000.00 |  7.900e+07 | ▇▁▁▁▁ |
-| assessment year |       1635 |           0.73 |    2017.84 |       0.37 |  2014.00 |   2018.00 |   2018.00 |    2018.00 |  2.018e+03 | ▁▁▁▂▇ |
-| Lat             |       1079 |           0.82 |      40.71 |       0.12 |    40.50 |     40.62 |     40.71 |      40.77 |  4.317e+01 | ▇▁▁▁▁ |
-| Lon             |       1079 |           0.82 |     -73.96 |       0.14 |   -77.59 |    -74.00 |    -73.96 |     -73.90 | -7.265e+01 | ▁▁▁▇▁ |
+| skim_variable   | n_missing | complete_rate |       mean |         sd |       p0 |       p25 |       p50 |        p75 |       p100 | hist  |
+|:----------------|----------:|--------------:|-----------:|-----------:|---------:|----------:|----------:|-----------:|-----------:|:------|
+| Price           |      2065 |          0.66 | 2324633.85 | 5814353.04 | 40000.00 | 528952.00 | 785000.00 | 1325000.00 |  7.900e+07 | ▇▁▁▁▁ |
+| assessment year |      1635 |          0.73 |    2017.84 |       0.37 |  2014.00 |   2018.00 |   2018.00 |    2018.00 |  2.018e+03 | ▁▁▁▂▇ |
+| Lat             |      1079 |          0.82 |      40.71 |       0.12 |    40.50 |     40.62 |     40.71 |      40.77 |  4.317e+01 | ▇▁▁▁▁ |
+| Lon             |      1079 |          0.82 |     -73.96 |       0.14 |   -77.59 |    -74.00 |    -73.96 |     -73.90 | -7.265e+01 | ▁▁▁▇▁ |
 
 ``` r
 house <- 
