@@ -2,7 +2,9 @@
 title: "Office"
 author: "Matthew"
 date: '2022-06-15'
-output: github_document
+output: 
+  github_document:
+    toc: true
 editor_options: 
   chunk_output_type: console
 ---

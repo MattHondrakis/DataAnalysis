@@ -3,6 +3,14 @@ Office
 Matthew
 2022-06-15
 
+-   <a href="#office-supplies" id="toc-office-supplies">Office Supplies</a>
+    -   <a href="#read-and-clean-up" id="toc-read-and-clean-up">Read and Clean
+        Up</a>
+    -   <a href="#eda" id="toc-eda">EDA</a>
+-   <a href="#rstudio-cloud" id="toc-rstudio-cloud">Rstudio Cloud</a>
+    -   <a href="#check-tables-sold" id="toc-check-tables-sold">Check Tables
+        sold</a>
+
 # Office Supplies
 
 ## Read and Clean Up
