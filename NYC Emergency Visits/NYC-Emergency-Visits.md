@@ -3,6 +3,34 @@ NYC Emergency Visits
 Matthew
 5/19/2022
 
+-   <a href="#read-data" id="toc-read-data">Read Data</a>
+-   <a href="#part-1" id="toc-part-1">Part 1</a>
+    -   <a href="#alter-date-column-and-remove-extract_date"
+        id="toc-alter-date-column-and-remove-extract_date">Alter date column and
+        remove ‘extract_date’</a>
+    -   <a href="#last-300-visits" id="toc-last-300-visits">Last 300 Visits</a>
+    -   <a href="#convert-appropriate-columns-to-numeric"
+        id="toc-convert-appropriate-columns-to-numeric">Convert appropriate
+        columns to numeric</a>
+    -   <a href="#number-of-visits-per-zip-code"
+        id="toc-number-of-visits-per-zip-code">Number of visits per zip code</a>
+-   <a href="#part-2" id="toc-part-2">Part 2</a>
+    -   <a href="#plot-empty-map" id="toc-plot-empty-map">Plot empty map</a>
+-   <a href="#part-3" id="toc-part-3">Part 3</a>
+    -   <a href="#join-data" id="toc-join-data">Join data</a>
+    -   <a href="#colored-map-by-visits" id="toc-colored-map-by-visits">Colored
+        Map by Visits</a>
+-   <a href="#part-4" id="toc-part-4">Part 4</a>
+    -   <a href="#census-data" id="toc-census-data">Census Data</a>
+    -   <a href="#join-population-data-with-emergency-visits"
+        id="toc-join-population-data-with-emergency-visits">Join population data
+        with emergency visits</a>
+    -   <a href="#visits-per-inhabitant-by-zip-code"
+        id="toc-visits-per-inhabitant-by-zip-code">Visits per inhabitant by zip
+        code</a>
+-   <a href="#part-5" id="toc-part-5">Part 5</a>
+    -   <a href="#poverty-dat" id="toc-poverty-dat">Poverty Dat</a>
+
 # Read Data
 
 ``` r
@@ -12,7 +40,7 @@ fromJSON("https://data.cityofnewyork.us/resource/2nwg-uqyg.json?$limit=3000")
 
 # Part 1
 
-## Alter date column and remove ‘extract\_date’
+## Alter date column and remove ‘extract_date’
 
 ``` r
 emergencyVisits <- emergencyVisits %>% 
@@ -45,20 +73,20 @@ last300 %>%
   arrange(-total)
 ```
 
-    ## # A tibble: 141 x 2
+    ## # A tibble: 146 x 2
     ##    ZIPCODE total
     ##    <chr>   <dbl>
-    ##  1 11207     608
-    ##  2 10027     544
-    ##  3 11373     431
-    ##  4 11203     389
-    ##  5 10451     352
-    ##  6 10032     330
-    ##  7 10301     312
-    ##  8 11210     303
-    ##  9 10304     301
-    ## 10 10459     291
-    ## # ... with 131 more rows
+    ##  1 10457     595
+    ##  2 11207     564
+    ##  3 11368     558
+    ##  4 10029     541
+    ##  5 10461     500
+    ##  6 11432     440
+    ##  7 10456     419
+    ##  8 10304     415
+    ##  9 11235     399
+    ## 10 10002     393
+    ## # ... with 136 more rows
 
 # Part 2
 

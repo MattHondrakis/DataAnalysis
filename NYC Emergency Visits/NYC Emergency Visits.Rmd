@@ -2,7 +2,9 @@
 title: "NYC Emergency Visits"
 author: "Matthew"
 date: "5/19/2022"
-output: github_document
+output: 
+  github_document:
+    toc: true
 editor_options: 
   chunk_output_type: console
 ---
