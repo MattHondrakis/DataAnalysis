@@ -3,14 +3,28 @@ Covid
 Matthew
 2/24/2022
 
+-   <a href="#eda" id="toc-eda">EDA</a>
+    -   <a href="#case-count-per-borough" id="toc-case-count-per-borough">Case
+        Count per Borough</a>
+    -   <a href="#line-plot-of-case-count-and-hospitalization-over-time"
+        id="toc-line-plot-of-case-count-and-hospitalization-over-time">Line plot
+        of case count and hospitalization over time</a>
+    -   <a href="#proportion-of-dead-over-hospitalized-per-year"
+        id="toc-proportion-of-dead-over-hospitalized-per-year">Proportion of
+        dead over hospitalized per year</a>
+        -   <a href="#death-count" id="toc-death-count">Death count</a>
+    -   <a href="#death-count-by-borough" id="toc-death-count-by-borough">Death
+        count by borough</a>
+        -   <a href="#last-100-days" id="toc-last-100-days">Last 100 days</a>
+
 ``` r
 df <- read_csv("https://data.cityofnewyork.us/resource/rc75-m7u3.csv")
 ```
 
-    ## Rows: 805 Columns: 62
+    ## Rows: 893 Columns: 67
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
-    ## dbl  (61): case_count, probable_case_count, hospitalized_count, death_count,...
+    ## dbl  (66): case_count, probable_case_count, hospitalized_count, death_count,...
     ## dttm  (1): date_of_interest
     ## 
     ## i Use `spec()` to retrieve the full column specification for this data.
@@ -87,7 +101,7 @@ df %>%
     ## # ... with 4 variables: date <dttm>, death_count <dbl>,
     ## #   hospitalized_count <dbl>, proportion <dbl>
 
-The 3 most recent dates have proportions &gt; 1. Could be a new trend or
+The 3 most recent dates have proportions \> 1. Could be a new trend or
 hospitalized counts have not been updated.
 
 ### Death count
