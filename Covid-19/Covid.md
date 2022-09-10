@@ -21,7 +21,7 @@ Matthew
 df <- read_csv("https://data.cityofnewyork.us/resource/rc75-m7u3.csv")
 ```
 
-    ## Rows: 893 Columns: 67
+    ## Rows: 920 Columns: 67
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
     ## dbl  (66): case_count, probable_case_count, hospitalized_count, death_count,...
