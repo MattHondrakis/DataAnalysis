@@ -21,7 +21,7 @@ Matthew
 df <- read_csv("https://data.cityofnewyork.us/resource/rc75-m7u3.csv")
 ```
 
-    ## Rows: 920 Columns: 67
+    ## Rows: 924 Columns: 67
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
     ## dbl  (66): case_count, probable_case_count, hospitalized_count, death_count,...
@@ -100,9 +100,6 @@ df %>%
     ## # A tibble: 0 x 4
     ## # ... with 4 variables: date <dttm>, death_count <dbl>,
     ## #   hospitalized_count <dbl>, proportion <dbl>
-
-The 3 most recent dates have proportions \> 1. Could be a new trend or
-hospitalized counts have not been updated.
 
 ### Death count
 

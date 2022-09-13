@@ -70,8 +70,6 @@ df %>%
   filter(proportion > 1) 
 ```
 
-The 3 most recent dates have proportions > 1. Could be a new trend or hospitalized counts have not been updated.
-
 
 ### Death count
 ```{r}
