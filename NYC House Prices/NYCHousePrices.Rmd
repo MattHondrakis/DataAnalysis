@@ -9,6 +9,11 @@ editor_options:
   chunk_output_type: console
 ---
 
+
+# Introduction
+
+This project was inspired by a course taken by a friend of mine for his masters. I believe the data came from Kaggle but I am not certain. The task was to fit a model to predict NYC Housing prices but I wanted to take this opportunity and fit different models and compare the results. 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 600)
 library(tidyverse)
@@ -133,7 +138,7 @@ house %>%
 ```
 
 
-## Plots of Price by numerics
+## Plots of Price by numerics using Type to color
 ```{r}
 gplot2 <- function(x){
   house %>% 
@@ -172,12 +177,17 @@ house_mod %>%
   pivot_longer(-tax) %>% 
   ggplot(aes(tax, value)) + geom_point() +
   facet_wrap(~name, scales = "free")
+```
 
+There is a lot of correlation between tax and the other numeric variables, as can be seen by the graphs above.
+
+```{r}
 house_mod %>% 
   ggplot(aes(bath, price)) + geom_point() + scale_y_log10() +
   geom_smooth()
 ```
 
+There are some outliers in the number of baths that don't seem reliable. Many of the apartments with 15 or more baths may come from faulty data (some addresses were checked as well).
 
 ```{r}
 updated_model <- 
@@ -497,7 +507,7 @@ all_metrics_rf %>%
   theme(legend.position = "none")
 ```
 
-
+The GAM Model outperforms all other models. It has less RMSE and MAE, as well as a higher R^2
 
 # Scrap work
 ```{r}

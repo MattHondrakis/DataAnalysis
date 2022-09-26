@@ -3,12 +3,14 @@ NYC House Prices
 Matthew
 4/24/2022
 
+-   <a href="#introduction" id="toc-introduction">Introduction</a>
 -   <a href="#explore-and-clean" id="toc-explore-and-clean">Explore and
     Clean</a>
     -   <a href="#checking-correlated-variables"
         id="toc-checking-correlated-variables">Checking correlated variables</a>
-    -   <a href="#plots-of-price-by-numerics"
-        id="toc-plots-of-price-by-numerics">Plots of Price by numerics</a>
+    -   <a href="#plots-of-price-by-numerics-using-type-to-color"
+        id="toc-plots-of-price-by-numerics-using-type-to-color">Plots of Price
+        by numerics using Type to color</a>
 -   <a href="#model" id="toc-model">Model</a>
     -   <a href="#preprocess" id="toc-preprocess">Preprocess</a>
     -   <a href="#tidymodels" id="toc-tidymodels">Tidymodels</a>
@@ -25,6 +27,13 @@ Matthew
 -   <a href="#just-let-gam-figure-it-out"
     id="toc-just-let-gam-figure-it-out">Just let Gam figure it out</a>
 -   <a href="#scrap-work" id="toc-scrap-work">Scrap work</a>
+
+# Introduction
+
+This project was inspired by a course taken by a friend of mine for his
+masters. I believe the data came from Kaggle but I am not certain. The
+task was to fit a model to predict NYC Housing prices but I wanted to
+take this opportunity and fit different models and compare the results.
 
 ``` r
 house <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/data_lat_long2.csv")
@@ -249,7 +258,7 @@ house %>%
 
 ![](NYCHousePrices_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
-## Plots of Price by numerics
+## Plots of Price by numerics using Type to color
 
 ``` r
 gplot2 <- function(x){
@@ -324,6 +333,9 @@ house_mod %>%
 
 ![](NYCHousePrices_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
+There is a lot of correlation between tax and the other numeric
+variables, as can be seen by the graphs above.
+
 ``` r
 house_mod %>% 
   ggplot(aes(bath, price)) + geom_point() + scale_y_log10() +
@@ -332,7 +344,11 @@ house_mod %>%
 
     ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+There are some outliers in the number of baths that don’t seem reliable.
+Many of the apartments with 15 or more baths may come from faulty data
+(some addresses were checked as well).
 
 ``` r
 updated_model <- 
@@ -418,13 +434,13 @@ summary(updated_model)
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 hist(residuals(updated_model))
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 ## Tidymodels
 
@@ -476,7 +492,7 @@ house_res <-
   geom_point(alpha = 0.5) + geom_abline()) + plot_layout(guide = "collect")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ``` r
 three_metrics <- metric_set(rsq, rmse, mae)
@@ -510,7 +526,7 @@ joined_metrics %>%
        Did not separate a training/testing dataset for the first model")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 ``` r
 house <- house %>% 
@@ -539,7 +555,7 @@ house %>%
   scale_x_log10() + labs(y = "", title = "House Prices in NYC by zipcode", x = "Price (log10 scale)")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 ## No Taxes!
 
@@ -569,7 +585,7 @@ all_metrics %>%
   geom_col(position = "dodge")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 ``` r
 all_metrics %>% 
@@ -604,7 +620,7 @@ house %>%
   ggplot(aes(price, borough)) + geom_boxplot() + scale_x_log10()
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 ## Don’t miss the forrest for the trees
 
@@ -618,7 +634,7 @@ house_mod %>%
   scale_y_log10()
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 ``` r
 house_mod2 <- house_mod %>% 
@@ -695,7 +711,7 @@ all_metrics_rf %>%
   theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 # Just let Gam figure it out
 
@@ -785,25 +801,25 @@ summary(gam_mod)
 appraise(gam_mod)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[1:6])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-2.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[7:12])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-3.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-3.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[13])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-4.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-4.png)<!-- -->
 
 ``` r
 augment(gam_mod) %>% 
@@ -829,7 +845,7 @@ augment(gam_mod) %>%
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-5.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-5.png)<!-- -->
 
 ``` r
 k.check(gam_mod)
@@ -895,7 +911,10 @@ all_metrics_rf %>%
   theme(legend.position = "none")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+
+The GAM Model outperforms all other models. It has less RMSE and MAE, as
+well as a higher R^2
 
 # Scrap work
 
@@ -923,7 +942,7 @@ ggplot(world) + geom_sf() +
   scale_color_viridis_c()
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
 Because of the lack of precision in longitude/latitude variables, the
 points on the map are slightly off.
@@ -939,4 +958,4 @@ house %>%
 
     ## `geom_smooth()` using method = 'gam'
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
