@@ -46,6 +46,7 @@ house <-
   rename_with( ~ gsub(" ", "_", .x))
 ```
 
+Cleaning column names to make typing them easier moving forward.
 
 ```{r}
 house <- house %>% 
@@ -54,12 +55,17 @@ house <- house %>%
 house <- house %>% 
   rename(by_car = commute) %>% 
   mutate(by_car = parse_number(by_car))
+```
 
+Exctracting the number portion of the numeric variables and editing the *commute* column. It only contains information on car travel, therefore it will be rename to *by_car* and the number portion will be extracted from it as well. 
 
+```{r}
 house <- house %>% 
   mutate(type = sub(",.*","", home_details))
 ```
 
+By removing everything after the first comma in the *home_details* variable, we are left with a variable containing the type of property. This variable will be named *type*. 
+Time to take a closer look at the numeric variables, excluding longitude (*lon*) and latitude (*lat*).
 
 ```{r}
 house %>% 
@@ -67,7 +73,11 @@ house %>%
   select(-lon, -lat) %>% 
   gather() %>% 
   ggplot(aes(value)) + geom_histogram() + facet_wrap(~key, scales = "free")
+```
 
+Most numeric variables appear to be lognormally distributed.
+
+```{r}
 house %>% 
   keep(is.numeric) %>% 
   select(-lon, -lat) %>% 
@@ -77,6 +87,7 @@ house %>%
   facet_wrap(~name)
 ```
 
+When plotting price against the numeric variables, a bimodal distribution appears. This may be explored further using a knn model.
 
 ```{r}
 house %>% 
@@ -87,8 +98,30 @@ house %>%
   group_by(name) %>% 
   summarize(corr = cor(price, value)) %>% 
   arrange(-abs(corr))
+```
 
+There does not seem to be a linear relationship between price and the other numeric variables.
 
+```{r}
+house %>%
+  keep(is.numeric) %>%
+  select(-lon,-lat) %>%
+  drop_na() %>%
+  mutate_all(~log(.x)) %>%
+  rename_with(paste0("log_", .x)) %>%
+  bind_cols(house %>%
+              keep(is.numeric) %>%
+              select(-lon, -lat, -price) %>%
+              drop_na()) %>%
+  pivot_longer(-log_price) %>%
+  group_by(name) %>%
+  summarize(corr = cor(price, value) %>%
+  arrange(-abs(corr))
+```
+
+A simple linear regression model will now be fit for log(price) vs each numeric variable.
+
+```{r}
 tidy_model <- house %>% 
   select_if(is.numeric) %>% 
   select(-lon, -lat) %>% 
@@ -137,6 +170,7 @@ house %>%
   theme(plot.margin = margin(10,50,10,0))
 ```
 
+The type of property seems to be significant, lets explore this further.
 
 ## Plots of Price by numerics using Type to color
 ```{r}
@@ -152,6 +186,8 @@ gplot2(land_assessment_cost)) /
 (gplot2(sqft) +
 gplot2(improvement_cost)) + plot_layout(guides = 'collect')
 ```
+
+The bimodal distribution is finally explained! Type of property accounts for this separation, Coop vs (Single & Multi Family, Townhouse and Condo).
 
 # Model
 ## Preprocess
@@ -208,6 +244,8 @@ summary(updated_model)
 
 hist(residuals(updated_model))
 ```
+
+The diagnostic plots don't show any irregularities. 
 
 ## Tidymodels
 
@@ -283,7 +321,7 @@ joined_metrics %>%
        Did not separate a training/testing dataset for the first model")
 ```
 
-
+The original base R model just barely outperforms the tidymodels model. The only difference between the 2 is that the tidymodels model was trained on a subset of the data, while the original was trained on the whole dataset.
 
 ```{r}
 house <- house %>% 
