@@ -58,9 +58,6 @@ house <- house[,-1]
 # Explore and Clean
 
 ``` r
-house[1:20,] %>% 
-  View()
-
 skim(house)
 ```
 
@@ -122,6 +119,8 @@ house <-
   rename_with( ~ gsub(" ", "_", .x))
 ```
 
+Cleaning column names to make typing them easier moving forward.
+
 ``` r
 house <- house %>% 
   mutate(across(c(bath:sqft, tax:total_cost), ~ parse_number(.x)))
@@ -129,11 +128,22 @@ house <- house %>%
 house <- house %>% 
   rename(by_car = commute) %>% 
   mutate(by_car = parse_number(by_car))
+```
 
+Extracting the number portion of the numeric variables and editing the
+*commute* column. It only contains information on car travel, therefore
+it will be rename to *by_car* and the number portion will be extracted
+from it as well.
 
+``` r
 house <- house %>% 
   mutate(type = sub(",.*","", home_details))
 ```
+
+By removing everything after the first comma in the *home_details*
+variable, we are left with a variable containing the type of property.
+This variable will be named *type*. Time to take a closer look at the
+numeric variables, excluding longitude (*lon*) and latitude (*lat*).
 
 ``` r
 house %>% 
@@ -145,7 +155,9 @@ house %>%
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+Most numeric variables appear to be lognormally distributed.
 
 ``` r
 house %>% 
@@ -157,7 +169,10 @@ house %>%
   facet_wrap(~name)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+When plotting price against the numeric variables, a bimodal
+distribution appears. This may be explored further using a knn model.
 
 ``` r
 house %>% 
@@ -182,6 +197,52 @@ house %>%
     ## 7 improvement_cost      0.124 
     ## 8 sqft                  0.100 
     ## 9 assessment_year       0.0955
+
+There does not seem to be a linear relationship between price and the
+other numeric variables.
+
+``` r
+house %>%
+  keep(is.numeric) %>%
+  select(-lon,-lat) %>%
+  drop_na() %>%
+  mutate_all(~log(.x)) %>%
+  rename_with(~paste0("log_", .x)) %>%
+  bind_cols(house %>%
+              keep(is.numeric) %>%
+              select(-lon, -lat) %>%
+              drop_na()) %>%
+  select(-price, -log_improvement_cost) %>% 
+  pivot_longer(-log_price) %>%
+  group_by(name) %>%
+  summarize(corr = cor(log_price, value)) %>%
+  arrange(-abs(corr))
+```
+
+    ## # A tibble: 17 x 2
+    ##    name                        corr
+    ##    <chr>                      <dbl>
+    ##  1 log_bath                  0.638 
+    ##  2 bath                      0.597 
+    ##  3 log_bed                   0.501 
+    ##  4 bed                       0.434 
+    ##  5 log_by_car               -0.378 
+    ##  6 log_sqft                  0.312 
+    ##  7 by_car                   -0.306 
+    ##  8 assessment_year           0.141 
+    ##  9 log_assessment_year       0.141 
+    ## 10 log_land_assessment_cost  0.101 
+    ## 11 land_assessment_cost      0.100 
+    ## 12 log_tax                   0.0923
+    ## 13 tax                       0.0722
+    ## 14 total_cost                0.0707
+    ## 15 log_total_cost            0.0657
+    ## 16 improvement_cost          0.0625
+    ## 17 sqft                      0.0247
+
+Log(price) improves the linear correlation with respect to the numeric
+variables. A simple linear regression model will now be fit for
+log(price) vs each numeric variable.
 
 ``` r
 tidy_model <- house %>% 
@@ -231,19 +292,19 @@ gplot <- function(x){
 gplot(bath)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 gplot(bed)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
 
 ``` r
 gplot(assessment_year)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->
 
 ``` r
 house %>% 
@@ -256,7 +317,9 @@ house %>%
   theme(plot.margin = margin(10,50,10,0))
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+The type of property seems to be significant, lets explore this further.
 
 ## Plots of Price by numerics using Type to color
 
@@ -274,7 +337,11 @@ gplot2(land_assessment_cost)) /
 gplot2(improvement_cost)) + plot_layout(guides = 'collect')
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+The bimodal distribution is finally explained! Type of property accounts
+for this separation, Coop vs (Single & Multi Family, Townhouse and
+Condo).
 
 # Model
 
@@ -331,7 +398,7 @@ house_mod %>%
   facet_wrap(~name, scales = "free")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 There is a lot of correlation between tax and the other numeric
 variables, as can be seen by the graphs above.
@@ -344,7 +411,7 @@ house_mod %>%
 
     ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 There are some outliers in the number of baths that don’t seem reliable.
 Many of the apartments with 15 or more baths may come from faulty data
@@ -434,13 +501,15 @@ summary(updated_model)
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ``` r
 hist(residuals(updated_model))
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+
+The diagnostic plots don’t show any irregularities.
 
 ## Tidymodels
 
@@ -492,7 +561,7 @@ house_res <-
   geom_point(alpha = 0.5) + geom_abline()) + plot_layout(guide = "collect")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 ``` r
 three_metrics <- metric_set(rsq, rmse, mae)
@@ -526,7 +595,12 @@ joined_metrics %>%
        Did not separate a training/testing dataset for the first model")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+
+The original base R model just barely outperforms the tidymodels model.
+The only difference between the 2 is that the tidymodels model was
+trained on a subset of the data, while the original was trained on the
+whole dataset.
 
 ``` r
 house <- house %>% 
@@ -555,7 +629,7 @@ house %>%
   scale_x_log10() + labs(y = "", title = "House Prices in NYC by zipcode", x = "Price (log10 scale)")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 ## No Taxes!
 
@@ -585,7 +659,7 @@ all_metrics %>%
   geom_col(position = "dodge")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 ``` r
 all_metrics %>% 
@@ -620,7 +694,7 @@ house %>%
   ggplot(aes(price, borough)) + geom_boxplot() + scale_x_log10()
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 ## Don’t miss the forrest for the trees
 
@@ -634,7 +708,7 @@ house_mod %>%
   scale_y_log10()
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
 house_mod2 <- house_mod %>% 
@@ -711,7 +785,7 @@ all_metrics_rf %>%
   theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 # Just let Gam figure it out
 
@@ -801,25 +875,25 @@ summary(gam_mod)
 appraise(gam_mod)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[1:6])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-34-2.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[7:12])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-3.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-34-3.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[13])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-4.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-34-4.png)<!-- -->
 
 ``` r
 augment(gam_mod) %>% 
@@ -845,7 +919,7 @@ augment(gam_mod) %>%
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-5.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-34-5.png)<!-- -->
 
 ``` r
 k.check(gam_mod)
@@ -911,7 +985,7 @@ all_metrics_rf %>%
   theme(legend.position = "none")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
 
 The GAM Model outperforms all other models. It has less RMSE and MAE, as
 well as a higher R^2
@@ -942,7 +1016,7 @@ ggplot(world) + geom_sf() +
   scale_color_viridis_c()
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
 
 Because of the lack of precision in longitude/latitude variables, the
 points on the map are slightly off.
@@ -958,4 +1032,4 @@ house %>%
 
     ## `geom_smooth()` using method = 'gam'
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->

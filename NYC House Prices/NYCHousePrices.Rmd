@@ -35,9 +35,6 @@ house <- house[,-1]
 
 # Explore and Clean
 ```{r}
-house[1:20,] %>% 
-  View()
-
 skim(house)
 
 house <- 
@@ -57,7 +54,7 @@ house <- house %>%
   mutate(by_car = parse_number(by_car))
 ```
 
-Exctracting the number portion of the numeric variables and editing the *commute* column. It only contains information on car travel, therefore it will be rename to *by_car* and the number portion will be extracted from it as well. 
+Extracting the number portion of the numeric variables and editing the *commute* column. It only contains information on car travel, therefore it will be rename to *by_car* and the number portion will be extracted from it as well. 
 
 ```{r}
 house <- house %>% 
@@ -108,18 +105,19 @@ house %>%
   select(-lon,-lat) %>%
   drop_na() %>%
   mutate_all(~log(.x)) %>%
-  rename_with(paste0("log_", .x)) %>%
+  rename_with(~paste0("log_", .x)) %>%
   bind_cols(house %>%
               keep(is.numeric) %>%
-              select(-lon, -lat, -price) %>%
+              select(-lon, -lat) %>%
               drop_na()) %>%
+  select(-price, -log_improvement_cost) %>% 
   pivot_longer(-log_price) %>%
   group_by(name) %>%
-  summarize(corr = cor(price, value) %>%
+  summarize(corr = cor(log_price, value)) %>%
   arrange(-abs(corr))
 ```
 
-A simple linear regression model will now be fit for log(price) vs each numeric variable.
+Log(price) improves the linear correlation with respect to the numeric variables. A simple linear regression model will now be fit for log(price) vs each numeric variable.
 
 ```{r}
 tidy_model <- house %>% 
