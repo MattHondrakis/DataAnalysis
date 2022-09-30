@@ -26,7 +26,6 @@ Matthew
         the trees</a>
 -   <a href="#just-let-gam-figure-it-out"
     id="toc-just-let-gam-figure-it-out">Just let Gam figure it out</a>
--   <a href="#scrap-work" id="toc-scrap-work">Scrap work</a>
 
 # Introduction
 
@@ -980,8 +979,8 @@ all_metrics_rf %>%
   ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
   geom_col(position = "dodge") + 
   labs(title = "All 5 Models", 
-       subtitle = "Base R lm (Brownish-Yellow), TM lm (Green), TM no tax lm (Blue), \n
-       Random Forrest (Purple), Gam (Red)") +
+       subtitle = "Base R lm (Brownish-Yellow), TM lm (Green), TM no tax lm (Blue),
+Random Forrest (Purple), Gam (Red)") +
   theme(legend.position = "none")
 ```
 
@@ -990,46 +989,5 @@ all_metrics_rf %>%
 The GAM Model outperforms all other models. It has less RMSE and MAE, as
 well as a higher R^2
 
-# Scrap work
-
-``` r
-world <- ne_countries(scale = "medium", returnclass = "sf")
-
-range(house$lon, na.rm = TRUE)
-```
-
-    ## [1] -77.59145 -72.64771
-
-``` r
-range(house$lat, na.rm = TRUE)
-```
-
-    ## [1] 40.49896 43.16907
-
-``` r
-ggplot(world) + geom_sf() +
-  coord_sf(
-    xlim = c(-74.35, -73.6), 
-    ylim = c(min(house$lat, na.rm = TRUE), 40.95), expand = FALSE) + 
-  geom_point(data = house %>% filter(!is.na(price)) %>% mutate(price = log(price)), 
-             aes(lon, lat, color = price, alpha = 0.3)) +
-  scale_color_viridis_c()
-```
-
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
-
 Because of the lack of precision in longitude/latitude variables, the
 points on the map are slightly off.
-
-``` r
-house %>% 
-  filter(!is.na(price), between(lon, -75, -73), between(lat, 40, 41)) %>% 
-  select(price, lon, lat) %>% 
-  pivot_longer(-price) %>% 
-  ggplot(aes(value, log(price))) + geom_point() + geom_smooth(formula = y ~ ns(x, 5)) +
-  facet_wrap(~name, scales = "free")
-```
-
-    ## `geom_smooth()` using method = 'gam'
-
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->

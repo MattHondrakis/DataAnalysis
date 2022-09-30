@@ -538,15 +538,14 @@ all_metrics_rf %>%
   ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
   geom_col(position = "dodge") + 
   labs(title = "All 5 Models", 
-       subtitle = "Base R lm (Brownish-Yellow), TM lm (Green), TM no tax lm (Blue), \n
-       Random Forrest (Purple), Gam (Red)") +
+       subtitle = "Base R lm (Brownish-Yellow), TM lm (Green), TM no tax lm (Blue),
+Random Forrest (Purple), Gam (Red)") +
   theme(legend.position = "none")
 ```
 
 The GAM Model outperforms all other models. It has less RMSE and MAE, as well as a higher R^2
 
-# Scrap work
-```{r}
+```{r eval=FALSE, include=FALSE}
 world <- ne_countries(scale = "medium", returnclass = "sf")
 
 range(house$lon, na.rm = TRUE)
@@ -564,7 +563,7 @@ ggplot(world) + geom_sf() +
 Because of the lack of precision in longitude/latitude variables, the points on the map are slightly off.
 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 house %>% 
   filter(!is.na(price), between(lon, -75, -73), between(lat, 40, 41)) %>% 
   select(price, lon, lat) %>% 
