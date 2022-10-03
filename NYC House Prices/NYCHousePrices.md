@@ -201,21 +201,16 @@ There does not seem to be a linear relationship between price and the
 other numeric variables.
 
 ``` r
-house %>%
-  keep(is.numeric) %>%
-  select(-lon,-lat) %>%
-  drop_na() %>%
-  mutate_all(~log(.x)) %>%
-  rename_with(~paste0("log_", .x)) %>%
-  bind_cols(house %>%
-              keep(is.numeric) %>%
-              select(-lon, -lat) %>%
-              drop_na()) %>%
-  select(-price, -log_improvement_cost) %>% 
-  pivot_longer(-log_price) %>%
-  group_by(name) %>%
-  summarize(corr = cor(log_price, value)) %>%
-  arrange(-abs(corr))
+house %>% 
+  keep(is.numeric) %>% 
+  select(-lon, -lat) %>% 
+  drop_na() %>% 
+  mutate(across(everything(), ~log(.x), .names = "log_{.col}")) %>% 
+  pivot_longer(-log_price) %>% 
+  group_by(name) %>% 
+  summarize(corr = cor(log_price, value)) %>% 
+  arrange(-abs(corr)) %>% 
+  filter(name != "price" & !is.na(corr))
 ```
 
     ## # A tibble: 17 x 2
