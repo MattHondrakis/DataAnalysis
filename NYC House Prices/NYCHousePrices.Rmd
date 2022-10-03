@@ -46,6 +46,17 @@ house <-
 Cleaning column names to make typing them easier moving forward.
 
 ```{r}
+head(house[,1:4])
+head(house[,5:8])
+head(house[,9:12])
+head(house[,13:16])
+head(house[,17:20])
+head(house[,21:24])
+head(house[,25:27])
+```
+
+
+```{r}
 house <- house %>% 
   mutate(across(c(bath:sqft, tax:total_cost), ~ parse_number(.x)))
 
@@ -180,7 +191,7 @@ gplot2(land_assessment_cost)) /
 gplot2(improvement_cost)) + plot_layout(guides = 'collect')
 ```
 
-The bimodal distribution is finally explained! Type of property accounts for this separation, Coop vs (Single & Multi Family, Townhouse and Condo).
+The bimodal distribution is finally explained by this new variable. Type of property accounts for this separation, Coop vs (Single & Multi Family, Townhouse and Condo).
 
 # Model
 ## Preprocess

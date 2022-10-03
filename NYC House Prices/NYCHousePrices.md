@@ -121,6 +121,104 @@ house <-
 Cleaning column names to make typing them easier moving forward.
 
 ``` r
+head(house[,1:4])
+```
+
+    ## # A tibble: 6 x 4
+    ##   bath    bed    sqft       address                                  
+    ##   <chr>   <chr>  <chr>      <chr>                                    
+    ## 1 1 Bath  2 Beds 825 sqft   5613 Avenue T Brooklyn, NY 11234         
+    ## 2 1 Bath  2 Beds 900 sqft   475 Armstrong Ave Staten Island, NY 10308
+    ## 3 1 Bath  2 Beds 1,000 sqft 353 W 47th St New York, NY 10036         
+    ## 4 2 Baths 3 Beds 1,350 sqft 12 White Pl Staten Island, NY 10310      
+    ## 5 4 Baths 3 Beds 1,900 sqft 5716 224th St Flushing, NY 11364         
+    ## 6 1 Bath  2 Beds 700 sqft   406 W 46th St New York, NY 10036
+
+``` r
+head(house[,5:8])
+```
+
+    ## # A tibble: 6 x 4
+    ##    price estimated_mortage      school                                     crime
+    ##    <dbl> <chr>                  <chr>                                      <chr>
+    ## 1     NA Est. Mortgage$950/mo   Schools 1 Elementary School 2 Middle Scho~ Crim~
+    ## 2     NA Est. Mortgage$2,002/mo Schools 1 Elementary School 1 Middle Scho~ Crim~
+    ## 3     NA Est. Mortgage$4,059/mo Schools 1 Elementary School 4 Middle Scho~ Crim~
+    ## 4 425309 Est. Mortgage$2,774/mo Schools 1 Elementary School 1 Middle Scho~ Crim~
+    ## 5 903453 Est. Mortgage$4,711/mo Schools 1 Elementary School 1 Middle Scho~ Crim~
+    ## 6 549000 Est. Mortgage$4,138/mo Schools 1 Elementary School 4 Middle Scho~ Crim~
+
+``` r
+head(house[,9:12])
+```
+
+    ## # A tibble: 6 x 4
+    ##   commute                                  shop_and_eat description home_details
+    ##   <chr>                                    <chr>        <chr>       <chr>       
+    ## 1 Commute 51% of residents commute by car. Shop & Eat ~ OLD MILL B~ Coop, $236/~
+    ## 2 Commute 76% of residents commute by car. Shop & Eat ~ beautiful ~ Coop, $267/~
+    ## 3 Commute Learn about commute times to th~ Shop & Eat ~ Back on th~ Coop, $699/~
+    ## 4 Commute 60% of residents commute by car. Shop & Eat ~ BEAUTIFUL ~ Single Fami~
+    ## 5 Commute 69% of residents commute by car. Shop & Eat ~ spacious, ~ Single Fami~
+    ## 6 Commute Learn about commute times to th~ Shop & Eat ~ Two bedroo~ Coop, $821/~
+
+``` r
+head(house[,13:16])
+```
+
+    ## # A tibble: 6 x 4
+    ##   price_details                           assessment_year tax   land_assessment~
+    ##   <chr>                                             <dbl> <chr> <chr>           
+    ## 1 04/05/2014 $154,900 Posting Removed So~            2018 $67,~ $2,71,350       
+    ## 2 04/20/2012 $155,000 Posting Removed So~            2018 $1,3~ $2,68,650       
+    ## 3 <NA>                                                 NA <NA>  <NA>            
+    ## 4 01/10/2020 $578,000 Listed For Sale So~            2017 $3,1~ $4,935          
+    ## 5 07/29/2015 $730,000 Sold Recording Dat~            2018 $9,3~ $18,278         
+    ## 6 11/15/2019 $575,000 Price Change Price~            2018 $97,~ $2,52,900
+
+``` r
+head(house[,17:20])
+```
+
+    ## # A tibble: 6 x 4
+    ##   improvement_cost total_cost neighborhood_name what_local_say_about_the_neighb~
+    ##   <chr>            <chr>      <chr>             <chr>                           
+    ## 1 $3,33,450        $6,04,800  Flatlands         91% There are sidewalks , 87% I~
+    ## 2 $8,47,350        $11,16,000 Great Kills       94% It's dog friendly , 89% The~
+    ## 3 <NA>             <NA>       Hell's Kitchen    89% It's walkable to restaurant~
+    ## 4 $10,401          $15,336    West Brighton     88% There are sidewalks , 84% I~
+    ## 5 $26,178          $44,456    Bayside           89% There are sidewalks , 87% I~
+    ## 6 $5,87,700        $8,40,600  Hell's Kitchen    89% It's walkable to restaurant~
+
+``` r
+head(house[,21:24])
+```
+
+    ## # A tibble: 6 x 4
+    ##   comments_of_residents_and_prev~ comparable_prop~ provider_info seo_description
+    ##   <chr>                           <chr>            <chr>         <chr>          
+    ## 1 "Trulia User Resident 1mo ago ~ 3105 Avenue V #~ Marianne Del~ 5613 Avenue T ~
+    ## 2 "Trulia User Resident 1mo ago ~ <NA>             Gary Papirov~ 475 Armstrong ~
+    ## 3 "Trulia User Resident 4d ago \~ 30 E 37th St #8~ John Montalv~ 353 W 47th St ~
+    ## 4 "Trulia User Resident 1mo ago ~ <NA>             Simon (yongd~ 12 White Pl, S~
+    ## 5 "Trulia User Resident 1w ago \~ <NA>             Hantha Seo ,~ 5716 224th St,~
+    ## 6 "Trulia User Resident 4d ago \~ 155 E 38th St #~ Alessandra D~ 406 W 46th St ~
+
+``` r
+head(house[,25:27])
+```
+
+    ## # A tibble: 6 x 3
+    ##   linktoproperty                                                       lat   lon
+    ##   <chr>                                                              <dbl> <dbl>
+    ## 1 https://www.trulia.com/p/ny/brooklyn/5613-avenue-t-49c-brooklyn-n~  40.6 -73.9
+    ## 2 https://www.trulia.com/p/ny/staten-island/475-armstrong-ave-i1-st~  40.5 -74.2
+    ## 3 https://www.trulia.com/p/ny/new-york/353-w-47th-st-2r-new-york-ny~  40.8 -74.0
+    ## 4 https://www.trulia.com/p/ny/staten-island/12-white-pl-staten-isla~  40.6 -74.1
+    ## 5 https://www.trulia.com/p/ny/flushing/5716-224th-st-flushing-ny-11~  NA    NA  
+    ## 6 https://www.trulia.com/p/ny/new-york/406-w-46th-st-3b-new-york-ny~  40.8 -74.0
+
+``` r
 house <- house %>% 
   mutate(across(c(bath:sqft, tax:total_cost), ~ parse_number(.x)))
 
@@ -154,7 +252,7 @@ house %>%
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 Most numeric variables appear to be lognormally distributed.
 
@@ -168,7 +266,7 @@ house %>%
   facet_wrap(~name)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 When plotting price against the numeric variables, a bimodal
 distribution appears. This may be explored further using a knn model.
@@ -286,19 +384,19 @@ gplot <- function(x){
 gplot(bath)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 gplot(bed)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
 
 ``` r
 gplot(assessment_year)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-12-3.png)<!-- -->
 
 ``` r
 house %>% 
@@ -311,7 +409,7 @@ house %>%
   theme(plot.margin = margin(10,50,10,0))
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 The type of property seems to be significant, lets explore this further.
 
@@ -331,11 +429,11 @@ gplot2(land_assessment_cost)) /
 gplot2(improvement_cost)) + plot_layout(guides = 'collect')
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
-The bimodal distribution is finally explained! Type of property accounts
-for this separation, Coop vs (Single & Multi Family, Townhouse and
-Condo).
+The bimodal distribution is finally explained by this new variable. Type
+of property accounts for this separation, Coop vs (Single & Multi
+Family, Townhouse and Condo).
 
 # Model
 
@@ -392,7 +490,7 @@ house_mod %>%
   facet_wrap(~name, scales = "free")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 There is a lot of correlation between tax and the other numeric
 variables, as can be seen by the graphs above.
@@ -405,7 +503,7 @@ house_mod %>%
 
     ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 There are some outliers in the number of baths that don’t seem reliable.
 Many of the apartments with 15 or more baths may come from faulty data
@@ -495,13 +593,13 @@ summary(updated_model)
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 hist(residuals(updated_model))
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
 
 The diagnostic plots don’t show any irregularities.
 
@@ -555,7 +653,7 @@ house_res <-
   geom_point(alpha = 0.5) + geom_abline()) + plot_layout(guide = "collect")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 ``` r
 three_metrics <- metric_set(rsq, rmse, mae)
@@ -589,7 +687,7 @@ joined_metrics %>%
        Did not separate a training/testing dataset for the first model")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 The original base R model just barely outperforms the tidymodels model.
 The only difference between the 2 is that the tidymodels model was
@@ -623,7 +721,7 @@ house %>%
   scale_x_log10() + labs(y = "", title = "House Prices in NYC by zipcode", x = "Price (log10 scale)")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 ## No Taxes!
 
@@ -653,7 +751,7 @@ all_metrics %>%
   geom_col(position = "dodge")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 ``` r
 all_metrics %>% 
@@ -688,7 +786,7 @@ house %>%
   ggplot(aes(price, borough)) + geom_boxplot() + scale_x_log10()
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ## Don’t miss the forrest for the trees
 
@@ -702,7 +800,7 @@ house_mod %>%
   scale_y_log10()
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 ``` r
 house_mod2 <- house_mod %>% 
@@ -779,7 +877,7 @@ all_metrics_rf %>%
   theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
 
 # Just let Gam figure it out
 
@@ -869,25 +967,25 @@ summary(gam_mod)
 appraise(gam_mod)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[1:6])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-34-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-2.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[7:12])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-34-3.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-3.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[13])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-34-4.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-4.png)<!-- -->
 
 ``` r
 augment(gam_mod) %>% 
@@ -913,7 +1011,7 @@ augment(gam_mod) %>%
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-34-5.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-5.png)<!-- -->
 
 ``` r
 k.check(gam_mod)
@@ -979,7 +1077,7 @@ Random Forrest (Purple), Gam (Red)") +
   theme(legend.position = "none")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
 
 The GAM Model outperforms all other models. It has less RMSE and MAE, as
 well as a higher R^2
