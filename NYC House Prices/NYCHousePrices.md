@@ -451,36 +451,43 @@ house_mod <- house %>%
 
 house_mod %>% 
   keep(is.numeric) %>% 
-  cor()
+  cor() %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var = "item1") %>% 
+  gather(key = item2, value = corr, -item1) %>% 
+  filter(item1 > item2) %>% 
+  arrange(-abs(corr))
 ```
 
-    ##                           price         tax  total_cost        sqft
-    ## price                1.00000000  0.07593635  0.06624251  0.07727393
-    ## tax                  0.07593635  1.00000000  0.99086226  0.48728324
-    ## total_cost           0.06624251  0.99086226  1.00000000  0.44406856
-    ## sqft                 0.07727393  0.48728324  0.44406856  1.00000000
-    ## land_assessment_cost 0.07131328  0.94467569  0.96450910  0.38640371
-    ## improvement_cost     0.06414354  0.99137901  0.99761312  0.45396698
-    ## bath                 0.44701449 -0.07189192 -0.07345366 -0.06450716
-    ## bed                  0.21414699 -0.16695827 -0.15946214 -0.13076296
-    ##                      land_assessment_cost improvement_cost        bath
-    ## price                          0.07131328       0.06414354  0.44701449
-    ## tax                            0.94467569       0.99137901 -0.07189192
-    ## total_cost                     0.96450910       0.99761312 -0.07345366
-    ## sqft                           0.38640371       0.45396698 -0.06450716
-    ## land_assessment_cost           1.00000000       0.94397401 -0.04720870
-    ## improvement_cost               0.94397401       1.00000000 -0.07945988
-    ## bath                          -0.04720870      -0.07945988  1.00000000
-    ## bed                           -0.12324898      -0.16707156  0.62187514
-    ##                             bed
-    ## price                 0.2141470
-    ## tax                  -0.1669583
-    ## total_cost           -0.1594621
-    ## sqft                 -0.1307630
-    ## land_assessment_cost -0.1232490
-    ## improvement_cost     -0.1670716
-    ## bath                  0.6218751
-    ## bed                   1.0000000
+    ##                   item1                item2        corr
+    ## 1            total_cost     improvement_cost  0.99761312
+    ## 2                   tax     improvement_cost  0.99137901
+    ## 3            total_cost                  tax  0.99086226
+    ## 4            total_cost land_assessment_cost  0.96450910
+    ## 5                   tax land_assessment_cost  0.94467569
+    ## 6  land_assessment_cost     improvement_cost  0.94397401
+    ## 7                   bed                 bath  0.62187514
+    ## 8                   tax                 sqft  0.48728324
+    ## 9                  sqft     improvement_cost  0.45396698
+    ## 10                price                 bath  0.44701449
+    ## 11           total_cost                 sqft  0.44406856
+    ## 12                 sqft land_assessment_cost  0.38640371
+    ## 13                price                  bed  0.21414699
+    ## 14     improvement_cost                  bed -0.16707156
+    ## 15                  tax                  bed -0.16695827
+    ## 16           total_cost                  bed -0.15946214
+    ## 17                 sqft                  bed -0.13076296
+    ## 18 land_assessment_cost                  bed -0.12324898
+    ## 19     improvement_cost                 bath -0.07945988
+    ## 20                 sqft                price  0.07727393
+    ## 21                  tax                price  0.07593635
+    ## 22           total_cost                 bath -0.07345366
+    ## 23                  tax                 bath -0.07189192
+    ## 24                price land_assessment_cost  0.07131328
+    ## 25           total_cost                price  0.06624251
+    ## 26                 sqft                 bath -0.06450716
+    ## 27                price     improvement_cost  0.06414354
+    ## 28 land_assessment_cost                 bath -0.04720870
 
 ``` r
 house_mod %>% 
@@ -585,7 +592,7 @@ summary(updated_model)
 ``` r
 (augment(updated_model) %>% 
   ggplot(aes(`log(price)`,.fitted, color = type_mod)) + 
-  geom_point(alpha = 0.5) + geom_abline()) /
+  geom_point(alpha = 0.5) + xlim(10,19) + ylim(10,19) + geom_abline()) /
 (augment(updated_model) %>% 
   mutate(residual = .fitted - `log(price)`) %>% 
   ggplot(aes(.fitted, residual, color = type_mod)) + 
@@ -650,7 +657,8 @@ house_res <-
   geom_point(alpha = 0.5) + geom_hline(yintercept = 0)) /
 (house_res %>%  
   ggplot(aes(.pred, price, color = type_mod)) + 
-  geom_point(alpha = 0.5) + geom_abline()) + plot_layout(guide = "collect")
+  geom_point(alpha = 0.5) + geom_abline() +
+  xlim(11,18) + ylim(11,18)) + plot_layout(guide = "collect")
 ```
 
 ![](NYCHousePrices_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
@@ -679,12 +687,17 @@ joined_metrics %>% arrange(desc(.metric))
     ## 6 mae     standard       0.349 2
 
 ``` r
-joined_metrics %>% 
+(joined_metrics %>% 
+  filter(.metric == "rsq") %>% 
   ggplot(aes(.estimate, .metric, fill = model)) +
-  geom_col(position = "dodge") +
-  labs(title = "Base R model (1) vs Tidymodels (2)",
-       caption = "Comparison is not equal; the fit methods were done differently. \n
-       Did not separate a training/testing dataset for the first model")
+  geom_col(position = "dodge") + labs(title = "Variance explained")) /
+(joined_metrics %>% 
+  filter(.metric != "rsq") %>% 
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") + labs(title = "Error")) + 
+plot_layout(guide = "collect") + 
+plot_annotation(title = "Metrics of Both Models", 
+                theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
 ![](NYCHousePrices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
@@ -791,16 +804,21 @@ house %>%
 ## Don’t miss the forrest for the trees
 
 ``` r
-house_mod <- house_mod %>%
+house_mod <- house_mod %>% 
   mutate(zip_code = str_sub(address, -5, -1))
+```
 
+The zip_code can be found in the last 5 digits of the address variable,
+thus we extract and keep only the last 5 digits of the variable.
+
+``` r
 house_mod %>% 
   ggplot(aes(tax, price, color = zip_code)) + geom_point() +
   theme(legend.position = "none") + scale_x_log10() +
   scale_y_log10()
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 ``` r
 house_mod2 <- house_mod %>% 
@@ -869,15 +887,23 @@ all_metrics_rf %>%
     ## 12 mae     standard       0.346 1
 
 ``` r
-all_metrics_rf %>% 
+(all_metrics_rf %>% 
+  filter(.metric == "rsq") %>% 
   ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
-  geom_col(position = "dodge") + 
-  labs(title = "All 4 Models", 
-       subtitle = "Base R lm (Red), TM lm (Green), TM no tax lm (Blue), Random Forrest (Purple)") +
-  theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))
+  geom_col(position = "dodge") + labs(title = "Variance Explained") +
+  theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))) /
+(all_metrics_rf %>% 
+  filter(.metric != "rsq") %>% 
+  ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
+  geom_col(position = "dodge") + labs(title = "Error") +
+  theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))) +
+plot_layout(guides = "collect") +
+plot_annotation(title = "All 4 Models", 
+                subtitle = "Base R lm (Red), TM lm (Green), TM no tax lm (Blue), Random Forrest (Purple)",
+                theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
 
 # Just let Gam figure it out
 
@@ -967,25 +993,25 @@ summary(gam_mod)
 appraise(gam_mod)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[1:6])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-2.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[7:12])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-3.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-3.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[13])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-4.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-4.png)<!-- -->
 
 ``` r
 augment(gam_mod) %>% 
@@ -1011,7 +1037,7 @@ augment(gam_mod) %>%
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-35-5.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-5.png)<!-- -->
 
 ``` r
 k.check(gam_mod)
@@ -1077,7 +1103,7 @@ Random Forrest (Purple), Gam (Red)") +
   theme(legend.position = "none")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
 
 The GAM Model outperforms all other models. It has less RMSE and MAE, as
 well as a higher R^2
