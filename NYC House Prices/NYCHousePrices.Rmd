@@ -601,8 +601,6 @@ ggplot(world) + geom_sf() +
   scale_color_viridis_c()
 ```
 
-Because of the lack of precision in longitude/latitude variables, the points on the map are slightly off.
-
 ```{r eval=FALSE, include=FALSE}
 house %>% 
   filter(!is.na(price), between(lon, -75, -73), between(lat, 40, 41)) %>% 

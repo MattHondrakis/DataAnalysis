@@ -1124,6 +1124,3 @@ plot_annotation(title = "All 5 Models",
 
 The GAM Model outperforms all other models. It has less RMSE and MAE, as
 well as a higher R^2
-
-Because of the lack of precision in longitude/latitude variables, the
-points on the map are slightly off.
