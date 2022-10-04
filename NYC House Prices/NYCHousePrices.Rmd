@@ -311,9 +311,10 @@ three_metrics <- metric_set(rsq, rmse, mae)
 joined_metrics <- three_metrics(augment(updated_model) %>% 
       rename(price = `log(price)`),
     price, .fitted) %>% 
-  mutate(model = "1") %>% 
+  mutate(model = "Base LM") %>% 
   bind_rows(three_metrics(house_res, price, .pred) %>% 
-              mutate(model = "2"))
+              mutate(model = "Tidy LM")) %>% 
+  mutate(model = fct_reorder(model, .estimate, .fun = max))
 
 joined_metrics %>% arrange(desc(.metric))
 ```
@@ -322,11 +323,11 @@ joined_metrics %>% arrange(desc(.metric))
 (joined_metrics %>% 
   filter(.metric == "rsq") %>% 
   ggplot(aes(.estimate, .metric, fill = model)) +
-  geom_col(position = "dodge") + labs(title = "Variance explained")) /
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Variance explained")) /
 (joined_metrics %>% 
   filter(.metric != "rsq") %>% 
   ggplot(aes(.estimate, .metric, fill = model)) +
-  geom_col(position = "dodge") + labs(title = "Error")) + 
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Error")) + 
 plot_layout(guide = "collect") + 
 plot_annotation(title = "Metrics of Both Models", 
                 theme = theme(plot.title = element_text(hjust = 0.5)))
@@ -381,13 +382,22 @@ house_res2 <- house_test %>%
   
 all_metrics <- joined_metrics %>% 
   bind_rows(three_metrics(house_res2, price, .pred) %>% 
-              mutate(model = "3"))
+              mutate(model = "No Tax LM")) %>% 
+  mutate(model = fct_reorder(model, .estimate, .fun = max))
 ```
 
 ```{r}
-all_metrics %>% 
+(all_metrics %>% 
+  filter(.metric == "rsq") %>% 
   ggplot(aes(.estimate, .metric, fill = model)) +
-  geom_col(position = "dodge")
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Variance explained")) /
+(all_metrics %>% 
+  filter(.metric != "rsq") %>% 
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Error")) + 
+plot_layout(guide = "collect") + 
+plot_annotation(title = "Metrics of 3 Models", 
+                theme = theme(plot.title = element_text(hjust = 0.5)))
 
 all_metrics %>% 
   arrange(desc(.metric), -.estimate)
@@ -421,7 +431,8 @@ The zip_code can be found in the last 5 digits of the address variable, thus we 
 house_mod %>% 
   ggplot(aes(tax, price, color = zip_code)) + geom_point() +
   theme(legend.position = "none") + scale_x_log10() +
-  scale_y_log10()
+  scale_y_log10() + labs(title = "Price vs Taxes", caption = "Both axis on Log-scales") +
+  theme(plot.title = element_text(hjust = 0.5))
 
 house_mod2 <- house_mod %>% 
   mutate(zip_code = fct_lump(zip_code, prop = 0.003))
@@ -466,7 +477,8 @@ house_res2 <-
 
 all_metrics_rf <- all_metrics %>% 
   bind_rows(three_metrics(house_res2, price, .pred) %>% 
-              mutate(model = "4"))
+              mutate(model = "Random Forrest")) %>%
+  mutate(model = fct_reorder(model, .estimate, .fun = max))
 
 all_metrics_rf %>% 
   arrange(desc(.metric), -.estimate)
@@ -475,17 +487,16 @@ all_metrics_rf %>%
 ```{r}
 (all_metrics_rf %>% 
   filter(.metric == "rsq") %>% 
-  ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
-  geom_col(position = "dodge") + labs(title = "Variance Explained") +
-  theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))) /
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Variance Explained", fill = "Model") + 
+  scale_x_continuous(breaks = seq(0.55,0.9,0.05), minor_breaks = NULL)) /
 (all_metrics_rf %>% 
   filter(.metric != "rsq") %>% 
-  ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
-  geom_col(position = "dodge") + labs(title = "Error") +
-  theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))) +
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Error", fill = "Model") + 
+  scale_x_continuous(breaks = seq(0.35,0.7,0.05), minor_breaks = NULL)) +
 plot_layout(guides = "collect") +
-plot_annotation(title = "All 4 Models", 
-                subtitle = "Base R lm (Red), TM lm (Green), TM no tax lm (Blue), Random Forrest (Purple)",
+plot_annotation(title = "All 4 Models",
                 theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
@@ -510,17 +521,26 @@ gam_mod <- gam(price ~
                  s(bath, by = type_mod) + 
                  s(lon, lat), 
                gaussian, gam_train, method = 'REML')
+```
 
+
+```{r}
 summary(gam_mod)
 
 appraise(gam_mod)
+```
 
+
+```{r}
 draw(gam_mod, select = smooths(gam_mod)[1:6])
 
 draw(gam_mod, select = smooths(gam_mod)[7:12])
 
 draw(gam_mod, select = smooths(gam_mod)[13])
+```
 
+
+```{r}
 augment(gam_mod) %>% 
   three_metrics(price, .fitted)
 
@@ -542,22 +562,26 @@ I would correct the 'k' value for the bath and lon/lat variables, but it took to
 And if you are wondering, its metrics did improve.
 
 ```{r}
-all_metrics_rf %>% 
+(all_metrics_rf <- all_metrics_rf %>% 
   bind_rows(augment(gam_mod) %>% 
-    three_metrics(price, .fitted) %>% mutate(model = "5")) %>% 
-  arrange(desc(.metric), -.estimate)
+    three_metrics(price, .fitted) %>% 
+    mutate(model = "GAM")) %>% 
+  mutate(model = fct_reorder(model, .estimate, .desc = TRUE)) %>% 
+  arrange(desc(.metric), -.estimate))
 
-all_metrics_rf %>% 
-  arrange(desc(.metric), -.estimate) %>% 
-  bind_rows(augment(gam_mod) %>% 
-  three_metrics(price, .fitted) %>% 
-    mutate(model = "5")) %>% 
-  ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
-  geom_col(position = "dodge") + 
-  labs(title = "All 5 Models", 
-       subtitle = "Base R lm (Brownish-Yellow), TM lm (Green), TM no tax lm (Blue),
-Random Forrest (Purple), Gam (Red)") +
-  theme(legend.position = "none")
+(all_metrics_rf %>% 
+  filter(.metric == "rsq") %>% 
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Variance Explained", fill = "Model") + 
+  scale_x_continuous(breaks = seq(0.55,0.9,0.05), minor_breaks = NULL)) /
+(all_metrics_rf %>% 
+  filter(.metric != "rsq") %>% 
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Error", fill = "Model") + 
+  scale_x_continuous(breaks = seq(0.35,0.7,0.05), minor_breaks = NULL)) +
+plot_layout(guides = "collect") +
+plot_annotation(title = "All 5 Models",
+                theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
 The GAM Model outperforms all other models. It has less RMSE and MAE, as well as a higher R\^2

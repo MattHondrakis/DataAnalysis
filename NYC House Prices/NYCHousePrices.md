@@ -669,32 +669,33 @@ three_metrics <- metric_set(rsq, rmse, mae)
 joined_metrics <- three_metrics(augment(updated_model) %>% 
       rename(price = `log(price)`),
     price, .fitted) %>% 
-  mutate(model = "1") %>% 
+  mutate(model = "Base LM") %>% 
   bind_rows(three_metrics(house_res, price, .pred) %>% 
-              mutate(model = "2"))
+              mutate(model = "Tidy LM")) %>% 
+  mutate(model = fct_reorder(model, .estimate, .fun = max))
 
 joined_metrics %>% arrange(desc(.metric))
 ```
 
     ## # A tibble: 6 x 4
-    ##   .metric .estimator .estimate model
-    ##   <chr>   <chr>          <dbl> <chr>
-    ## 1 rsq     standard       0.688 1    
-    ## 2 rsq     standard       0.681 2    
-    ## 3 rmse    standard       0.500 1    
-    ## 4 rmse    standard       0.508 2    
-    ## 5 mae     standard       0.346 1    
-    ## 6 mae     standard       0.349 2
+    ##   .metric .estimator .estimate model  
+    ##   <chr>   <chr>          <dbl> <fct>  
+    ## 1 rsq     standard       0.688 Base LM
+    ## 2 rsq     standard       0.681 Tidy LM
+    ## 3 rmse    standard       0.500 Base LM
+    ## 4 rmse    standard       0.508 Tidy LM
+    ## 5 mae     standard       0.346 Base LM
+    ## 6 mae     standard       0.349 Tidy LM
 
 ``` r
 (joined_metrics %>% 
   filter(.metric == "rsq") %>% 
   ggplot(aes(.estimate, .metric, fill = model)) +
-  geom_col(position = "dodge") + labs(title = "Variance explained")) /
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Variance explained")) /
 (joined_metrics %>% 
   filter(.metric != "rsq") %>% 
   ggplot(aes(.estimate, .metric, fill = model)) +
-  geom_col(position = "dodge") + labs(title = "Error")) + 
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Error")) + 
 plot_layout(guide = "collect") + 
 plot_annotation(title = "Metrics of Both Models", 
                 theme = theme(plot.title = element_text(hjust = 0.5)))
@@ -755,13 +756,22 @@ house_res2 <- house_test %>%
   
 all_metrics <- joined_metrics %>% 
   bind_rows(three_metrics(house_res2, price, .pred) %>% 
-              mutate(model = "3"))
+              mutate(model = "No Tax LM")) %>% 
+  mutate(model = fct_reorder(model, .estimate, .fun = max))
 ```
 
 ``` r
-all_metrics %>% 
+(all_metrics %>% 
+  filter(.metric == "rsq") %>% 
   ggplot(aes(.estimate, .metric, fill = model)) +
-  geom_col(position = "dodge")
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Variance explained")) /
+(all_metrics %>% 
+  filter(.metric != "rsq") %>% 
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Error")) + 
+plot_layout(guide = "collect") + 
+plot_annotation(title = "Metrics of 3 Models", 
+                theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
 ![](NYCHousePrices_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
@@ -772,17 +782,17 @@ all_metrics %>%
 ```
 
     ## # A tibble: 9 x 4
-    ##   .metric .estimator .estimate model
-    ##   <chr>   <chr>          <dbl> <chr>
-    ## 1 rsq     standard       0.688 1    
-    ## 2 rsq     standard       0.681 2    
-    ## 3 rsq     standard       0.655 3    
-    ## 4 rmse    standard       0.530 3    
-    ## 5 rmse    standard       0.508 2    
-    ## 6 rmse    standard       0.500 1    
-    ## 7 mae     standard       0.383 3    
-    ## 8 mae     standard       0.349 2    
-    ## 9 mae     standard       0.346 1
+    ##   .metric .estimator .estimate model    
+    ##   <chr>   <chr>          <dbl> <fct>    
+    ## 1 rsq     standard       0.688 Base LM  
+    ## 2 rsq     standard       0.681 Tidy LM  
+    ## 3 rsq     standard       0.655 No Tax LM
+    ## 4 rmse    standard       0.530 No Tax LM
+    ## 5 rmse    standard       0.508 Tidy LM  
+    ## 6 rmse    standard       0.500 Base LM  
+    ## 7 mae     standard       0.383 No Tax LM
+    ## 8 mae     standard       0.349 Tidy LM  
+    ## 9 mae     standard       0.346 Base LM
 
 # Borough?
 
@@ -815,7 +825,8 @@ thus we extract and keep only the last 5 digits of the variable.
 house_mod %>% 
   ggplot(aes(tax, price, color = zip_code)) + geom_point() +
   theme(legend.position = "none") + scale_x_log10() +
-  scale_y_log10()
+  scale_y_log10() + labs(title = "Price vs Taxes", caption = "Both axis on Log-scales") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ![](NYCHousePrices_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
@@ -864,42 +875,42 @@ house_res2 <-
 
 all_metrics_rf <- all_metrics %>% 
   bind_rows(three_metrics(house_res2, price, .pred) %>% 
-              mutate(model = "4"))
+              mutate(model = "Random Forrest")) %>%
+  mutate(model = fct_reorder(model, .estimate, .fun = max))
 
 all_metrics_rf %>% 
   arrange(desc(.metric), -.estimate)
 ```
 
     ## # A tibble: 12 x 4
-    ##    .metric .estimator .estimate model
-    ##    <chr>   <chr>          <dbl> <chr>
-    ##  1 rsq     standard       0.688 1    
-    ##  2 rsq     standard       0.681 2    
-    ##  3 rsq     standard       0.655 3    
-    ##  4 rsq     standard       0.580 4    
-    ##  5 rmse    standard       0.593 4    
-    ##  6 rmse    standard       0.530 3    
-    ##  7 rmse    standard       0.508 2    
-    ##  8 rmse    standard       0.500 1    
-    ##  9 mae     standard       0.412 4    
-    ## 10 mae     standard       0.383 3    
-    ## 11 mae     standard       0.349 2    
-    ## 12 mae     standard       0.346 1
+    ##    .metric .estimator .estimate model         
+    ##    <chr>   <chr>          <dbl> <fct>         
+    ##  1 rsq     standard       0.688 Base LM       
+    ##  2 rsq     standard       0.681 Tidy LM       
+    ##  3 rsq     standard       0.655 No Tax LM     
+    ##  4 rsq     standard       0.580 Random Forrest
+    ##  5 rmse    standard       0.593 Random Forrest
+    ##  6 rmse    standard       0.530 No Tax LM     
+    ##  7 rmse    standard       0.508 Tidy LM       
+    ##  8 rmse    standard       0.500 Base LM       
+    ##  9 mae     standard       0.412 Random Forrest
+    ## 10 mae     standard       0.383 No Tax LM     
+    ## 11 mae     standard       0.349 Tidy LM       
+    ## 12 mae     standard       0.346 Base LM
 
 ``` r
 (all_metrics_rf %>% 
   filter(.metric == "rsq") %>% 
-  ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
-  geom_col(position = "dodge") + labs(title = "Variance Explained") +
-  theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))) /
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Variance Explained", fill = "Model") + 
+  scale_x_continuous(breaks = seq(0.55,0.9,0.05), minor_breaks = NULL)) /
 (all_metrics_rf %>% 
   filter(.metric != "rsq") %>% 
-  ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
-  geom_col(position = "dodge") + labs(title = "Error") +
-  theme(legend.position = "none") + scale_x_continuous(breaks = seq(0.3,0.7,0.05))) +
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Error", fill = "Model") + 
+  scale_x_continuous(breaks = seq(0.35,0.7,0.05), minor_breaks = NULL)) +
 plot_layout(guides = "collect") +
-plot_annotation(title = "All 4 Models", 
-                subtitle = "Base R lm (Red), TM lm (Green), TM no tax lm (Blue), Random Forrest (Purple)",
+plot_annotation(title = "All 4 Models",
                 theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
@@ -950,7 +961,9 @@ gam_mod <- gam(price ~
                  s(bath, by = type_mod) + 
                  s(lon, lat), 
                gaussian, gam_train, method = 'REML')
+```
 
+``` r
 summary(gam_mod)
 ```
 
@@ -993,25 +1006,25 @@ summary(gam_mod)
 appraise(gam_mod)
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[1:6])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-2.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[7:12])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-3.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-38-2.png)<!-- -->
 
 ``` r
 draw(gam_mod, select = smooths(gam_mod)[13])
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-4.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-38-3.png)<!-- -->
 
 ``` r
 augment(gam_mod) %>% 
@@ -1037,7 +1050,7 @@ augment(gam_mod) %>%
   geom_hline(yintercept = 0)) + plot_layout(guides = "collect")
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-36-5.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
 
 ``` r
 k.check(gam_mod)
@@ -1064,46 +1077,50 @@ took too long for my computer to run. So, we will leave it like this!
 And if you are wondering, its metrics did improve.
 
 ``` r
-all_metrics_rf %>% 
+(all_metrics_rf <- all_metrics_rf %>% 
   bind_rows(augment(gam_mod) %>% 
-    three_metrics(price, .fitted) %>% mutate(model = "5")) %>% 
-  arrange(desc(.metric), -.estimate)
+    three_metrics(price, .fitted) %>% 
+    mutate(model = "GAM")) %>% 
+  mutate(model = fct_reorder(model, .estimate, .desc = TRUE)) %>% 
+  arrange(desc(.metric), -.estimate))
 ```
 
     ## # A tibble: 15 x 4
-    ##    .metric .estimator .estimate model
-    ##    <chr>   <chr>          <dbl> <chr>
-    ##  1 rsq     standard       0.860 5    
-    ##  2 rsq     standard       0.688 1    
-    ##  3 rsq     standard       0.681 2    
-    ##  4 rsq     standard       0.655 3    
-    ##  5 rsq     standard       0.580 4    
-    ##  6 rmse    standard       0.593 4    
-    ##  7 rmse    standard       0.530 3    
-    ##  8 rmse    standard       0.508 2    
-    ##  9 rmse    standard       0.500 1    
-    ## 10 rmse    standard       0.365 5    
-    ## 11 mae     standard       0.412 4    
-    ## 12 mae     standard       0.383 3    
-    ## 13 mae     standard       0.349 2    
-    ## 14 mae     standard       0.346 1    
-    ## 15 mae     standard       0.248 5
+    ##    .metric .estimator .estimate model         
+    ##    <chr>   <chr>          <dbl> <fct>         
+    ##  1 rsq     standard       0.860 GAM           
+    ##  2 rsq     standard       0.688 Base LM       
+    ##  3 rsq     standard       0.681 Tidy LM       
+    ##  4 rsq     standard       0.655 No Tax LM     
+    ##  5 rsq     standard       0.580 Random Forrest
+    ##  6 rmse    standard       0.593 Random Forrest
+    ##  7 rmse    standard       0.530 No Tax LM     
+    ##  8 rmse    standard       0.508 Tidy LM       
+    ##  9 rmse    standard       0.500 Base LM       
+    ## 10 rmse    standard       0.365 GAM           
+    ## 11 mae     standard       0.412 Random Forrest
+    ## 12 mae     standard       0.383 No Tax LM     
+    ## 13 mae     standard       0.349 Tidy LM       
+    ## 14 mae     standard       0.346 Base LM       
+    ## 15 mae     standard       0.248 GAM
 
 ``` r
-all_metrics_rf %>% 
-  arrange(desc(.metric), -.estimate) %>% 
-  bind_rows(augment(gam_mod) %>% 
-  three_metrics(price, .fitted) %>% 
-    mutate(model = "5")) %>% 
-  ggplot(aes(.estimate, .metric, fill = fct_reorder(model, .estimate, max, .desc = TRUE))) +
-  geom_col(position = "dodge") + 
-  labs(title = "All 5 Models", 
-       subtitle = "Base R lm (Brownish-Yellow), TM lm (Green), TM no tax lm (Blue),
-Random Forrest (Purple), Gam (Red)") +
-  theme(legend.position = "none")
+(all_metrics_rf %>% 
+  filter(.metric == "rsq") %>% 
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Variance Explained", fill = "Model") + 
+  scale_x_continuous(breaks = seq(0.55,0.9,0.05), minor_breaks = NULL)) /
+(all_metrics_rf %>% 
+  filter(.metric != "rsq") %>% 
+  ggplot(aes(.estimate, .metric, fill = model)) +
+  geom_col(position = "dodge") + labs(y = "", x = "", title = "Error", fill = "Model") + 
+  scale_x_continuous(breaks = seq(0.35,0.7,0.05), minor_breaks = NULL)) +
+plot_layout(guides = "collect") +
+plot_annotation(title = "All 5 Models",
+                theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
-![](NYCHousePrices_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+![](NYCHousePrices_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
 
 The GAM Model outperforms all other models. It has less RMSE and MAE, as
 well as a higher R^2
