@@ -211,7 +211,7 @@ house_mod %>%
   rownames_to_column(var = "item1") %>% 
   gather(key = item2, value = corr, -item1) %>% 
   filter(item1 > item2) %>% 
-  arrange(-abs(corr))
+  arrange(item1, -abs(corr))
 ```
 
 ```{r}

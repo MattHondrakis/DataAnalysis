@@ -456,38 +456,38 @@ house_mod %>%
   rownames_to_column(var = "item1") %>% 
   gather(key = item2, value = corr, -item1) %>% 
   filter(item1 > item2) %>% 
-  arrange(-abs(corr))
+  arrange(item1, -abs(corr))
 ```
 
     ##                   item1                item2        corr
-    ## 1            total_cost     improvement_cost  0.99761312
-    ## 2                   tax     improvement_cost  0.99137901
-    ## 3            total_cost                  tax  0.99086226
-    ## 4            total_cost land_assessment_cost  0.96450910
-    ## 5                   tax land_assessment_cost  0.94467569
-    ## 6  land_assessment_cost     improvement_cost  0.94397401
-    ## 7                   bed                 bath  0.62187514
-    ## 8                   tax                 sqft  0.48728324
-    ## 9                  sqft     improvement_cost  0.45396698
-    ## 10                price                 bath  0.44701449
-    ## 11           total_cost                 sqft  0.44406856
+    ## 1                   bed                 bath  0.62187514
+    ## 2      improvement_cost                  bed -0.16707156
+    ## 3      improvement_cost                 bath -0.07945988
+    ## 4  land_assessment_cost     improvement_cost  0.94397401
+    ## 5  land_assessment_cost                  bed -0.12324898
+    ## 6  land_assessment_cost                 bath -0.04720870
+    ## 7                 price                 bath  0.44701449
+    ## 8                 price                  bed  0.21414699
+    ## 9                 price land_assessment_cost  0.07131328
+    ## 10                price     improvement_cost  0.06414354
+    ## 11                 sqft     improvement_cost  0.45396698
     ## 12                 sqft land_assessment_cost  0.38640371
-    ## 13                price                  bed  0.21414699
-    ## 14     improvement_cost                  bed -0.16707156
-    ## 15                  tax                  bed -0.16695827
-    ## 16           total_cost                  bed -0.15946214
-    ## 17                 sqft                  bed -0.13076296
-    ## 18 land_assessment_cost                  bed -0.12324898
-    ## 19     improvement_cost                 bath -0.07945988
-    ## 20                 sqft                price  0.07727393
-    ## 21                  tax                price  0.07593635
-    ## 22           total_cost                 bath -0.07345366
-    ## 23                  tax                 bath -0.07189192
-    ## 24                price land_assessment_cost  0.07131328
-    ## 25           total_cost                price  0.06624251
-    ## 26                 sqft                 bath -0.06450716
-    ## 27                price     improvement_cost  0.06414354
-    ## 28 land_assessment_cost                 bath -0.04720870
+    ## 13                 sqft                  bed -0.13076296
+    ## 14                 sqft                price  0.07727393
+    ## 15                 sqft                 bath -0.06450716
+    ## 16                  tax     improvement_cost  0.99137901
+    ## 17                  tax land_assessment_cost  0.94467569
+    ## 18                  tax                 sqft  0.48728324
+    ## 19                  tax                  bed -0.16695827
+    ## 20                  tax                price  0.07593635
+    ## 21                  tax                 bath -0.07189192
+    ## 22           total_cost     improvement_cost  0.99761312
+    ## 23           total_cost                  tax  0.99086226
+    ## 24           total_cost land_assessment_cost  0.96450910
+    ## 25           total_cost                 sqft  0.44406856
+    ## 26           total_cost                  bed -0.15946214
+    ## 27           total_cost                 bath -0.07345366
+    ## 28           total_cost                price  0.06624251
 
 ``` r
 house_mod %>% 
