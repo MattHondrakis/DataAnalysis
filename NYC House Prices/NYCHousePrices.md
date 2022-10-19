@@ -21,8 +21,8 @@ Matthew
         -   <a href="#analysis" id="toc-analysis">Analysis</a>
     -   <a href="#no-taxes" id="toc-no-taxes">No Taxes!</a>
 -   <a href="#borough" id="toc-borough">Borough?</a>
-    -   <a href="#dont-miss-the-forrest-for-the-trees"
-        id="toc-dont-miss-the-forrest-for-the-trees">Don’t miss the forrest for
+    -   <a href="#dont-miss-the-forest-for-the-trees"
+        id="toc-dont-miss-the-forest-for-the-trees">Don’t miss the forest for
         the trees</a>
 -   <a href="#just-let-gam-figure-it-out"
     id="toc-just-let-gam-figure-it-out">Just let Gam figure it out</a>
@@ -811,7 +811,7 @@ house %>%
 
 ![](NYCHousePrices_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
-## Don’t miss the forrest for the trees
+## Don’t miss the forest for the trees
 
 ``` r
 house_mod <- house_mod %>% 
@@ -875,7 +875,7 @@ house_res2 <-
 
 all_metrics_rf <- all_metrics %>% 
   bind_rows(three_metrics(house_res2, price, .pred) %>% 
-              mutate(model = "Random Forrest")) %>%
+              mutate(model = "Random Forest")) %>%
   mutate(model = fct_reorder(model, .estimate, .fun = max))
 
 all_metrics_rf %>% 
@@ -883,19 +883,19 @@ all_metrics_rf %>%
 ```
 
     ## # A tibble: 12 x 4
-    ##    .metric .estimator .estimate model         
-    ##    <chr>   <chr>          <dbl> <fct>         
-    ##  1 rsq     standard       0.688 Base LM       
-    ##  2 rsq     standard       0.681 Tidy LM       
-    ##  3 rsq     standard       0.655 No Tax LM     
-    ##  4 rsq     standard       0.580 Random Forrest
-    ##  5 rmse    standard       0.593 Random Forrest
-    ##  6 rmse    standard       0.530 No Tax LM     
-    ##  7 rmse    standard       0.508 Tidy LM       
-    ##  8 rmse    standard       0.500 Base LM       
-    ##  9 mae     standard       0.412 Random Forrest
-    ## 10 mae     standard       0.383 No Tax LM     
-    ## 11 mae     standard       0.349 Tidy LM       
+    ##    .metric .estimator .estimate model        
+    ##    <chr>   <chr>          <dbl> <fct>        
+    ##  1 rsq     standard       0.688 Base LM      
+    ##  2 rsq     standard       0.681 Tidy LM      
+    ##  3 rsq     standard       0.655 No Tax LM    
+    ##  4 rsq     standard       0.580 Random Forest
+    ##  5 rmse    standard       0.593 Random Forest
+    ##  6 rmse    standard       0.530 No Tax LM    
+    ##  7 rmse    standard       0.508 Tidy LM      
+    ##  8 rmse    standard       0.500 Base LM      
+    ##  9 mae     standard       0.412 Random Forest
+    ## 10 mae     standard       0.383 No Tax LM    
+    ## 11 mae     standard       0.349 Tidy LM      
     ## 12 mae     standard       0.346 Base LM
 
 ``` r
@@ -1086,22 +1086,22 @@ And if you are wondering, its metrics did improve.
 ```
 
     ## # A tibble: 15 x 4
-    ##    .metric .estimator .estimate model         
-    ##    <chr>   <chr>          <dbl> <fct>         
-    ##  1 rsq     standard       0.860 GAM           
-    ##  2 rsq     standard       0.688 Base LM       
-    ##  3 rsq     standard       0.681 Tidy LM       
-    ##  4 rsq     standard       0.655 No Tax LM     
-    ##  5 rsq     standard       0.580 Random Forrest
-    ##  6 rmse    standard       0.593 Random Forrest
-    ##  7 rmse    standard       0.530 No Tax LM     
-    ##  8 rmse    standard       0.508 Tidy LM       
-    ##  9 rmse    standard       0.500 Base LM       
-    ## 10 rmse    standard       0.365 GAM           
-    ## 11 mae     standard       0.412 Random Forrest
-    ## 12 mae     standard       0.383 No Tax LM     
-    ## 13 mae     standard       0.349 Tidy LM       
-    ## 14 mae     standard       0.346 Base LM       
+    ##    .metric .estimator .estimate model        
+    ##    <chr>   <chr>          <dbl> <fct>        
+    ##  1 rsq     standard       0.860 GAM          
+    ##  2 rsq     standard       0.688 Base LM      
+    ##  3 rsq     standard       0.681 Tidy LM      
+    ##  4 rsq     standard       0.655 No Tax LM    
+    ##  5 rsq     standard       0.580 Random Forest
+    ##  6 rmse    standard       0.593 Random Forest
+    ##  7 rmse    standard       0.530 No Tax LM    
+    ##  8 rmse    standard       0.508 Tidy LM      
+    ##  9 rmse    standard       0.500 Base LM      
+    ## 10 rmse    standard       0.365 GAM          
+    ## 11 mae     standard       0.412 Random Forest
+    ## 12 mae     standard       0.383 No Tax LM    
+    ## 13 mae     standard       0.349 Tidy LM      
+    ## 14 mae     standard       0.346 Base LM      
     ## 15 mae     standard       0.248 GAM
 
 ``` r

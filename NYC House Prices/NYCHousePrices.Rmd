@@ -418,7 +418,7 @@ house %>%
   ggplot(aes(price, borough)) + geom_boxplot() + scale_x_log10()
 ```
 
-## Don't miss the forrest for the trees
+## Don't miss the forest for the trees
 
 ```{r}
 house_mod <- house_mod %>% 
@@ -477,7 +477,7 @@ house_res2 <-
 
 all_metrics_rf <- all_metrics %>% 
   bind_rows(three_metrics(house_res2, price, .pred) %>% 
-              mutate(model = "Random Forrest")) %>%
+              mutate(model = "Random Forest")) %>%
   mutate(model = fct_reorder(model, .estimate, .fun = max))
 
 all_metrics_rf %>% 
