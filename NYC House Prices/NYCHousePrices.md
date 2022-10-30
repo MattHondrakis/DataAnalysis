@@ -26,6 +26,8 @@ Matthew
         the trees</a>
 -   <a href="#just-let-gam-figure-it-out"
     id="toc-just-let-gam-figure-it-out">Just let Gam figure it out</a>
+-   <a href="#all-final-model-metrics" id="toc-all-final-model-metrics">All
+    Final Model Metrics</a>
 
 # Introduction
 
@@ -1076,6 +1078,8 @@ took too long for my computer to run. So, we will leave it like this!
 
 And if you are wondering, its metrics did improve.
 
+# All Final Model Metrics
+
 ``` r
 (all_metrics_rf <- all_metrics_rf %>% 
   bind_rows(augment(gam_mod) %>% 
@@ -1109,12 +1113,14 @@ And if you are wondering, its metrics did improve.
   filter(.metric == "rsq") %>% 
   ggplot(aes(.estimate, .metric, fill = model)) +
   geom_col(position = "dodge") + labs(y = "", x = "", title = "Variance Explained", fill = "Model") + 
-  scale_x_continuous(breaks = seq(0.55,0.9,0.05), minor_breaks = NULL)) /
+  scale_x_continuous(breaks = seq(0.55,0.9,0.05), minor_breaks = NULL) + 
+  geom_text(aes(label = round(.estimate, 3)), position = position_dodge(0.9), hjust = 2)) /
 (all_metrics_rf %>% 
   filter(.metric != "rsq") %>% 
   ggplot(aes(.estimate, .metric, fill = model)) +
   geom_col(position = "dodge") + labs(y = "", x = "", title = "Error", fill = "Model") + 
-  scale_x_continuous(breaks = seq(0.35,0.7,0.05), minor_breaks = NULL)) +
+  scale_x_continuous(breaks = seq(0.35,0.7,0.05), minor_breaks = NULL) +
+  geom_text(aes(label = round(.estimate, 3)), position = position_dodge(0.9), hjust = 2)) +
 plot_layout(guides = "collect") +
 plot_annotation(title = "All 5 Models",
                 theme = theme(plot.title = element_text(hjust = 0.5)))

@@ -561,6 +561,8 @@ I would correct the 'k' value for the bath and lon/lat variables, but it took to
 
 And if you are wondering, its metrics did improve.
 
+# All Final Model Metrics
+
 ```{r}
 (all_metrics_rf <- all_metrics_rf %>% 
   bind_rows(augment(gam_mod) %>% 
@@ -573,12 +575,14 @@ And if you are wondering, its metrics did improve.
   filter(.metric == "rsq") %>% 
   ggplot(aes(.estimate, .metric, fill = model)) +
   geom_col(position = "dodge") + labs(y = "", x = "", title = "Variance Explained", fill = "Model") + 
-  scale_x_continuous(breaks = seq(0.55,0.9,0.05), minor_breaks = NULL)) /
+  scale_x_continuous(breaks = seq(0.55,0.9,0.05), minor_breaks = NULL) + 
+  geom_text(aes(label = round(.estimate, 3)), position = position_dodge(0.9), hjust = 2)) /
 (all_metrics_rf %>% 
   filter(.metric != "rsq") %>% 
   ggplot(aes(.estimate, .metric, fill = model)) +
   geom_col(position = "dodge") + labs(y = "", x = "", title = "Error", fill = "Model") + 
-  scale_x_continuous(breaks = seq(0.35,0.7,0.05), minor_breaks = NULL)) +
+  scale_x_continuous(breaks = seq(0.35,0.7,0.05), minor_breaks = NULL) +
+  geom_text(aes(label = round(.estimate, 3)), position = position_dodge(0.9), hjust = 2)) +
 plot_layout(guides = "collect") +
 plot_annotation(title = "All 5 Models",
                 theme = theme(plot.title = element_text(hjust = 0.5)))
