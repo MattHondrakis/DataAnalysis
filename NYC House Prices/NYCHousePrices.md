@@ -36,6 +36,9 @@ masters. I believe the data came from Kaggle but I am not certain. The
 task was to fit a model to predict NYC Housing prices but I wanted to
 take this opportunity and fit different models and compare the results.
 
+*Note: The code shows the chronological steps taken during the analysis
+(it is not tailored to summarize insights)*
+
 ``` r
 house <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/data_lat_long2.csv")
 ```
