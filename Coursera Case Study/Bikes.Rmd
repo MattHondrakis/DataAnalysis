@@ -44,16 +44,45 @@ bikes$length <- difftime(bikes$ended_at, bikes$started_at, "hours")
 bikes$day_of_week <- wday(bikes$started_at)
 ```
 
+# Data Validation 
+
+There are some instances where the data suggests that an individual started a ride after they ended it. This will be assumed to be faulty and the roles will be reversed. The faulty data consists of only **0.00175%** (112 out of 6.3m) of the total data.
+
+```{r}
+bikes %>% 
+  summarize(neg_time = mean(length < 0) * 100)
+
+bikes %>% 
+  filter(length < 0) %>% 
+  select(started_at, ended_at)
+```
+
+```{r}
+bikes$length <- abs(bikes$length/60) # convert length (in seconds) to minutes and absolute value
+```
+
+# EDA
+
 ```{r}
 skimr::skim_without_charts(bikes)
 ```
 
+The task of this case study is to identify the difference between casual riders and members, with the goal of converting casuals to members. Casual riders are individuals that purchase single rides or full day passes, while members are individuals that purchase an annual subscription. 
+
+## Casuals vs Members
+
 ```{r}
 bikes %>% 
   group_by(member_casual) %>% 
+  mutate(length = as.numeric(length)) %>% 
   summarize(m = mean(length), sd = sd(length)) %>% 
-  ggplot(aes(m, member_casual, color = member_casual)) + geom_point() +
-  geom_errorbar(aes(xmax = m + sd, xmin = m - sd)) + labs(y = "", x = "", color = "")
+  ggplot(aes(m, member_casual, color = member_casual)) + geom_point() + 
+  geom_vline(aes(xintercept = m, color = member_casual), linetype = "dashed", show.legend = FALSE) +
+  geom_errorbar(aes(xmax = m + sd, xmin = m - sd), width = 0.25, show.legend = FALSE) + 
+  geom_text(aes(label = round(m,2), color = member_casual, x = ifelse(m < 13, -30, 70), y = 0.6), show.legend = FALSE) +
+  geom_segment(aes(x = -20, y = 0.56, xend = 10, yend = 0.48)) + 
+  geom_segment(aes(x = 55, y = 0.56, xend = 31, yend = 0.48), color = "red") +
+  labs(y = "", x = "Time in minutes", color = "", title = "Differences in Average Ridership Time")
 ```
 
 ```{r}
@@ -61,4 +90,5 @@ bikes %>%
   ggplot(aes(as.numeric(length))) + geom_histogram() + scale_x_log10() +
   facet_wrap(~member_casual) + labs(y = "", x = "", title = "Histogram of Length of Rides by Different Member Types")
 ```
+
 

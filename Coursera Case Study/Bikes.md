@@ -3,6 +3,11 @@ Coursera Case Study: Bikes
 Matthew
 2022-11-10
 
+-   <a href="#data-validation" id="toc-data-validation">Data Validation</a>
+-   <a href="#eda" id="toc-eda">EDA</a>
+    -   <a href="#casuals-vs-members" id="toc-casuals-vs-members">Casuals vs
+        Members</a>
+
 Multiple data sets (13) were downloaded from a link provided by Coursera
 and then was merged into one csv, which was subsequently read into using
 the code chunk below. The first chunk uses a for-loop to iterate the
@@ -45,6 +50,50 @@ bikes$length <- difftime(bikes$ended_at, bikes$started_at, "hours")
 bikes$day_of_week <- wday(bikes$started_at)
 ```
 
+# Data Validation
+
+There are some instances where the data suggests that an individual
+started a ride after they ended it. This will be assumed to be faulty
+and the roles will be reversed. The faulty data consists of only
+**0.00175%** (112 out of 6.3m) of the total data.
+
+``` r
+bikes %>% 
+  summarize(neg_time = mean(length < 0) * 100)
+```
+
+    ## # A tibble: 1 x 1
+    ##   neg_time
+    ##      <dbl>
+    ## 1  0.00175
+
+``` r
+bikes %>% 
+  filter(length < 0) %>% 
+  select(started_at, ended_at)
+```
+
+    ## # A tibble: 112 x 2
+    ##    started_at          ended_at           
+    ##    <dttm>              <dttm>             
+    ##  1 2021-11-07 01:40:02 2021-11-07 01:05:46
+    ##  2 2021-11-07 01:52:53 2021-11-07 01:05:22
+    ##  3 2021-11-07 01:40:13 2021-11-07 01:00:29
+    ##  4 2021-11-07 01:34:03 2021-11-07 01:17:13
+    ##  5 2021-11-07 01:54:25 2021-11-07 01:03:44
+    ##  6 2021-11-07 01:54:04 2021-11-07 01:25:57
+    ##  7 2021-11-07 01:51:52 2021-11-07 01:22:53
+    ##  8 2021-11-07 01:54:12 2021-11-07 01:05:09
+    ##  9 2021-11-07 01:54:36 2021-11-07 01:03:11
+    ## 10 2021-11-07 01:51:21 2021-11-07 01:07:59
+    ## # ... with 102 more rows
+
+``` r
+bikes$length <- abs(bikes$length/60) # convert length (in seconds) to minutes and absolute value
+```
+
+# EDA
+
 ``` r
 skimr::skim_without_charts(bikes)
 ```
@@ -79,9 +128,9 @@ Data summary
 
 **Variable type: difftime**
 
-| skim_variable | n_missing | complete_rate | min          | max          | median   | n_unique |
-|:--------------|----------:|--------------:|:-------------|:-------------|:---------|---------:|
-| length        |         0 |             1 | -621201 secs | 2483235 secs | 621 secs |    23455 |
+| skim_variable | n_missing | complete_rate | min    | max           | median     | n_unique |
+|:--------------|----------:|--------------:|:-------|:--------------|:-----------|---------:|
+| length        |         0 |             1 | 0 secs | 41387.25 secs | 10.35 secs |    23350 |
 
 **Variable type: numeric**
 
@@ -100,17 +149,29 @@ Data summary
 | started_at    |         0 |             1 | 2021-10-01 00:00:09 | 2022-10-31 23:59:33 | 2022-06-18 23:50:58 |  5349251 |
 | ended_at      |         0 |             1 | 2021-10-01 00:03:11 | 2022-11-07 04:53:58 | 2022-06-19 00:17:08 |  5359703 |
 
+The task of this case study is to identify the difference between casual
+riders and members, with the goal of converting casuals to members.
+Casual riders are individuals that purchase single rides or full day
+passes, while members are individuals that purchase an annual
+subscription.
+
+## Casuals vs Members
+
 ``` r
 bikes %>% 
   group_by(member_casual) %>% 
+  mutate(length = as.numeric(length)) %>% 
   summarize(m = mean(length), sd = sd(length)) %>% 
-  ggplot(aes(m, member_casual, color = member_casual)) + geom_point() +
-  geom_errorbar(aes(xmax = m + sd, xmin = m - sd)) + labs(y = "", x = "", color = "")
+  ggplot(aes(m, member_casual, color = member_casual)) + geom_point() + 
+  geom_vline(aes(xintercept = m, color = member_casual), linetype = "dashed", show.legend = FALSE) +
+  geom_errorbar(aes(xmax = m + sd, xmin = m - sd), width = 0.25, show.legend = FALSE) + 
+  geom_text(aes(label = round(m,2), color = member_casual, x = ifelse(m < 13, -30, 70), y = 0.6), show.legend = FALSE) +
+  geom_segment(aes(x = -20, y = 0.56, xend = 10, yend = 0.48)) + 
+  geom_segment(aes(x = 55, y = 0.56, xend = 31, yend = 0.48), color = "red") +
+  labs(y = "", x = "Time in minutes", color = "", title = "Differences in Average Ridership Time")
 ```
 
-    ## Don't know how to automatically pick scale for object of type difftime. Defaulting to continuous.
-
-![](Bikes_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Bikes_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 bikes %>% 
@@ -120,4 +181,4 @@ bikes %>%
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Bikes_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Bikes_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
