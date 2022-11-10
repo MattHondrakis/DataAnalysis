@@ -19,7 +19,7 @@ theme_set(theme_bw())
 theme_update(plot.title = element_text(hjust = 0.5))
 ```
 
-13 Datasets were downloaded from a link provided by Coursera and then was merged into one csv, which was subsequently read into using the code chunk below.
+Multiple datasets (13) were downloaded from a link provided by Coursera and then was merged into one csv, which was subsequently read into using the code chunk below. The first chunk uses a for-loop to iterate the *read_csv* (read data files) and *rbind* (combine data rowwise) functions till all data files are read; which is then saved as a csv of its own. Now the csv can be read only once using the following code chunk.
 
 ```{r eval=FALSE}
 files <- list.files("D:/Downloads/Case Study")
@@ -37,10 +37,14 @@ write_csv(bikes, "bikes.csv")
 bikes <- read_csv("D:/Downloads/Case Study/Full Data/bikes.csv")
 ```
 
-
 Create columns that are the *length* of bike ride (in hours) and *day_of_week* (1 = Monday, 7 = Sunday).
 
 ```{r}
 bikes$length <- difftime(bikes$ended_at, bikes$started_at, "hours")
 bikes$day_of_week <- wday(bikes$started_at)
 ```
+
+```{r}
+skimr::skim_without_charts(bikes)
+```
+
