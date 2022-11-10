@@ -19,7 +19,7 @@ theme_set(theme_bw())
 theme_update(plot.title = element_text(hjust = 0.5))
 ```
 
-Multiple datasets (13) were downloaded from a link provided by Coursera and then was merged into one csv, which was subsequently read into using the code chunk below. The first chunk uses a for-loop to iterate the *read_csv* (read data files) and *rbind* (combine data rowwise) functions till all data files are read; which is then saved as a csv of its own. Now the csv can be read only once using the following code chunk.
+Multiple data sets (13) were downloaded from a link provided by Coursera and then was merged into one csv, which was subsequently read into using the code chunk below. The first chunk uses a for-loop to iterate the *read_csv* (read data files) and *rbind* (combine data rowwise) functions till all data files are read; which is then saved as a csv of its own. Now the csv can be read only once using the following code chunk.
 
 ```{r eval=FALSE}
 files <- list.files("D:/Downloads/Case Study")
@@ -46,5 +46,19 @@ bikes$day_of_week <- wday(bikes$started_at)
 
 ```{r}
 skimr::skim_without_charts(bikes)
+```
+
+```{r}
+bikes %>% 
+  group_by(member_casual) %>% 
+  summarize(m = mean(length), sd = sd(length)) %>% 
+  ggplot(aes(m, member_casual, color = member_casual)) + geom_point() +
+  geom_errorbar(aes(xmax = m + sd, xmin = m - sd)) + labs(y = "", x = "", color = "")
+```
+
+```{r}
+bikes %>% 
+  ggplot(aes(as.numeric(length))) + geom_histogram() + scale_x_log10() +
+  facet_wrap(~member_casual) + labs(y = "", x = "", title = "Histogram of Length of Rides by Different Member Types")
 ```
 

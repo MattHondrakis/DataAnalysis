@@ -3,7 +3,7 @@ Coursera Case Study: Bikes
 Matthew
 2022-11-10
 
-Multiple datasets (13) were downloaded from a link provided by Coursera
+Multiple data sets (13) were downloaded from a link provided by Coursera
 and then was merged into one csv, which was subsequently read into using
 the code chunk below. The first chunk uses a for-loop to iterate the
 *read_csv* (read data files) and *rbind* (combine data rowwise)
@@ -99,3 +99,25 @@ Data summary
 |:--------------|----------:|--------------:|:--------------------|:--------------------|:--------------------|---------:|
 | started_at    |         0 |             1 | 2021-10-01 00:00:09 | 2022-10-31 23:59:33 | 2022-06-18 23:50:58 |  5349251 |
 | ended_at      |         0 |             1 | 2021-10-01 00:03:11 | 2022-11-07 04:53:58 | 2022-06-19 00:17:08 |  5359703 |
+
+``` r
+bikes %>% 
+  group_by(member_casual) %>% 
+  summarize(m = mean(length), sd = sd(length)) %>% 
+  ggplot(aes(m, member_casual, color = member_casual)) + geom_point() +
+  geom_errorbar(aes(xmax = m + sd, xmin = m - sd)) + labs(y = "", x = "", color = "")
+```
+
+    ## Don't know how to automatically pick scale for object of type difftime. Defaulting to continuous.
+
+![](Bikes_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+bikes %>% 
+  ggplot(aes(as.numeric(length))) + geom_histogram() + scale_x_log10() +
+  facet_wrap(~member_casual) + labs(y = "", x = "", title = "Histogram of Length of Rides by Different Member Types")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Bikes_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
