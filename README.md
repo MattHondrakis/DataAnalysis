@@ -11,3 +11,4 @@ The datasets in this repository tend be updated regularly, and thus the code and
 * [New York House Prices](https://github.com/MattHondrakis/DataAnalysis/blob/main/NYC%20House%20Prices/NYCHousePrices.md)
 * [NYC Emergency Visits](https://github.com/MattHondrakis/DataAnalysis/blob/main/NYC%20Emergency%20Visits/NYC-Emergency-Visits.md)
 * [Office Supplies](https://github.com/MattHondrakis/DataAnalysis/blob/main/Office%20Supplies/Office-Supplies.md)
+* [Coursera Case Study: Bikes](https://github.com/MattHondrakis/DataAnalysis/blob/main/Coursera%20Case%20Study/Bikes.md)
