@@ -31,10 +31,11 @@ Matthew
 
 # Introduction
 
-This project was inspired by a course taken by a friend of mine for his
-masters. I believe the data came from Kaggle but I am not certain. The
-task was to fit a model to predict NYC Housing prices but I wanted to
-take this opportunity and fit different models and compare the results.
+This project was inspired by a friend of mine, which was taking a course
+for his masters. I believe the data came from Kaggle but I am not
+certain. The task was to fit a model to predict NYC Housing prices but I
+wanted to take this opportunity and fit different models and compare the
+results.
 
 *Note: The code shows the chronological steps taken during the analysis
 (it is not tailored to summarize insights)*
