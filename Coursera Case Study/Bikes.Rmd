@@ -13,10 +13,12 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
 library(tidyverse)
 library(scales)
+library(patchwork)
 library(tidymodels)
 library(lubridate)
 theme_set(theme_bw())
 theme_update(plot.title = element_text(hjust = 0.5))
+theme_update(panel.grid.minor = element_blank())
 ```
 
 Multiple data sets (13) were downloaded from a link provided by Coursera and then was merged into one csv, which was subsequently read into using the code chunk below. The first chunk uses a for-loop to iterate the *read_csv* (read data files) and *rbind* (combine data rowwise) functions till all data files are read; which is then saved as a csv of its own. Now the csv can be read only once using the following code chunk.
@@ -37,14 +39,15 @@ write_csv(bikes, "bikes.csv")
 bikes <- read_csv("D:/Downloads/Case Study/Full Data/bikes.csv")
 ```
 
-Create columns that are the *length* of bike ride (in hours) and *day_of_week* (1 = Monday, 7 = Sunday).
+Create columns that are the *length* of bike ride (in seconds) and *day_of_week* (1 = Sunday, 7 = Saturday).
 
 ```{r}
-bikes$length <- difftime(bikes$ended_at, bikes$started_at, "hours")
+bikes$length <- difftime(bikes$ended_at, bikes$started_at)
 bikes$day_of_week <- wday(bikes$started_at)
+bikes$day_label <- wday(bikes$started_at, label = TRUE)
 ```
 
-# Data Validation 
+# Data Validation
 
 There are some instances where the data suggests that an individual started a ride after they ended it. This will be assumed to be faulty and the roles will be reversed. The faulty data consists of only **0.00175%** (112 out of 6.3m) of the total data.
 
@@ -58,8 +61,9 @@ bikes %>%
 ```
 
 ```{r}
-bikes$length <- abs(bikes$length/60) # convert length (in seconds) to minutes and absolute value
+bikes$length <- abs(bikes$length)
 ```
+
 
 # EDA
 
@@ -67,28 +71,44 @@ bikes$length <- abs(bikes$length/60) # convert length (in seconds) to minutes an
 skimr::skim_without_charts(bikes)
 ```
 
-The task of this case study is to identify the difference between casual riders and members, with the goal of converting casuals to members. Casual riders are individuals that purchase single rides or full day passes, while members are individuals that purchase an annual subscription. 
+The task of this case study is to identify the difference between casual riders and members, with the goal of converting casuals to members. Casual riders are individuals that purchase single rides or full day passes, while members are individuals that purchase an annual subscription.
 
 ## Casuals vs Members
 
+There are more than 1 million more members than casuals. 
+
 ```{r}
 bikes %>% 
-  group_by(member_casual) %>% 
-  mutate(length = as.numeric(length)) %>% 
-  summarize(m = mean(length), sd = sd(length)) %>% 
-  ggplot(aes(m, member_casual, color = member_casual)) + geom_point() + 
-  geom_vline(aes(xintercept = m, color = member_casual), linetype = "dashed", show.legend = FALSE) +
-  geom_errorbar(aes(xmax = m + sd, xmin = m - sd), width = 0.25, show.legend = FALSE) + 
-  geom_text(aes(label = round(m,2), color = member_casual, x = ifelse(m < 13, -30, 70), y = 0.6), show.legend = FALSE) +
-  geom_segment(aes(x = -20, y = 0.56, xend = 10, yend = 0.48)) + 
-  geom_segment(aes(x = 55, y = 0.56, xend = 31, yend = 0.48), color = "red") +
-  labs(y = "", x = "Time in minutes", color = "", title = "Differences in Average Ridership Time")
+  count(member_casual, sort = TRUE)
+```
+
+Both members and casuals have the same distribution in their ridership duration.
+
+```{r}
+(bikes %>% 
+  ggplot(aes(as.numeric(length/60))) + geom_histogram() + scale_x_log10(labels = comma_format()) +
+  facet_wrap(~member_casual) +
+  labs(y = "", x = "")) /
+(bikes %>% 
+  ggplot(aes(as.numeric(length/60))) + geom_density() + scale_x_log10(labels = comma_format()) +
+  facet_wrap(~member_casual) +
+  labs(y = "", x = "")) +
+  plot_annotation(title = "Duration Distribution of Rides")
 ```
 
 ```{r}
 bikes %>% 
-  ggplot(aes(as.numeric(length))) + geom_histogram() + scale_x_log10() +
-  facet_wrap(~member_casual) + labs(y = "", x = "", title = "Histogram of Length of Rides by Different Member Types")
+  ggplot(aes(as.numeric(length/60), member_casual)) + geom_boxplot() +
+  scale_x_log10()
 ```
 
-
+```{r}
+bikes %>% 
+  ggplot(aes(fct_reorder(day_label, day_of_week), fill = member_casual)) + 
+  geom_bar(position = position_dodge2()) + 
+  scale_fill_manual(values = c("blue", "green4")) +
+  scale_y_continuous(labels = comma_format()) +
+  labs(y = "", x = "", 
+       title = "Days Members and Casuals Use Cyclistic",
+       fill = "")
+```

@@ -42,12 +42,13 @@ bikes <- read_csv("D:/Downloads/Case Study/Full Data/bikes.csv")
     ## i Use `spec()` to retrieve the full column specification for this data.
     ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-Create columns that are the *length* of bike ride (in hours) and
-*day_of_week* (1 = Monday, 7 = Sunday).
+Create columns that are the *length* of bike ride (in seconds) and
+*day_of_week* (1 = Sunday, 7 = Saturday).
 
 ``` r
-bikes$length <- difftime(bikes$ended_at, bikes$started_at, "hours")
+bikes$length <- difftime(bikes$ended_at, bikes$started_at)
 bikes$day_of_week <- wday(bikes$started_at)
+bikes$day_label <- wday(bikes$started_at, label = TRUE)
 ```
 
 # Data Validation
@@ -89,7 +90,7 @@ bikes %>%
     ## # ... with 102 more rows
 
 ``` r
-bikes$length <- abs(bikes$length/60) # convert length (in seconds) to minutes and absolute value
+bikes$length <- abs(bikes$length)
 ```
 
 # EDA
@@ -102,11 +103,12 @@ skimr::skim_without_charts(bikes)
 |:-------------------------------------------------|:--------|
 | Name                                             | bikes   |
 | Number of rows                                   | 6386920 |
-| Number of columns                                | 15      |
+| Number of columns                                | 16      |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |         |
 | Column type frequency:                           |         |
 | character                                        | 7       |
 | difftime                                         | 1       |
+| factor                                           | 1       |
 | numeric                                          | 5       |
 | POSIXct                                          | 2       |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |         |
@@ -128,9 +130,15 @@ Data summary
 
 **Variable type: difftime**
 
-| skim_variable | n_missing | complete_rate | min    | max           | median     | n_unique |
-|:--------------|----------:|--------------:|:-------|:--------------|:-----------|---------:|
-| length        |         0 |             1 | 0 secs | 41387.25 secs | 10.35 secs |    23350 |
+| skim_variable | n_missing | complete_rate | min    | max          | median   | n_unique |
+|:--------------|----------:|--------------:|:-------|:-------------|:---------|---------:|
+| length        |         0 |             1 | 0 secs | 2483235 secs | 621 secs |    23350 |
+
+**Variable type: factor**
+
+| skim_variable | n_missing | complete_rate | ordered | n_unique | top_counts                                          |
+|:--------------|----------:|--------------:|:--------|---------:|:----------------------------------------------------|
+| day_label     |         0 |             1 | TRUE    |        7 | Sat: 1068394, Fri: 914981, Thu: 909070, Sun: 893711 |
 
 **Variable type: numeric**
 
@@ -157,28 +165,55 @@ subscription.
 
 ## Casuals vs Members
 
+There are more than 1 million more members than casuals.
+
 ``` r
 bikes %>% 
-  group_by(member_casual) %>% 
-  mutate(length = as.numeric(length)) %>% 
-  summarize(m = mean(length), sd = sd(length)) %>% 
-  ggplot(aes(m, member_casual, color = member_casual)) + geom_point() + 
-  geom_vline(aes(xintercept = m, color = member_casual), linetype = "dashed", show.legend = FALSE) +
-  geom_errorbar(aes(xmax = m + sd, xmin = m - sd), width = 0.25, show.legend = FALSE) + 
-  geom_text(aes(label = round(m,2), color = member_casual, x = ifelse(m < 13, -30, 70), y = 0.6), show.legend = FALSE) +
-  geom_segment(aes(x = -20, y = 0.56, xend = 10, yend = 0.48)) + 
-  geom_segment(aes(x = 55, y = 0.56, xend = 31, yend = 0.48), color = "red") +
-  labs(y = "", x = "Time in minutes", color = "", title = "Differences in Average Ridership Time")
+  count(member_casual, sort = TRUE)
 ```
 
-![](Bikes_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+    ## # A tibble: 2 x 2
+    ##   member_casual       n
+    ##   <chr>           <int>
+    ## 1 member        3776645
+    ## 2 casual        2610275
+
+Both members and casuals have the same distribution in their ridership
+duration.
 
 ``` r
-bikes %>% 
-  ggplot(aes(as.numeric(length))) + geom_histogram() + scale_x_log10() +
-  facet_wrap(~member_casual) + labs(y = "", x = "", title = "Histogram of Length of Rides by Different Member Types")
+(bikes %>% 
+  ggplot(aes(as.numeric(length/60))) + geom_histogram() + scale_x_log10(labels = comma_format()) +
+  facet_wrap(~member_casual) +
+  labs(y = "", x = "")) /
+(bikes %>% 
+  ggplot(aes(as.numeric(length/60))) + geom_density() + scale_x_log10(labels = comma_format()) +
+  facet_wrap(~member_casual) +
+  labs(y = "", x = "")) +
+  plot_annotation(title = "Duration Distribution of Rides")
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
 ![](Bikes_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+bikes %>% 
+  ggplot(aes(as.numeric(length/60), member_casual)) + geom_boxplot() +
+  scale_x_log10()
+```
+
+![](Bikes_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+bikes %>% 
+  ggplot(aes(fct_reorder(day_label, day_of_week), fill = member_casual)) + 
+  geom_bar(position = position_dodge2()) + 
+  scale_fill_manual(values = c("blue", "green4")) +
+  scale_y_continuous(labels = comma_format()) +
+  labs(y = "", x = "", 
+       title = "Days Members and Casuals Use Cyclistic",
+       fill = "")
+```
+
+![](Bikes_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
