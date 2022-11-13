@@ -42,6 +42,10 @@ bikes <- read_csv("D:/Downloads/Case Study/Full Data/bikes.csv")
     ## i Use `spec()` to retrieve the full column specification for this data.
     ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
+``` r
+s_bikes <- bikes %>% sample_n(500000)  # sample data set only for the purpose of quicker computations during analysis
+```
+
 Create columns that are the *length* of bike ride (in seconds) and
 *day_of_week* (1 = Sunday, 7 = Saturday).
 
@@ -217,3 +221,32 @@ bikes %>%
 ```
 
 ![](Bikes_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+bikes %>% 
+  group_by(member_casual) %>% 
+  count(rideable_type, sort = TRUE) %>% 
+  mutate(total = sum(n), pct = n/total) %>% 
+  ggplot(aes(pct, member_casual, fill = rideable_type)) + geom_col(position = position_dodge2()) +
+  scale_x_continuous(label = percent_format()) + 
+  geom_text(aes(label = paste0(round(pct, 3)*100, "%")), position = position_dodge2(0.9), hjust = 1.1) +
+  labs(title = "Proportion of Bikes Used by Membership", y = "", x = "", fill = "") +
+  scale_fill_brewer(palette = "Set2", direction = -1)
+```
+
+![](Bikes_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+bikes %>% 
+  filter(!is.na(start_station_name)) %>% 
+  group_by(member_casual) %>% 
+  count(start_station_name, sort = TRUE) %>% 
+  top_n(5) %>% 
+  ggplot(aes(n, fct_reorder(start_station_name, n), fill = member_casual)) + geom_col() +
+  labs(y = "", x = "", fill = "", ) + geom_text(aes(label = n), color = "white", hjust = 1.2) +
+  scale_fill_manual(values = c("blue", "green4")) + theme(legend.position = "bottom")
+```
+
+    ## Selecting by n
+
+![](Bikes_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
