@@ -3,14 +3,34 @@ Coursera Case Study: Bikes
 Matthew
 2022-11-10
 
+-   <a href="#google-analytics-case-study-cyclistic"
+    id="toc-google-analytics-case-study-cyclistic">Google Analytics Case
+    Study: Cyclistic</a>
 -   <a href="#data-validation" id="toc-data-validation">Data Validation</a>
--   <a href="#eda" id="toc-eda">EDA</a>
+-   <a href="#exploratory-data-analysis"
+    id="toc-exploratory-data-analysis">Exploratory Data Analysis</a>
     -   <a href="#casuals-vs-members" id="toc-casuals-vs-members">Casuals vs
         Members</a>
+        -   <a href="#ride-duration-distributions"
+            id="toc-ride-duration-distributions">Ride Duration Distributions</a>
+        -   <a href="#weekdays-vs-weekends" id="toc-weekdays-vs-weekends">Weekdays
+            vs Weekends</a>
+        -   <a href="#type-of-bikes-used" id="toc-type-of-bikes-used">Type of Bikes
+            Used</a>
+        -   <a href="#popular-start-stations"
+            id="toc-popular-start-stations">Popular Start Stations</a>
+
+# Google Analytics Case Study: Cyclistic
+
+The purpose of this case study is the dive into the data and find the
+differences between members and casuals, with the hopes of converting
+casuals to members. Members are individuals that by an annual
+subscription service, while casuals are individuals that buy single ride
+passes.
 
 Multiple data sets (13) were downloaded from a link provided by Coursera
-and then was merged into one csv, which was subsequently read into using
-the code chunk below. The first chunk uses a for-loop to iterate the
+and then was merged into one csv, which was subsequently read using the
+code chunk below. The first chunk uses a for-loop to iterate the
 *read_csv* (read data files) and *rbind* (combine data rowwise)
 functions till all data files are read; which is then saved as a csv of
 its own. Now the csv can be read only once using the following code
@@ -42,17 +62,17 @@ bikes <- read_csv("D:/Downloads/Case Study/Full Data/bikes.csv")
     ## i Use `spec()` to retrieve the full column specification for this data.
     ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-``` r
-s_bikes <- bikes %>% sample_n(500000)  # sample data set only for the purpose of quicker computations during analysis
-```
-
 Create columns that are the *length* of bike ride (in seconds) and
 *day_of_week* (1 = Sunday, 7 = Saturday).
 
 ``` r
-bikes$length <- difftime(bikes$ended_at, bikes$started_at)
+bikes$length <- difftime(bikes$ended_at, bikes$started_at, unit = "mins")
 bikes$day_of_week <- wday(bikes$started_at)
 bikes$day_label <- wday(bikes$started_at, label = TRUE)
+```
+
+``` r
+s_bikes <- bikes %>% sample_n(500000)  # sample data set only for the purpose of quicker computations during analysis
 ```
 
 # Data Validation
@@ -95,9 +115,10 @@ bikes %>%
 
 ``` r
 bikes$length <- abs(bikes$length)
+s_bikes$length <- abs(s_bikes$length)
 ```
 
-# EDA
+# Exploratory Data Analysis
 
 ``` r
 skimr::skim_without_charts(bikes)
@@ -134,9 +155,9 @@ Data summary
 
 **Variable type: difftime**
 
-| skim_variable | n_missing | complete_rate | min    | max          | median   | n_unique |
-|:--------------|----------:|--------------:|:-------|:-------------|:---------|---------:|
-| length        |         0 |             1 | 0 secs | 2483235 secs | 621 secs |    23350 |
+| skim_variable | n_missing | complete_rate | min    | max           | median     | n_unique |
+|:--------------|----------:|--------------:|:-------|:--------------|:-----------|---------:|
+| length        |         0 |             1 | 0 mins | 41387.25 mins | 10.35 mins |    23350 |
 
 **Variable type: factor**
 
@@ -161,73 +182,89 @@ Data summary
 | started_at    |         0 |             1 | 2021-10-01 00:00:09 | 2022-10-31 23:59:33 | 2022-06-18 23:50:58 |  5349251 |
 | ended_at      |         0 |             1 | 2021-10-01 00:03:11 | 2022-11-07 04:53:58 | 2022-06-19 00:17:08 |  5359703 |
 
-The task of this case study is to identify the difference between casual
-riders and members, with the goal of converting casuals to members.
-Casual riders are individuals that purchase single rides or full day
-passes, while members are individuals that purchase an annual
-subscription.
-
 ## Casuals vs Members
 
-There are more than 1 million more members than casuals.
+**Summary**
+
+-   There are *3.77* million rides by members and *2.61* million rides
+    by casuals, accounting for *59.1%* and *40.9%* of the data,
+    respectively.
+-   Members and casuals have approximately equal duration distributions,
+    with casuals having a slightly longer rides.
+-   Members tend to use rides during the weekday while casuals tend to
+    use rides during the weekend.
+-   Casuals disproportionately prefer specific bike stations.
 
 ``` r
 bikes %>% 
-  count(member_casual, sort = TRUE)
+  count(member_casual, sort = TRUE) %>% 
+  mutate(percent = n/sum(n)*100)
 ```
 
-    ## # A tibble: 2 x 2
-    ##   member_casual       n
-    ##   <chr>           <int>
-    ## 1 member        3776645
-    ## 2 casual        2610275
+    ## # A tibble: 2 x 3
+    ##   member_casual       n percent
+    ##   <chr>           <int>   <dbl>
+    ## 1 member        3776645    59.1
+    ## 2 casual        2610275    40.9
 
-Both members and casuals have the same distribution in their ridership
-duration.
+### Ride Duration Distributions
 
 ``` r
 (bikes %>% 
-  ggplot(aes(as.numeric(length/60))) + geom_histogram() + scale_x_log10(labels = comma_format()) +
-  facet_wrap(~member_casual) +
-  labs(y = "", x = "")) /
+  ggplot(aes(as.numeric(length), member_casual, fill = member_casual)) + 
+  geom_boxplot() +
+  scale_x_log10(label = comma_format()) + labs(y = "", x = "", fill = "") + scale_fill_manual(values = c("blue", "green4")))/
 (bikes %>% 
-  ggplot(aes(as.numeric(length/60))) + geom_density() + scale_x_log10(labels = comma_format()) +
-  facet_wrap(~member_casual) +
-  labs(y = "", x = "")) +
-  plot_annotation(title = "Duration Distribution of Rides")
-```
-
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-
-![](Bikes_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
-
-``` r
-bikes %>% 
-  ggplot(aes(as.numeric(length/60), member_casual)) + geom_boxplot() +
-  scale_x_log10()
+   ggplot(aes(as.numeric(length), fill = member_casual)) + 
+   geom_density(alpha = 0.5) + theme(legend.position = "none") +
+   scale_x_log10(label = comma_format()) + labs(y = "", x = "") + scale_fill_manual(values = c("blue", "green4"))) +
+  plot_annotation(title = "Ride Duration Distributions") + plot_layout(guides = "collect")
 ```
 
 ![](Bikes_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
+### Weekdays vs Weekends
+
+Members and casuals appear to use rides for different reasons.
+
+-   Members tend to use rides on weekdays, which implies its used to
+    commute to and from work; while casuals tend to use rides on the
+    weekend, which implies that the main purpose of use is leisure.
+
 ``` r
-bikes %>% 
+(bikes %>% 
   ggplot(aes(fct_reorder(day_label, day_of_week), fill = member_casual)) + 
   geom_bar(position = position_dodge2()) + 
   scale_fill_manual(values = c("blue", "green4")) +
   scale_y_continuous(labels = comma_format()) +
   labs(y = "", x = "", 
-       title = "Days Members and Casuals Use Cyclistic",
-       fill = "")
+       title = "Days Members and Casuals Use Rides",
+       fill = "")) /
+bikes %>% 
+  mutate(wend = ifelse(day_label %in% c("Sat", "Sun"), "Weekend", "Weekday")) %>% 
+  group_by(member_casual) %>% 
+  count(wend, sort = TRUE) %>% 
+  mutate(percent = n/sum(n)) %>% 
+  ggplot(aes(x = member_casual, y = percent, fill = wend)) + 
+  geom_bar(position="fill", stat = "identity") +
+  geom_text(aes(y = ifelse(percent > 0.50, 0.65, 0.15), label = paste0(round(percent, 3)*100,"%"))) +
+  scale_fill_brewer(palette = "Accent", direction = -1) + 
+  theme(axis.ticks = element_blank(), axis.text.y = element_blank()) +
+  scale_y_continuous(label = percent_format()) +
+  labs(y = "", x = "", fill = "", title = "Percentage of Rides Used on Weekdays or Weekends")
 ```
 
 ![](Bikes_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+### Type of Bikes Used
 
 ``` r
 bikes %>% 
   group_by(member_casual) %>% 
   count(rideable_type, sort = TRUE) %>% 
   mutate(total = sum(n), pct = n/total) %>% 
-  ggplot(aes(pct, member_casual, fill = rideable_type)) + geom_col(position = position_dodge2()) +
+  ggplot(aes(pct, member_casual, fill = rideable_type)) + 
+  geom_col(position = position_dodge2()) +
   scale_x_continuous(label = percent_format()) + 
   geom_text(aes(label = paste0(round(pct, 3)*100, "%")), position = position_dodge2(0.9), hjust = 1.1) +
   labs(title = "Proportion of Bikes Used by Membership", y = "", x = "", fill = "") +
@@ -236,17 +273,33 @@ bikes %>%
 
 ![](Bikes_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
+### Popular Start Stations
+
 ``` r
-bikes %>% 
+(bikes %>% 
   filter(!is.na(start_station_name)) %>% 
   group_by(member_casual) %>% 
   count(start_station_name, sort = TRUE) %>% 
   top_n(5) %>% 
-  ggplot(aes(n, fct_reorder(start_station_name, n), fill = member_casual)) + geom_col() +
-  labs(y = "", x = "", fill = "", ) + geom_text(aes(label = n), color = "white", hjust = 1.2) +
-  scale_fill_manual(values = c("blue", "green4")) + theme(legend.position = "bottom")
+  ggplot(aes(n, fct_reorder(start_station_name, n), fill = member_casual)) + 
+  geom_col() +
+  geom_text(aes(label = n), color = "white", fontface = "bold", hjust = 1.2) +
+  labs(y = "", x = "", fill = "", title = "Start Stations") + theme(plot.title = element_text(hjust = 0)) +
+  scale_fill_manual(values = c("blue", "green4"))) /
+bikes %>% 
+  filter(!is.na(end_station_name)) %>% 
+  group_by(member_casual) %>% 
+  count(end_station_name, sort = TRUE) %>% 
+  top_n(5) %>% 
+  ggplot(aes(n, fct_reorder(end_station_name, n), fill = member_casual)) + 
+  geom_col() +
+  geom_text(aes(label = n), color = "white", fontface = "bold", hjust = 1.2) +
+  labs(y = "", x = "", fill = "", title = "End Stations") +
+  scale_fill_manual(values = c("blue", "green4")) + theme(plot.title = element_text(hjust = 0)) +
+  plot_layout(guides = "collect") + plot_annotation(title = "Top 10 Stations")
 ```
 
+    ## Selecting by n
     ## Selecting by n
 
 ![](Bikes_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
