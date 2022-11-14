@@ -24,7 +24,7 @@ Matthew
 
 The purpose of this case study is the dive into the data and find the
 differences between members and casuals, with the hopes of converting
-casuals to members. Members are individuals that by an annual
+casuals to members. Members are individuals that buy an annual
 subscription service, while casuals are individuals that buy single ride
 passes.
 
