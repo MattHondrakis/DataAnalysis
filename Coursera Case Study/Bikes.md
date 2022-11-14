@@ -28,7 +28,7 @@ casuals to members. Members are individuals that buy an annual
 subscription service, while casuals are individuals that buy single ride
 passes.
 
-Multiple data sets (13) were downloaded from a link provided by Coursera
+Multiple data sets (*13*) were downloaded from a link provided by [Coursera](https://divvy-tripdata.s3.amazonaws.com/index.html)
 and then was merged into one csv, which was subsequently read using the
 code chunk below. The first chunk uses a for-loop to iterate the
 *read_csv* (read data files) and *rbind* (combine data rowwise)
