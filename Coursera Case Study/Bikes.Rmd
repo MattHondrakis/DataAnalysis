@@ -23,9 +23,9 @@ theme_update(panel.grid.minor = element_blank())
 
 # Google Analytics Case Study: Cyclistic
 
-The purpose of this case study is the dive into the data and find the differences between members and casuals, with the hopes of converting casuals to members. Members are individuals that by an annual subscription service, while casuals are individuals that buy single ride passes.
+The purpose of this case study is the dive into the data and find the differences between members and casuals, with the hopes of converting casuals to members. Members are individuals that buy an annual subscription service, while casuals are individuals that buy single ride passes.
 
-Multiple data sets (13) were downloaded from a link provided by Coursera and then was merged into one csv, which was subsequently read using the code chunk below. The first chunk uses a for-loop to iterate the *read_csv* (read data files) and *rbind* (combine data rowwise) functions till all data files are read; which is then saved as a csv of its own. Now the csv can be read only once using the following code chunk.
+Multiple data sets (13) were downloaded from a link provided by [Coursera](https://divvy-tripdata.s3.amazonaws.com/index.html) and then was merged into one csv, which was subsequently read using the code chunk below. The first chunk uses a for-loop to iterate the *read_csv* (read data files) and *rbind* (combine data rowwise) functions till all data files are read; which is then saved as a csv of its own. Now the csv can be read only once using the following code chunk without going through the iteration process.
 
 ```{r eval=FALSE}
 files <- list.files("D:/Downloads/Case Study")
@@ -43,7 +43,7 @@ write_csv(bikes, "bikes.csv")
 bikes <- read_csv("D:/Downloads/Case Study/Full Data/bikes.csv")
 ```
 
-Create columns that are the *length* of bike ride (in seconds) and *day_of_week* (1 = Sunday, 7 = Saturday).
+Create columns that are the *length* of bike ride (in minutes) and *day_of_week* (1 = Sunday, 7 = Saturday).
 
 ```{r}
 bikes$length <- difftime(bikes$ended_at, bikes$started_at, unit = "mins")
@@ -76,7 +76,7 @@ s_bikes$length <- abs(s_bikes$length)
 # Exploratory Data Analysis
 
 ```{r}
-skimr::skim_without_charts(bikes)
+skimr::skim_without_charts(bikes %>% select(-matches("lng|lat")))
 ```
 
 ## Casuals vs Members
@@ -108,7 +108,7 @@ bikes %>%
   plot_annotation(title = "Ride Duration Distributions") + plot_layout(guides = "collect")
 ```
 
-### Weekdays vs Weekends 
+### Weekdays vs Weekends
 
 Members and casuals appear to use rides for different reasons.
 
@@ -177,3 +177,4 @@ bikes %>%
   scale_fill_manual(values = c("blue", "green4")) + theme(plot.title = element_text(hjust = 0)) +
   plot_layout(guides = "collect") + plot_annotation(title = "Top 10 Stations")
 ```
+

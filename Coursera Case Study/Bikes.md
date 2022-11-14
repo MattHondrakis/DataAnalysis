@@ -28,13 +28,14 @@ casuals to members. Members are individuals that buy an annual
 subscription service, while casuals are individuals that buy single ride
 passes.
 
-Multiple data sets (*13*) were downloaded from a link provided by [Coursera](https://divvy-tripdata.s3.amazonaws.com/index.html)
-and then was merged into one csv, which was subsequently read using the
-code chunk below. The first chunk uses a for-loop to iterate the
-*read_csv* (read data files) and *rbind* (combine data rowwise)
-functions till all data files are read; which is then saved as a csv of
-its own. Now the csv can be read only once using the following code
-chunk.
+Multiple data sets (13) were downloaded from a link provided by
+[Coursera](https://divvy-tripdata.s3.amazonaws.com/index.html) and then
+was merged into one csv, which was subsequently read using the code
+chunk below. The first chunk uses a for-loop to iterate the *read_csv*
+(read data files) and *rbind* (combine data rowwise) functions till all
+data files are read; which is then saved as a csv of its own. Now the
+csv can be read only once using the following code chunk without going
+through the iteration process.
 
 ``` r
 files <- list.files("D:/Downloads/Case Study")
@@ -62,7 +63,7 @@ bikes <- read_csv("D:/Downloads/Case Study/Full Data/bikes.csv")
     ## i Use `spec()` to retrieve the full column specification for this data.
     ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-Create columns that are the *length* of bike ride (in seconds) and
+Create columns that are the *length* of bike ride (in minutes) and
 *day_of_week* (1 = Sunday, 7 = Saturday).
 
 ``` r
@@ -121,23 +122,23 @@ s_bikes$length <- abs(s_bikes$length)
 # Exploratory Data Analysis
 
 ``` r
-skimr::skim_without_charts(bikes)
+skimr::skim_without_charts(bikes %>% select(-matches("lng|lat")))
 ```
 
-|                                                  |         |
-|:-------------------------------------------------|:--------|
-| Name                                             | bikes   |
-| Number of rows                                   | 6386920 |
-| Number of columns                                | 16      |
-| \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |         |
-| Column type frequency:                           |         |
-| character                                        | 7       |
-| difftime                                         | 1       |
-| factor                                           | 1       |
-| numeric                                          | 5       |
-| POSIXct                                          | 2       |
-| \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |         |
-| Group variables                                  | None    |
+|                                                  |                             |
+|:-------------------------------------------------|:----------------------------|
+| Name                                             | bikes %\>% select(-matches… |
+| Number of rows                                   | 6386920                     |
+| Number of columns                                | 12                          |
+| \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |                             |
+| Column type frequency:                           |                             |
+| character                                        | 7                           |
+| difftime                                         | 1                           |
+| factor                                           | 1                           |
+| numeric                                          | 1                           |
+| POSIXct                                          | 2                           |
+| \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |                             |
+| Group variables                                  | None                        |
 
 Data summary
 
@@ -167,13 +168,9 @@ Data summary
 
 **Variable type: numeric**
 
-| skim_variable | n_missing | complete_rate |   mean |   sd |     p0 |    p25 |    p50 |    p75 |   p100 |
-|:--------------|----------:|--------------:|-------:|-----:|-------:|-------:|-------:|-------:|-------:|
-| start_lat     |         0 |             1 |  41.90 | 0.05 |  41.64 |  41.88 |  41.90 |  41.93 |  45.64 |
-| start_lng     |         0 |             1 | -87.65 | 0.03 | -87.84 | -87.66 | -87.64 | -87.63 | -73.80 |
-| end_lat       |      6319 |             1 |  41.90 | 0.05 |  41.39 |  41.88 |  41.90 |  41.93 |  42.37 |
-| end_lng       |      6319 |             1 | -87.65 | 0.03 | -88.97 | -87.66 | -87.64 | -87.63 | -87.30 |
-| day_of_week   |         0 |             1 |   4.11 | 2.03 |   1.00 |   2.00 |   4.00 |   6.00 |   7.00 |
+| skim_variable | n_missing | complete_rate | mean |   sd |  p0 | p25 | p50 | p75 | p100 |
+|:--------------|----------:|--------------:|-----:|-----:|----:|----:|----:|----:|-----:|
+| day_of_week   |         0 |             1 | 4.11 | 2.03 |   1 |   2 |   4 |   6 |    7 |
 
 **Variable type: POSIXct**
 
