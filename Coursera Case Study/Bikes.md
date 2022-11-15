@@ -119,8 +119,6 @@ bikes$length <- abs(bikes$length)
 s_bikes$length <- abs(s_bikes$length)
 ```
 
-# Exploratory Data Analysis
-
 ``` r
 skimr::skim_without_charts(bikes %>% select(-matches("lng|lat")))
 ```
@@ -179,6 +177,8 @@ Data summary
 | started_at    |         0 |             1 | 2021-10-01 00:00:09 | 2022-10-31 23:59:33 | 2022-06-18 23:50:58 |  5349251 |
 | ended_at      |         0 |             1 | 2021-10-01 00:03:11 | 2022-11-07 04:53:58 | 2022-06-19 00:17:08 |  5359703 |
 
+# Exploratory Data Analysis
+
 ## Casuals vs Members
 
 **Summary**
@@ -191,6 +191,8 @@ Data summary
 -   Members tend to use rides during the weekday while casuals tend to
     use rides during the weekend.
 -   Casuals disproportionately prefer specific bike stations.
+-   Number of rides peak at both 8:00 am and 5:00 pm for members, while
+    rides for casuals peak only at 5:00 pm.
 
 ``` r
 bikes %>% 
@@ -300,3 +302,38 @@ bikes %>%
     ## Selecting by n
 
 ![](Bikes_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+The number of rides started, locally peak at 8:00 am and 5:00 pm for
+members, which further reinforces the hypothesis that members use rides
+to go and come back from work. This assumption is based on the fact that
+the typical work hours are from 9am-5pm, which would lead people start
+rides at 8am to get to work, and then pick up a ride again after work at
+5pm. Furthermore, this pattern is not observed on *Weekends*.
+
+``` r
+bikes %>% 
+  mutate(hour = hour(started_at)) %>% 
+  group_by(member_casual, hour) %>% 
+  count(hour, sort = TRUE) %>% 
+  ggplot(aes(hour, n, color = member_casual)) + 
+  geom_line() + scale_color_manual(values = c("blue", "green4")) +
+  scale_x_continuous(breaks = seq(0,24,4), labels = function(x) paste0(x, ":00")) +
+  labs(y = "", x = "", title = "Number of Rides per Hour", color = "")
+```
+
+![](Bikes_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+bikes %>% 
+  filter(day_label %in% c("Sat", "Sun")) %>% 
+  mutate(hour = hour(started_at)) %>% 
+  group_by(member_casual, hour) %>% 
+  count(hour, sort = TRUE) %>% 
+  ggplot(aes(hour, n, color = member_casual)) + 
+  geom_line() + scale_color_manual(values = c("blue", "green4")) +
+  scale_x_continuous(breaks = seq(0,24,4), labels = function(x) paste0(x, ":00")) +
+  labs(y = "", x = "", title = "Number of Rides per Hour only Weekends", subtitle = "Saturday and Sunday", color = "") +
+  theme(plot.subtitle = element_text(hjust = 0.5))
+```
+
+![](Bikes_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
