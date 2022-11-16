@@ -332,8 +332,57 @@ bikes %>%
   ggplot(aes(hour, n, color = member_casual)) + 
   geom_line() + scale_color_manual(values = c("blue", "green4")) +
   scale_x_continuous(breaks = seq(0,24,4), labels = function(x) paste0(x, ":00")) +
-  labs(y = "", x = "", title = "Number of Rides per Hour only Weekends", subtitle = "Saturday and Sunday", color = "") +
+  labs(y = "", x = "", title = "Number of Rides per Hour only Weekends", 
+       subtitle = "Saturday and Sunday", color = "") +
   theme(plot.subtitle = element_text(hjust = 0.5))
 ```
 
 ![](Bikes_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+wide_fun <- function(data){
+  data %>% 
+    group_by(member_casual) %>% 
+    count(start_station_name) %>% 
+    pivot_wider(names_from = member_casual, values_from = n) %>% 
+    mutate(casual = ifelse(is.na(casual), 0, casual),
+           member = ifelse(is.na(member), 0, member),
+           pct_casual = casual/sum(casual),
+           pct_member = member/sum(member),
+           the_largest = ifelse(pct_casual > pct_member, pct_casual, pct_member),
+           status = ifelse(pct_casual > pct_member, "casual", "member")) %>% 
+    select(start_station_name, the_largest, status)
+}
+```
+
+``` r
+#s_bikes %>% 
+#  inner_join(wide_fun(s_bikes)) %>% 
+#  ggplot(aes(start_lng, start_lat, color = status, size = the_largest)) +
+#  geom_point(alpha = 0.5) + scale_size(range = c(1,2)) +
+#  labs(y = "Latitude", x = "Longitude", title = "Map of Members vs Casuals",
+#       subtitle = "Colored by which Group Disportionally Uses that Station")
+```
+
+``` r
+wide_fun(bikes) %>% 
+  group_by(status) %>% 
+  summarize(max = max(the_largest),
+            median = median(the_largest),
+            mean = mean(the_largest),
+            min = min(the_largest))
+```
+
+    ## # A tibble: 2 x 5
+    ##   status     max    median     mean         min
+    ##   <chr>    <dbl>     <dbl>    <dbl>       <dbl>
+    ## 1 casual 0.157   0.0000172 0.000523 0.000000383
+    ## 2 member 0.00756 0.000486  0.00112  0.000000265
+
+``` r
+wide_fun(bikes) %>% 
+  ggplot(aes(the_largest, fill = status)) + geom_density(alpha = 0.4) +
+  scale_x_log10() + labs(y = "", x = "",)
+```
+
+![](Bikes_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
