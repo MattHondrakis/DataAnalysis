@@ -23,7 +23,7 @@ theme_update(panel.grid.minor = element_blank())
 
 # Google Analytics Case Study: Cyclistic
 
-The purpose of this case study is the dive into the data and find the differences between members and casuals, with the hopes of converting casuals to members. Members are individuals that buy an annual subscription service, while casuals are individuals that buy single ride passes.
+The purpose of this case study is the dive into the data and find differences between members and casuals, with the hopes of converting casuals to members. Members are individuals that buy an annual subscription service, while casuals are individuals that buy single ride passes.
 
 Multiple data sets (13) were downloaded from a link provided by [Coursera](https://divvy-tripdata.s3.amazonaws.com/index.html) and then was merged into one csv, which was subsequently read using the code chunk below. The first chunk uses a for-loop to iterate the *read_csv* (read data files) and *rbind* (combine data rowwise) functions till all data files are read; which is then saved as a csv of its own. Now the csv can be read only once using the following code chunk without going through the iteration process.
 
@@ -57,7 +57,7 @@ s_bikes <- bikes %>% sample_n(500000)  # sample data set only for the purpose of
 
 # Data Validation
 
-There are some instances where the data suggests that an individual started a ride after they ended it. This will be assumed to be faulty and the roles will be reversed. The faulty data consists of only **0.00175%** (112 out of 6.3m) of the total data.
+There are some instances where the data suggests that an individual started a ride after they ended it. This will be assumed to be faulty and the values will be converted to their absolute values. The faulty data consists of only **0.00175%** (112 out of 6.3m) of the total data.
 
 ```{r}
 bikes %>% 
@@ -71,6 +71,10 @@ bikes %>%
 ```{r}
 bikes$length <- abs(bikes$length)
 s_bikes$length <- abs(s_bikes$length)
+```
+
+```{r}
+clrs <- c("blue", "green4") # vector of colors to be used
 ```
 
 ```{r}
@@ -88,6 +92,10 @@ skimr::skim_without_charts(bikes %>% select(-matches("lng|lat")))
 -   Members tend to use rides during the weekday while casuals tend to use rides during the weekend.
 -   Casuals disproportionately prefer specific bike stations.
 -   Number of rides peak at both 8:00 am and 5:00 pm for members, while rides for casuals peak only at 5:00 pm.
+-   Members used both *classic* and *electric* bikes approximately equally, while casuals disproportionately used *electric* bikes. Furthermore, there is no data of members using *docked* bikes in the last 12 months.
+    -   Members: **51.7%** Classic, **48.3%** Electric
+
+    -   Casual: **53.7%** Electric, **38.4%** Classic, **7.9%** Docked
 
 ```{r}
 bikes %>% 
@@ -101,7 +109,7 @@ bikes %>%
 (bikes %>% 
   ggplot(aes(as.numeric(length), member_casual, fill = member_casual)) + 
   geom_boxplot() +
-  scale_x_log10(label = comma_format()) + labs(y = "", x = "", fill = "") + scale_fill_manual(values = c("blue", "green4")))/
+  scale_x_log10(label = comma_format()) + labs(y = "", x = "", fill = "") + scale_fill_manual(values = clrs))/
 (bikes %>% 
    ggplot(aes(as.numeric(length), fill = member_casual)) + 
    geom_density(alpha = 0.5) + theme(legend.position = "none") +
@@ -119,7 +127,7 @@ Members and casuals appear to use rides for different reasons.
 (bikes %>% 
   ggplot(aes(fct_reorder(day_label, day_of_week), fill = member_casual)) + 
   geom_bar(position = position_dodge2()) + 
-  scale_fill_manual(values = c("blue", "green4")) +
+  scale_fill_manual(values = clrs) +
   scale_y_continuous(labels = comma_format()) +
   labs(y = "", x = "", 
        title = "Days Members and Casuals Use Rides",
@@ -165,7 +173,7 @@ bikes %>%
   geom_col() +
   geom_text(aes(label = n), color = "white", fontface = "bold", hjust = 1.2) +
   labs(y = "", x = "", fill = "", title = "Start Stations") + theme(plot.title = element_text(hjust = 0)) +
-  scale_fill_manual(values = c("blue", "green4"))) /
+  scale_fill_manual(values = clrs)) /
 bikes %>% 
   filter(!is.na(end_station_name)) %>% 
   group_by(member_casual) %>% 
@@ -175,7 +183,7 @@ bikes %>%
   geom_col() +
   geom_text(aes(label = n), color = "white", fontface = "bold", hjust = 1.2) +
   labs(y = "", x = "", fill = "", title = "End Stations") +
-  scale_fill_manual(values = c("blue", "green4")) + theme(plot.title = element_text(hjust = 0)) +
+  scale_fill_manual(values = clrs) + theme(plot.title = element_text(hjust = 0)) +
   plot_layout(guides = "collect") + plot_annotation(title = "Top 10 Stations")
 ```
 
@@ -187,7 +195,7 @@ bikes %>%
   group_by(member_casual, hour) %>% 
   count(hour, sort = TRUE) %>% 
   ggplot(aes(hour, n, color = member_casual)) + 
-  geom_line() + scale_color_manual(values = c("blue", "green4")) +
+  geom_line() + scale_color_manual(values = clrs) +
   scale_x_continuous(breaks = seq(0,24,4), labels = function(x) paste0(x, ":00")) +
   labs(y = "", x = "", title = "Number of Rides per Hour", color = "")
 ```
@@ -199,12 +207,14 @@ bikes %>%
   group_by(member_casual, hour) %>% 
   count(hour, sort = TRUE) %>% 
   ggplot(aes(hour, n, color = member_casual)) + 
-  geom_line() + scale_color_manual(values = c("blue", "green4")) +
+  geom_line() + scale_color_manual(values = clrs) +
   scale_x_continuous(breaks = seq(0,24,4), labels = function(x) paste0(x, ":00")) +
   labs(y = "", x = "", title = "Number of Rides per Hour only Weekends", 
        subtitle = "Saturday and Sunday", color = "") +
   theme(plot.subtitle = element_text(hjust = 0.5))
 ```
+
+The function below will provide a quick and easy way to join a data frame to the original, containing information on which group used certain stations more than others.
 
 ```{r}
 wide_fun <- function(data){
@@ -223,12 +233,18 @@ wide_fun <- function(data){
 ```
 
 ```{r}
-#s_bikes %>% 
-#  inner_join(wide_fun(s_bikes)) %>% 
-#  ggplot(aes(start_lng, start_lat, color = status, size = the_largest)) +
-#  geom_point(alpha = 0.5) + scale_size(range = c(1,2)) +
-#  labs(y = "Latitude", x = "Longitude", title = "Map of Members vs Casuals",
-#       subtitle = "Colored by which Group Disportionally Uses that Station")
+bikes %>% 
+  inner_join(wide_fun(s_bikes)) %>% 
+  count(status, sort = TRUE)
+```
+
+```{r eval=FALSE, include=FALSE}
+s_bikes %>% 
+  inner_join(wide_fun(s_bikes)) %>% 
+  ggplot(aes(start_lng, start_lat, color = status, size = the_largest)) +
+  geom_point(alpha = 0.5) + scale_size(range = c(1,2)) +
+  labs(y = "Latitude", x = "Longitude", title = "Map of Members vs Casuals",
+       subtitle = "Colored by which Group Disproportionally Uses that Station")
 ```
 
 ```{r}
@@ -242,6 +258,12 @@ wide_fun(bikes) %>%
 
 ```{r}
 wide_fun(bikes) %>% 
-  ggplot(aes(the_largest, fill = status)) + geom_density(alpha = 0.4) +
-  scale_x_log10() + labs(y = "", x = "",)
+  ggplot(aes(the_largest, fill = status)) + 
+  geom_density(alpha = 0.5) +
+  scale_fill_manual(values = clrs) +
+  scale_x_log10(labels = percent_format()) + 
+  scale_y_continuous(labels = percent_format()) +
+  labs(y = "Proportion of Stations", x = "Percent Use (log-scale)", 
+                         fill = "", 
+                         title = "Proportion of Stations by Percent Use") 
 ```

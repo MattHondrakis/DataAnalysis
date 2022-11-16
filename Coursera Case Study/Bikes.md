@@ -22,7 +22,7 @@ Matthew
 
 # Google Analytics Case Study: Cyclistic
 
-The purpose of this case study is the dive into the data and find the
+The purpose of this case study is the dive into the data and find
 differences between members and casuals, with the hopes of converting
 casuals to members. Members are individuals that buy an annual
 subscription service, while casuals are individuals that buy single ride
@@ -80,8 +80,8 @@ s_bikes <- bikes %>% sample_n(500000)  # sample data set only for the purpose of
 
 There are some instances where the data suggests that an individual
 started a ride after they ended it. This will be assumed to be faulty
-and the roles will be reversed. The faulty data consists of only
-**0.00175%** (112 out of 6.3m) of the total data.
+and the values will be converted to their absolute values. The faulty
+data consists of only **0.00175%** (112 out of 6.3m) of the total data.
 
 ``` r
 bikes %>% 
@@ -117,6 +117,10 @@ bikes %>%
 ``` r
 bikes$length <- abs(bikes$length)
 s_bikes$length <- abs(s_bikes$length)
+```
+
+``` r
+clrs <- c("blue", "green4") # vector of colors to be used
 ```
 
 ``` r
@@ -193,6 +197,13 @@ Data summary
 -   Casuals disproportionately prefer specific bike stations.
 -   Number of rides peak at both 8:00 am and 5:00 pm for members, while
     rides for casuals peak only at 5:00 pm.
+-   Members used both *classic* and *electric* bikes approximately
+    equally, while casuals disproportionately used *electric* bikes.
+    Furthermore, there is no data of members using *docked* bikes in the
+    last 12 months.
+    -   Members: **51.7%** Classic, **48.3%** Electric
+
+    -   Casual: **53.7%** Electric, **38.4%** Classic, **7.9%** Docked
 
 ``` r
 bikes %>% 
@@ -212,7 +223,7 @@ bikes %>%
 (bikes %>% 
   ggplot(aes(as.numeric(length), member_casual, fill = member_casual)) + 
   geom_boxplot() +
-  scale_x_log10(label = comma_format()) + labs(y = "", x = "", fill = "") + scale_fill_manual(values = c("blue", "green4")))/
+  scale_x_log10(label = comma_format()) + labs(y = "", x = "", fill = "") + scale_fill_manual(values = clrs))/
 (bikes %>% 
    ggplot(aes(as.numeric(length), fill = member_casual)) + 
    geom_density(alpha = 0.5) + theme(legend.position = "none") +
@@ -220,7 +231,7 @@ bikes %>%
   plot_annotation(title = "Ride Duration Distributions") + plot_layout(guides = "collect")
 ```
 
-![](Bikes_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Bikes_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ### Weekdays vs Weekends
 
@@ -234,7 +245,7 @@ Members and casuals appear to use rides for different reasons.
 (bikes %>% 
   ggplot(aes(fct_reorder(day_label, day_of_week), fill = member_casual)) + 
   geom_bar(position = position_dodge2()) + 
-  scale_fill_manual(values = c("blue", "green4")) +
+  scale_fill_manual(values = clrs) +
   scale_y_continuous(labels = comma_format()) +
   labs(y = "", x = "", 
        title = "Days Members and Casuals Use Rides",
@@ -253,7 +264,7 @@ bikes %>%
   labs(y = "", x = "", fill = "", title = "Percentage of Rides Used on Weekdays or Weekends")
 ```
 
-![](Bikes_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Bikes_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ### Type of Bikes Used
 
@@ -270,7 +281,7 @@ bikes %>%
   scale_fill_brewer(palette = "Set2", direction = -1)
 ```
 
-![](Bikes_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Bikes_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ### Popular Start Stations
 
@@ -284,7 +295,7 @@ bikes %>%
   geom_col() +
   geom_text(aes(label = n), color = "white", fontface = "bold", hjust = 1.2) +
   labs(y = "", x = "", fill = "", title = "Start Stations") + theme(plot.title = element_text(hjust = 0)) +
-  scale_fill_manual(values = c("blue", "green4"))) /
+  scale_fill_manual(values = clrs)) /
 bikes %>% 
   filter(!is.na(end_station_name)) %>% 
   group_by(member_casual) %>% 
@@ -294,14 +305,14 @@ bikes %>%
   geom_col() +
   geom_text(aes(label = n), color = "white", fontface = "bold", hjust = 1.2) +
   labs(y = "", x = "", fill = "", title = "End Stations") +
-  scale_fill_manual(values = c("blue", "green4")) + theme(plot.title = element_text(hjust = 0)) +
+  scale_fill_manual(values = clrs) + theme(plot.title = element_text(hjust = 0)) +
   plot_layout(guides = "collect") + plot_annotation(title = "Top 10 Stations")
 ```
 
     ## Selecting by n
     ## Selecting by n
 
-![](Bikes_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Bikes_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 The number of rides started, locally peak at 8:00 am and 5:00 pm for
 members, which further reinforces the hypothesis that members use rides
@@ -316,12 +327,12 @@ bikes %>%
   group_by(member_casual, hour) %>% 
   count(hour, sort = TRUE) %>% 
   ggplot(aes(hour, n, color = member_casual)) + 
-  geom_line() + scale_color_manual(values = c("blue", "green4")) +
+  geom_line() + scale_color_manual(values = clrs) +
   scale_x_continuous(breaks = seq(0,24,4), labels = function(x) paste0(x, ":00")) +
   labs(y = "", x = "", title = "Number of Rides per Hour", color = "")
 ```
 
-![](Bikes_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Bikes_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
 bikes %>% 
@@ -330,14 +341,18 @@ bikes %>%
   group_by(member_casual, hour) %>% 
   count(hour, sort = TRUE) %>% 
   ggplot(aes(hour, n, color = member_casual)) + 
-  geom_line() + scale_color_manual(values = c("blue", "green4")) +
+  geom_line() + scale_color_manual(values = clrs) +
   scale_x_continuous(breaks = seq(0,24,4), labels = function(x) paste0(x, ":00")) +
   labs(y = "", x = "", title = "Number of Rides per Hour only Weekends", 
        subtitle = "Saturday and Sunday", color = "") +
   theme(plot.subtitle = element_text(hjust = 0.5))
 ```
 
-![](Bikes_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](Bikes_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+The function below will provide a quick and easy way to join a data
+frame to the original, containing information on which group used
+certain stations more than others.
 
 ``` r
 wide_fun <- function(data){
@@ -356,13 +371,18 @@ wide_fun <- function(data){
 ```
 
 ``` r
-#s_bikes %>% 
-#  inner_join(wide_fun(s_bikes)) %>% 
-#  ggplot(aes(start_lng, start_lat, color = status, size = the_largest)) +
-#  geom_point(alpha = 0.5) + scale_size(range = c(1,2)) +
-#  labs(y = "Latitude", x = "Longitude", title = "Map of Members vs Casuals",
-#       subtitle = "Colored by which Group Disportionally Uses that Station")
+bikes %>% 
+  inner_join(wide_fun(s_bikes)) %>% 
+  count(status, sort = TRUE)
 ```
+
+    ## Joining, by = "start_station_name"
+
+    ## # A tibble: 2 x 2
+    ##   status       n
+    ##   <chr>    <int>
+    ## 1 member 3272645
+    ## 2 casual 3112451
 
 ``` r
 wide_fun(bikes) %>% 
@@ -381,8 +401,14 @@ wide_fun(bikes) %>%
 
 ``` r
 wide_fun(bikes) %>% 
-  ggplot(aes(the_largest, fill = status)) + geom_density(alpha = 0.4) +
-  scale_x_log10() + labs(y = "", x = "",)
+  ggplot(aes(the_largest, fill = status)) + 
+  geom_density(alpha = 0.5) +
+  scale_fill_manual(values = clrs) +
+  scale_x_log10(labels = percent_format()) + 
+  scale_y_continuous(labels = percent_format()) +
+  labs(y = "Proportion of Stations", x = "Percent Use (log-scale)", 
+                         fill = "", 
+                         title = "Proportion of Stations by Percent Use") 
 ```
 
-![](Bikes_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Bikes_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
