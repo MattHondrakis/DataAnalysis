@@ -266,8 +266,12 @@ wide_fun(bikes) %>%
 wide_fun(bikes) %>% 
   group_by(membership) %>% 
   summarize(max = max(the_largest),
+            `95%` = quantile(the_largest, 0.95),
+            `80%` = quantile(the_largest, 0.8),
+            `60%` = quantile(the_largest, 0.6),
             median = median(the_largest),
-            mean = mean(the_largest),
+            `40%` = quantile(the_largest, 0.4),
+            `20%` = quantile(the_largest, 0.2),
             min = min(the_largest)) %>% 
   mutate(across(where(is.numeric), ~ paste0(round(.x * 100, 4), "%"))) %>% 
   knitr::kable()

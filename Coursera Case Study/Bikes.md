@@ -382,8 +382,8 @@ bikes %>%
     ## # A tibble: 2 x 2
     ##   membership       n
     ##   <chr>        <int>
-    ## 1 member     3149194
-    ## 2 casual     2249708
+    ## 1 member     3143626
+    ## 2 casual     2255066
 
 The histogram plot below describes the popularity of stations for each
 group. The vertical axis represents the amount of stations and the
@@ -413,14 +413,18 @@ wide_fun(bikes) %>%
 wide_fun(bikes) %>% 
   group_by(membership) %>% 
   summarize(max = max(the_largest),
+            `95%` = quantile(the_largest, 0.95),
+            `80%` = quantile(the_largest, 0.8),
+            `60%` = quantile(the_largest, 0.6),
             median = median(the_largest),
-            mean = mean(the_largest),
+            `40%` = quantile(the_largest, 0.4),
+            `20%` = quantile(the_largest, 0.2),
             min = min(the_largest)) %>% 
   mutate(across(where(is.numeric), ~ paste0(round(.x * 100, 4), "%"))) %>% 
   knitr::kable()
 ```
 
-| membership | max     | median  | mean    | min |
-|:-----------|:--------|:--------|:--------|:----|
-| casual     | 2.8683% | 0.002%  | 0.046%  | 0%  |
-| member     | 0.892%  | 0.0572% | 0.1319% | 0%  |
+| membership | max     | 95%     | 80%     | 60%     | median  | 40%     | 20%    | min |
+|:-----------|:--------|:--------|:--------|:--------|:--------|:--------|:-------|:----|
+| casual     | 2.8683% | 0.3058% | 0.0208% | 0.0044% | 0.002%  | 7e-04%  | 1e-04% | 0%  |
+| member     | 0.892%  | 0.4635% | 0.2561% | 0.1217% | 0.0572% | 0.0114% | 1e-04% | 0%  |
