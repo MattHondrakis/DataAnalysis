@@ -351,13 +351,14 @@ bikes %>%
 ![](Bikes_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 The function below will provide a quick and easy way to join a data
-frame to the original, containing information on which group used
-certain stations more than others.
+frame to the original, containing information on which group found
+certain stations more popular than others.
 
 ``` r
 wide_fun <- function(data){
   data %>% 
     group_by(member_casual) %>% 
+    filter(!is.na(start_station_name)) %>% 
     count(start_station_name) %>% 
     pivot_wider(names_from = member_casual, values_from = n) %>% 
     mutate(casual = ifelse(is.na(casual), 0, casual),
@@ -365,50 +366,61 @@ wide_fun <- function(data){
            pct_casual = casual/sum(casual),
            pct_member = member/sum(member),
            the_largest = ifelse(pct_casual > pct_member, pct_casual, pct_member),
-           status = ifelse(pct_casual > pct_member, "casual", "member")) %>% 
-    select(start_station_name, the_largest, status)
+           membership = ifelse(pct_casual > pct_member, "casual", "member")) %>% 
+    select(start_station_name, the_largest, membership)
 }
 ```
 
 ``` r
 bikes %>% 
   inner_join(wide_fun(s_bikes)) %>% 
-  count(status, sort = TRUE)
+  count(membership, sort = TRUE)
 ```
 
     ## Joining, by = "start_station_name"
 
     ## # A tibble: 2 x 2
-    ##   status       n
-    ##   <chr>    <int>
-    ## 1 member 3272645
-    ## 2 casual 3112451
+    ##   membership       n
+    ##   <chr>        <int>
+    ## 1 member     3149194
+    ## 2 casual     2249708
+
+The histogram plot below describes the popularity of stations for each
+group. The vertical axis represents the amount of stations and the
+horizontal axis represents percentage use. For example, in the case for
+members, we see a large peak towards the right portion of the x-axis.
+This shows that the **majority** of stations are used about evenly
+(between 0.1% - 1%). The peak on the left side for members is a natural
+consequence of the fact that the remainder of stations are not used very
+often. For casuals, most stations are located on the left portion of the
+graph, implying that in fact most stations are not used very often.
 
 ``` r
 wide_fun(bikes) %>% 
-  group_by(status) %>% 
+  ggplot(aes(the_largest, fill = membership)) + 
+  geom_histogram(alpha = 0.5, position = "identity", bins = 30, color = "grey20") +
+  scale_fill_manual(values = clrs) +
+  scale_x_log10(labels = percent_format()) + 
+  scale_y_continuous() +
+  labs(y = "Proportion of Stations", x = "Percent Use (log-scale)", 
+                         fill = "", 
+                         title = "Proportion of Stations by Percent Use")
+```
+
+![](Bikes_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+
+``` r
+wide_fun(bikes) %>% 
+  group_by(membership) %>% 
   summarize(max = max(the_largest),
             median = median(the_largest),
             mean = mean(the_largest),
-            min = min(the_largest))
+            min = min(the_largest)) %>% 
+  mutate(across(where(is.numeric), ~ paste0(round(.x * 100, 4), "%"))) %>% 
+  knitr::kable()
 ```
 
-    ## # A tibble: 2 x 5
-    ##   status     max    median     mean         min
-    ##   <chr>    <dbl>     <dbl>    <dbl>       <dbl>
-    ## 1 casual 0.157   0.0000172 0.000523 0.000000383
-    ## 2 member 0.00756 0.000486  0.00112  0.000000265
-
-``` r
-wide_fun(bikes) %>% 
-  ggplot(aes(the_largest, fill = status)) + 
-  geom_density(alpha = 0.5) +
-  scale_fill_manual(values = clrs) +
-  scale_x_log10(labels = percent_format()) + 
-  scale_y_continuous(labels = percent_format()) +
-  labs(y = "Proportion of Stations", x = "Percent Use (log-scale)", 
-                         fill = "", 
-                         title = "Proportion of Stations by Percent Use") 
-```
-
-![](Bikes_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+| membership | max     | median  | mean    | min |
+|:-----------|:--------|:--------|:--------|:----|
+| casual     | 2.8683% | 0.002%  | 0.046%  | 0%  |
+| member     | 0.892%  | 0.0572% | 0.1319% | 0%  |
