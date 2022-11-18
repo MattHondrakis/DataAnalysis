@@ -412,13 +412,14 @@ ggplot() +
   geom_sf(data = chi_map, fill = "black") + 
   geom_point(data = wide_bikes, aes(start_lng, start_lat, color = the_largest)) +
   geom_segment(data = wide_bikes, 
-               x = lng + 0.05, y = lat + 0.05, 
+               x = lng + 0.04, y = lat + 0.055, 
                xend = lng + 0.01, yend = lat + 0.01, 
-               color = "red",
+               color = "blue",
                arrow = arrow(length = unit(0.3, "cm"))) +
-  annotate("text", x = lng + 0.05, y = lat + 0.07, 
-    label = "Outlier Station for Casuals:\nStreeter Dr & Grand Ave",
-    size = 2.5) +
+  annotate("text", x = lng + 0.04, y = lat + 0.07, 
+    label = "Station:\nStreeter Dr & Grand Ave",
+    size = 2,
+    color = "blue") +
   scale_color_gradient2(midpoint = 0, high = "green", mid = "black", 
                         low = "blue") +
   labs(y = "Latitude", x = "Longitude", title = "Map of Preferred Stations",
