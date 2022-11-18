@@ -19,6 +19,7 @@ Matthew
             Used</a>
         -   <a href="#popular-start-stations"
             id="toc-popular-start-stations">Popular Start Stations</a>
+        -   <a href="#map" id="toc-map">Map</a>
 
 # Google Analytics Case Study: Cyclistic
 
@@ -204,6 +205,11 @@ Data summary
     -   Members: **51.7%** Classic, **48.3%** Electric
 
     -   Casual: **53.7%** Electric, **38.4%** Classic, **7.9%** Docked
+-   Most popular stations
+    -   Casuals: Streeter Dr & Grand Ave
+
+    -   Members: Kingsbury St & Kinzie St
+-   Both members and casuals stations along the coast of Chicago.
 
 ``` r
 bikes %>% 
@@ -365,66 +371,60 @@ wide_fun <- function(data){
            member = ifelse(is.na(member), 0, member),
            pct_casual = casual/sum(casual),
            pct_member = member/sum(member),
-           the_largest = ifelse(pct_casual > pct_member, pct_casual, pct_member),
-           membership = ifelse(pct_casual > pct_member, "casual", "member")) %>% 
+           membership = ifelse(pct_casual > pct_member, "casual", "member"),
+           the_largest = ifelse(pct_casual > pct_member, -pct_casual, pct_member)) %>% 
     select(start_station_name, the_largest, membership)
 }
 ```
 
+### Map
+
 ``` r
-bikes %>% 
-  inner_join(wide_fun(s_bikes)) %>% 
-  count(membership, sort = TRUE)
+chi_map <- sf::read_sf("https://raw.githubusercontent.com/thisisdaryn/data/master/geo/chicago/Comm_Areas.geojson") 
+wide_bikes <- wide_fun(bikes) %>% 
+  inner_join(bikes %>% 
+                filter(!is.na(start_station_name)) %>% 
+                select(start_station_name, start_lng, start_lat) %>% 
+                group_by(start_station_name) %>% 
+                slice(1)) %>% 
+  filter(start_lng < -80, start_lat < 42)
 ```
 
     ## Joining, by = "start_station_name"
 
-    ## # A tibble: 2 x 2
-    ##   membership       n
-    ##   <chr>        <int>
-    ## 1 member     3143626
-    ## 2 casual     2255066
-
-The histogram plot below describes the popularity of stations for each
-group. The vertical axis represents the amount of stations and the
-horizontal axis represents percentage use. For example, in the case for
-members, we see a large peak towards the right portion of the x-axis.
-This shows that the **majority** of stations are used about evenly
-(between 0.1% - 1%). The peak on the left side for members is a natural
-consequence of the fact that the remainder of stations are not used very
-often. For casuals, most stations are located on the left portion of the
-graph, implying that in fact most stations are not used very often.
-
 ``` r
-wide_fun(bikes) %>% 
-  ggplot(aes(the_largest, fill = membership)) + 
-  geom_histogram(alpha = 0.5, position = "identity", bins = 30, color = "grey20") +
-  scale_fill_manual(values = clrs) +
-  scale_x_log10(labels = percent_format()) + 
-  scale_y_continuous() +
-  labs(y = "Proportion of Stations", x = "Percent Use (log-scale)", 
-                         fill = "", 
-                         title = "Proportion of Stations by Percent Use")
+lng <- wide_bikes %>% top_n(1,abs(the_largest)) %>% pull(start_lng)
+lat <- wide_bikes %>% top_n(1,abs(the_largest)) %>% pull(start_lat)
 ```
 
-![](Bikes_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+The map below shows stations where members or casuals prefer to start
+their ride. The hue of the color (how green or how blue) indicates how
+much this group prefers to use that station with respect to other
+stations, with blue = casual and green = member. For instance, if rides
+started at station “**A**” account for **10%** of members’ rides, but
+**15%** for casuals’ rides, it will then be colored blue to indicate
+that casuals have a stronger preference for that station. As we can see
+from the map, both members and casuals prefer to start their rides along
+the coast of Chicago.
 
 ``` r
-wide_fun(bikes) %>% 
-  group_by(membership) %>% 
-  summarize(max = max(the_largest),
-            `95%` = quantile(the_largest, 0.95),
-            `80%` = quantile(the_largest, 0.8),
-            `60%` = quantile(the_largest, 0.6),
-            median = median(the_largest),
-            `40%` = quantile(the_largest, 0.4),
-            `20%` = quantile(the_largest, 0.2),
-            min = min(the_largest)) %>% 
-  mutate(across(where(is.numeric), ~ paste0(round(.x * 100, 4), "%"))) %>% 
-  knitr::kable()
+ggplot() +
+  geom_sf(data = chi_map, fill = "black") + 
+  geom_point(data = wide_bikes, aes(start_lng, start_lat, color = the_largest)) +
+  geom_segment(data = wide_bikes, 
+               x = lng + 0.05, y = lat + 0.05, 
+               xend = lng + 0.01, yend = lat + 0.01, 
+               color = "red",
+               arrow = arrow(length = unit(0.3, "cm"))) +
+  annotate("text", x = lng + 0.05, y = lat + 0.07, 
+    label = "Outlier Station for Casuals:\nStreeter Dr & Grand Ave",
+    size = 2.5) +
+  scale_color_gradient2(midpoint = 0, high = "green", mid = "black", 
+                        low = "blue") +
+  labs(y = "Latitude", x = "Longitude", title = "Map of Preferred Stations",
+       subtitle = "Colored by which Group Disproportionally Prefers that Station",
+       color = "Green = Member \nBlue = Casual") +
+  theme_classic()
 ```
 
-| membership | max     | 95%     | 80%     | 60%     | median  | 40%     | 20%    | min |
-|:-----------|:--------|:--------|:--------|:--------|:--------|:--------|:-------|:----|
-| casual     | 2.8683% | 0.3058% | 0.0208% | 0.0044% | 0.002%  | 7e-04%  | 1e-04% | 0%  |
-| member     | 0.892%  | 0.4635% | 0.2561% | 0.1217% | 0.0572% | 0.0114% | 1e-04% | 0%  |
+![](Bikes_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
