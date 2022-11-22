@@ -21,7 +21,7 @@ Matthew
             id="toc-popular-start-stations">Popular Start Stations</a>
         -   <a href="#map" id="toc-map">Map</a>
 -   <a href="#conclusion" id="toc-conclusion">Conclusion</a>
-    -   <a href="#data-dictionary" id="toc-data-dictionary">Data Dictionary</a>
+-   <a href="#data-dictionary" id="toc-data-dictionary">Data Dictionary</a>
 
 # Google Analytics Case Study: Cyclistic
 
@@ -456,12 +456,14 @@ a *casual*.
     parking.
 
 -   **Where**: We learned which stations were preferable to certain
-    users. It showed us that *casuals* preferred stations along the lake
-    shore of Chicago. This reinforced the hypothesis that casuals used
-    Cyclistic for different purposes, namely leisure.
+    users. It showed us that both *members* and *casuals* prefer
+    stations along the lake shore of Chicago. There is an outlier
+    station that casuals prefer disproportionately that is located right
+    on the lake shore of Chicago, and this reinforced the hypothesis
+    that casuals used Cyclistic for different purposes, namely leisure.
 
 -   **What**: What bike was used did not provide much information. There
-    were differences in the two groups but there is no way to clarify
+    were differences in the two groups but there is no way to quantify
     how that difference could improve memberships. Unfortunately,
     Cyclistic provides no information on the differences between the
     different bikes. Casuals are the only ones that were found to use
@@ -470,9 +472,9 @@ a *casual*.
 
 Finally, we are left with a few possible speculations.
 
-1.  **Price**: z
+1.  **Price**:
 
-### Data Dictionary
+# Data Dictionary
 
 #### Length of Rides during Rush Hour
 
@@ -514,3 +516,18 @@ bikes %>%
     ##                     Mean   :   17.031  
     ##                     3rd Qu.:   17.600  
     ##                     Max.   :30400.550
+
+#### Seasonal changes during Rush Hour
+
+``` r
+bikes %>% 
+  mutate(h = hour(started_at),
+         work_hours = ifelse(h %in% c(8,17), "Work", "Free"),
+         month = month(started_at, label = TRUE)) %>% 
+  group_by(month) %>% 
+  summarize(m = mean(work_hours == "Work")) %>% 
+  ggplot(aes(month, m, group = 1)) +
+  geom_line() + scale_y_continuous(label = percent_format())
+```
+
+![](Bikes_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->

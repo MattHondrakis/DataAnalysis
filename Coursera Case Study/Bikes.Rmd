@@ -284,15 +284,15 @@ I would suggest retrieving more information on Cyclistic users in order to provi
 
 -   **When**: We saw that *members* used Cyclistic more for traveling to and from work. This implied that *members* and *casuals* were using rides for different reasons. Without more information on different variables such as single ride pricing vs membership, income levels, age and more; it is not possible to say whether there is a way to convince casuals to convert to members by appealing to the option of using rides for traveling to and from work. For instance, it may be the case that the majority of casuals drive to work and would never need to use a bike to go to work, and thus members are individuals that either do not own a vehicle or find it preferable because of their relative distance to their work place or lack of access to parking.
 
--   **Where**: We learned which stations were preferable to certain users. It showed us that *casuals* preferred stations along the lake shore of Chicago. This reinforced the hypothesis that casuals used Cyclistic for different purposes, namely leisure.
+-   **Where**: We learned which stations were preferable to certain users. It showed us that both *members* and *casuals* prefer stations along the lake shore of Chicago. There is an outlier station that casuals prefer disproportionately that is located right on the lake shore of Chicago, and this reinforced the hypothesis that casuals used Cyclistic for different purposes, namely leisure.
 
--   **What**: What bike was used did not provide much information. There were differences in the two groups but there is no way to clarify how that difference could improve memberships. Unfortunately, Cyclistic provides no information on the differences between the different bikes. Casuals are the only ones that were found to use *docked* bikes over the past year but it is unclear how this may relate to membership conversion.
+-   **What**: What bike was used did not provide much information. There were differences in the two groups but there is no way to quantify how that difference could improve memberships. Unfortunately, Cyclistic provides no information on the differences between the different bikes. Casuals are the only ones that were found to use *docked* bikes over the past year but it is unclear how this may relate to membership conversion.
 
 Finally, we are left with a few possible speculations.
 
-1.  **Price**: z
+1.  **Price**:
 
-### Data Dictionary
+# Data Dictionary
 
 #### Length of Rides during Rush Hour
 
@@ -311,4 +311,17 @@ bikes %>%
   select(work_hours, length) %>% 
   split(.$work_hours) %>% 
   map(summary)
+```
+
+#### Seasonal changes during Rush Hour
+
+```{r}
+bikes %>% 
+  mutate(h = hour(started_at),
+         work_hours = ifelse(h %in% c(8,17), "Work", "Free"),
+         month = month(started_at, label = TRUE)) %>% 
+  group_by(month) %>% 
+  summarize(m = mean(work_hours == "Work")) %>% 
+  ggplot(aes(month, m, group = 1)) +
+  geom_line() + scale_y_continuous(label = percent_format())
 ```
