@@ -100,7 +100,7 @@ skimr::skim_without_charts(bikes %>% select(-matches("lng|lat")))
     -   Casuals: Streeter Dr & Grand Ave
 
     -   Members: Kingsbury St & Kinzie St
--   Both members and casuals stations along the coast of Chicago.
+-   Both members and casuals prefer stations along the lake shore of Chicago.
 
 ```{r}
 bikes %>% 
@@ -254,12 +254,13 @@ lng <- wide_bikes %>% top_n(1,abs(the_largest)) %>% pull(start_lng)
 lat <- wide_bikes %>% top_n(1,abs(the_largest)) %>% pull(start_lat)
 ```
 
-The map below shows stations where members or casuals prefer to start their ride. The hue of the color (how green or how blue) indicates how much this group prefers to use that station with respect to other stations, with blue = casual and green = member. For instance, if rides started at station "**A**" account for **10%** of members' rides, but **15%** for casuals' rides, it will then be colored blue to indicate that casuals have a stronger preference for that station. As we can see from the map, both members and casuals prefer to start their rides along the coast of Chicago.
+The map below shows stations where members or casuals prefer to start their ride. The hue of the color (how green or how blue) indicates how much this group prefers to use that station with respect to other stations, with blue = casual and green = member. For instance, if rides started at station "**A**" account for **10%** of members' rides, but **15%** for casuals' rides, it will then be colored blue to indicate that casuals have a stronger preference for that station. As we can see from the map, both members and casuals prefer to start their rides along the lake shore of Chicago.
 
 ```{r}
 ggplot() +
   geom_sf(data = chi_map, fill = "black") + 
-  geom_point(data = wide_bikes, aes(start_lng, start_lat, color = the_largest)) +
+  geom_point(data = wide_bikes, aes(start_lng, start_lat, color = the_largest),
+             size = 1) +
   geom_segment(data = wide_bikes, 
                x = lng + 0.04, y = lat + 0.055, 
                xend = lng + 0.01, yend = lat + 0.01, 
@@ -275,4 +276,39 @@ ggplot() +
        subtitle = "Colored by which Group Disproportionally Prefers that Station",
        color = "Green = Member \nBlue = Casual") +
   theme_classic()
+```
+
+# Conclusion
+
+I would suggest retrieving more information on Cyclistic users in order to provide options to improve the number of members. The current data only contained information on **where** and **when** rides *began* and *ended*, **what** type of bike was used and whether it was a *member* or a *casual*.
+
+-   **When**: We saw that *members* used Cyclistic more for traveling to and from work. This implied that *members* and *casuals* were using rides for different reasons. Without more information on different variables such as single ride pricing vs membership, income levels, age and more; it is not possible to say whether there is a way to convince casuals to convert to members by appealing to the option of using rides for traveling to and from work. For instance, it may be the case that the majority of casuals drive to work and would never need to use a bike to go to work, and thus members are individuals that either do not own a vehicle or find it preferable because of their relative distance to their work place or lack of access to parking.
+
+-   **Where**: We learned which stations were preferable to certain users. It showed us that *casuals* preferred stations along the lake shore of Chicago. This reinforced the hypothesis that casuals used Cyclistic for different purposes, namely leisure.
+
+-   **What**: What bike was used did not provide much information. There were differences in the two groups but there is no way to clarify how that difference could improve memberships. Unfortunately, Cyclistic provides no information on the differences between the different bikes. Casuals are the only ones that were found to use *docked* bikes over the past year but it is unclear how this may relate to membership conversion.
+
+Finally, we are left with a few possible speculations.
+
+1.  **Price**: z
+
+### Data Dictionary
+
+#### Length of Rides during Rush Hour
+
+```{r}
+bikes %>%
+  mutate(h = hour(started_at),
+         work_hours = ifelse(h %in% c(8,17), "Work", "Free")) %>% 
+  ggplot(aes(work_hours, as.numeric(length))) + 
+  geom_boxplot() + scale_y_log10() +
+  labs(y = "", x = "", title = "Length of Rides for during Rush Hour")
+
+bikes %>%
+  mutate(h = hour(started_at),
+         work_hours = ifelse(h %in% c(8,17), "Work", "Free"),
+         length = as.numeric(length)) %>% 
+  select(work_hours, length) %>% 
+  split(.$work_hours) %>% 
+  map(summary)
 ```

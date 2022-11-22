@@ -20,6 +20,8 @@ Matthew
         -   <a href="#popular-start-stations"
             id="toc-popular-start-stations">Popular Start Stations</a>
         -   <a href="#map" id="toc-map">Map</a>
+-   <a href="#conclusion" id="toc-conclusion">Conclusion</a>
+    -   <a href="#data-dictionary" id="toc-data-dictionary">Data Dictionary</a>
 
 # Google Analytics Case Study: Cyclistic
 
@@ -209,7 +211,8 @@ Data summary
     -   Casuals: Streeter Dr & Grand Ave
 
     -   Members: Kingsbury St & Kinzie St
--   Both members and casuals stations along the coast of Chicago.
+-   Both members and casuals prefer stations along the lake shore of
+    Chicago.
 
 ``` r
 bikes %>% 
@@ -405,12 +408,13 @@ started at station “**A**” account for **10%** of members’ rides, but
 **15%** for casuals’ rides, it will then be colored blue to indicate
 that casuals have a stronger preference for that station. As we can see
 from the map, both members and casuals prefer to start their rides along
-the coast of Chicago.
+the lake shore of Chicago.
 
 ``` r
 ggplot() +
   geom_sf(data = chi_map, fill = "black") + 
-  geom_point(data = wide_bikes, aes(start_lng, start_lat, color = the_largest)) +
+  geom_point(data = wide_bikes, aes(start_lng, start_lat, color = the_largest),
+             size = 1) +
   geom_segment(data = wide_bikes, 
                x = lng + 0.04, y = lat + 0.055, 
                xend = lng + 0.01, yend = lat + 0.01, 
@@ -429,3 +433,84 @@ ggplot() +
 ```
 
 ![](Bikes_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+# Conclusion
+
+I would suggest retrieving more information on Cyclistic users in order
+to provide options to improve the number of members. The current data
+only contained information on **where** and **when** rides *began* and
+*ended*, **what** type of bike was used and whether it was a *member* or
+a *casual*.
+
+-   **When**: We saw that *members* used Cyclistic more for traveling to
+    and from work. This implied that *members* and *casuals* were using
+    rides for different reasons. Without more information on different
+    variables such as single ride pricing vs membership, income levels,
+    age and more; it is not possible to say whether there is a way to
+    convince casuals to convert to members by appealing to the option of
+    using rides for traveling to and from work. For instance, it may be
+    the case that the majority of casuals drive to work and would never
+    need to use a bike to go to work, and thus members are individuals
+    that either do not own a vehicle or find it preferable because of
+    their relative distance to their work place or lack of access to
+    parking.
+
+-   **Where**: We learned which stations were preferable to certain
+    users. It showed us that *casuals* preferred stations along the lake
+    shore of Chicago. This reinforced the hypothesis that casuals used
+    Cyclistic for different purposes, namely leisure.
+
+-   **What**: What bike was used did not provide much information. There
+    were differences in the two groups but there is no way to clarify
+    how that difference could improve memberships. Unfortunately,
+    Cyclistic provides no information on the differences between the
+    different bikes. Casuals are the only ones that were found to use
+    *docked* bikes over the past year but it is unclear how this may
+    relate to membership conversion.
+
+Finally, we are left with a few possible speculations.
+
+1.  **Price**: z
+
+### Data Dictionary
+
+#### Length of Rides during Rush Hour
+
+``` r
+bikes %>%
+  mutate(h = hour(started_at),
+         work_hours = ifelse(h %in% c(8,17), "Work", "Free")) %>% 
+  ggplot(aes(work_hours, as.numeric(length))) + 
+  geom_boxplot() + scale_y_log10() +
+  labs(y = "", x = "", title = "Length of Rides for during Rush Hour")
+```
+
+![](Bikes_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+
+``` r
+bikes %>%
+  mutate(h = hour(started_at),
+         work_hours = ifelse(h %in% c(8,17), "Work", "Free"),
+         length = as.numeric(length)) %>% 
+  select(work_hours, length) %>% 
+  split(.$work_hours) %>% 
+  map(summary)
+```
+
+    ## $Free
+    ##   work_hours            length        
+    ##  Length:5444288     Min.   :    0.00  
+    ##  Class :character   1st Qu.:    5.85  
+    ##  Mode  :character   Median :   10.37  
+    ##                     Mean   :   19.82  
+    ##                     3rd Qu.:   18.77  
+    ##                     Max.   :41387.25  
+    ## 
+    ## $Work
+    ##   work_hours            length         
+    ##  Length:942632      Min.   :    0.000  
+    ##  Class :character   1st Qu.:    5.917  
+    ##  Mode  :character   Median :   10.183  
+    ##                     Mean   :   17.031  
+    ##                     3rd Qu.:   17.600  
+    ##                     Max.   :30400.550
