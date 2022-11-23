@@ -85,13 +85,14 @@ skimr::skim_without_charts(bikes %>% select(-matches("lng|lat")))
 
 ## Casuals vs Members
 
-**Summary**
+### Summary
 
 -   There are *3.77* million rides by members and *2.61* million rides by casuals, accounting for *59.1%* and *40.9%* of the data, respectively.
 -   Members and casuals have approximately equal duration distributions, with casuals having a slightly longer rides.
 -   Members tend to use rides during the weekday while casuals tend to use rides during the weekend.
 -   Casuals disproportionately prefer specific bike stations.
 -   Number of rides peak at both 8:00 am and 5:00 pm for members, while rides for casuals peak only at 5:00 pm.
+-   Members use rides on weekdays approximately **75%** of the time while casuals use rides on weekdays **62%** of the time.
 -   Members used both *classic* and *electric* bikes approximately equally, while casuals disproportionately used *electric* bikes. Furthermore, there is no data of members using *docked* bikes in the last 12 months.
     -   Members: **51.7%** Classic, **48.3%** Electric
 
@@ -290,7 +291,10 @@ I would suggest retrieving more information on Cyclistic users in order to provi
 
 Finally, we are left with a few possible speculations.
 
-1.  **Price**:
+1.  **Price**: If we were to have information on the typical amount of rides a casual makes in a given week or year, it would be possible balance out the price in such a way where it would appear preferable to convert into a membership. For instance, if a typical casual buys 2 single ride passes per week for \$2, while the membership costs \$3 per week, it may entice many casuals to convert. A casual may prefer to pay \$3 a week in order have unlimited rides throughout the week instead of just 2, with just a \$1 extra charge. This would allow this individual to ride bikes more often knowing they are already paying for the membership.
+2.  **Alternative Membership**: Since we know that members and casuals use rides for different purposes, we may want to propose a membership that appeals to casuals. Casuals disproportionately use rides on weekends, which naturally leads to the idea of a weekend membership. If casuals buy 2 single day rides, one for Saturday and Sunday; we may want to offer a membership that is slightly cheaper than the cost of 2 single rides. This will allow Cyclistic to consistently gain revenue from casuals that don't use rides every weekend **or** those that don't use rides on both Saturday and Sunday.
+
+In order to properly suggest what action should be taken for the two alternatives above, we need more data. The data we would require would be information on the number of casuals and members that use Cyclistic. This would allow us to estimate the expected number of rides per user without retrieving personal information from them. Another alternative would be to conduct surveys of both casuals and members to see what many of them like or dislike about Cyclistic. We can reasonable speculate that any improvement to Cyclistic as a whole would typically result to an increase in memberships. If one of the alternatives above were used, tracking changes to ridership moving forward would prove vital to fine tuning pricing parameters in order to ensure an optimal outcome.
 
 # Data Dictionary
 
