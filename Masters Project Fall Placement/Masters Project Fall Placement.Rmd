@@ -1,0 +1,98 @@
+---
+title: "Masters Project: Job Placement"
+author: "Matthew"
+date: "2022-12-07"
+output: 
+  github_document:
+    toc: true
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500)
+library(tidyverse)
+library(scales)
+library(patchwork)
+library(tidymodels)
+theme_set(theme_bw())
+theme_update(plot.title = element_text(hjust = 0.5))
+theme_update(panel.grid.minor = element_blank())
+```
+
+```{r}
+fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/fall2022Placement.csv")
+```
+
+# Intro
+
+This is a structured analysis guided by the assignment provided by my friends professor. The task is as follows.
+
+-   **Cleanse**: Look for null data in the table, and use the appropriate strategy to handle null data for each column. Explain why this was the strategy that you used.
+
+-   **Outliers**: Search the data for outliers and remove them. Use the appropriate outlier method(s). Show all work.
+
+-   **Who are these graduates?**: Create 4-5 visualizations providing useful and explanatory information about these graduates. The visualizations should show trends, correlations, and other useful patterns that the data provides.\
+    Remember, we are dealing with senior management. The charts must be readable, meaningful and at a summary level.\
+    Use at least one group/by or bin in your analysis.
+
+-   **Who are most likely to get placed?**: Create visualizations to show management qualities specific to those who are likely to get placed at jobs. Show three meaningful visualizations.\
+    Use at least one group/by or bin in your analysis.
+
+-   **Prepare the data for a regression analysis**: The XYZ management company team has heard that it might be possible to use their data to make predictions. They don't know much about data analytics. We are hoping that an example of what is possible will help them understand better.\
+    Prepare the data file to run with a regression analysis. Use the techniques and methods discussed in class. (*I'm not a student, so I'm unfamiliar with what methods were discussed in class*)
+
+## Data Dictionary
+
+```{r data_dictionary}
+knitr::kable(readxl::read_excel("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/Data dictionary.xlsx"))
+```
+
+# Cleanse
+
+```{r skim_NA}
+skimr::skim(fall) %>% select(skim_type, skim_variable, n_missing)
+```
+
+As we can see, we have *N/A* values for:
+
+-   *hsc_s* (Specialization in Higher Secondary Education): **1**
+
+-   *specialisation* (Area of speciality): **1**
+
+-   *salary* (Salary of job offered): **67**
+
+```{r count_NA}
+fall %>% 
+  count(hsc_s, sort = TRUE)
+fall %>% 
+  count(specialisation, sort = TRUE)
+```
+
+I am going to make a few assumptions. I will take "Mkt" to mean "Marketing", "Fin" to mean "Finance", "HR" to mean "Human Resources". We see only one variable having the value of "Mt", which we may assume is a typo or just an outlier. For now, I will consider this a valid data point, assume it means something like "Management or Math" and wont change it to "Mkt".
+
+```{r mutual_NAs}
+fall %>% 
+  filter(is.na(hsc_s)) %>% 
+  select(salary)
+fall %>% 
+  filter(is.na(specialisation)) %>% 
+  select(salary)
+```
+
+In the case where *hsc_s* (Specialization in Higher Secondary Education) is NA, we also have NA for *salary*; this is not the case for when specialisation is NA.
+
+```{r}
+fall %>% 
+  group_by(specialisation) %>% 
+  count(hsc_s) %>% 
+  mutate(prop = n/sum(n)) %>% 
+  arrange(specialisation, -n)
+fall %>% 
+  group_by(hsc_b) %>% 
+  count(hsc_s) %>% 
+  mutate(prop = n/sum(n)) %>% 
+  arrange(hsc_b, -n)
+```
+
+Most of "Mkt&HR" are evenly distributed between **Science** and **Commerce**. Thus its not possible at the moment to decide which one of the 2 should be used to fill in the missing value. With regards to *hsc_b* (Board of Education), the majority of **Central** are in **Commerce**. This may provide a clue later on, but it is still too early to make an assumption.
