@@ -7,6 +7,8 @@ Matthew
     -   <a href="#data-dictionary" id="toc-data-dictionary">Data Dictionary</a>
 -   <a href="#cleanse" id="toc-cleanse">Cleanse</a>
 -   <a href="#outliers" id="toc-outliers">Outliers</a>
+-   <a href="#who-are-these-graduates" id="toc-who-are-these-graduates">Who
+    are these graduates?</a>
 
 ``` r
 fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/fall2022Placement.csv")
@@ -54,6 +56,10 @@ friends professor. The task is as follows.
     Prepare the data file to run with a regression analysis. Use the
     techniques and methods discussed in class. (*I’m not a student, so
     I’m unfamiliar with what methods were discussed in class*)
+
+-   **Run the regression analysis**: Show the regression scoring. Split
+    the data into training and test sets. Show a confusion matrix for
+    both.
 
 ## Data Dictionary
 
@@ -270,14 +276,97 @@ clean_fall <- fall %>%
 ``` r
 (fall %>% 
   ggplot(aes(salary)) +
-  geom_boxplot() +
-  scale_x_log10(labels = comma_format()))/
+  geom_histogram() +
+  scale_x_log10(labels = comma_format())) /
 (fall %>% 
   ggplot(aes(salary)) +
-  geom_histogram() +
-  scale_x_log10(labels = comma_format()))
+  geom_boxplot() +
+  scale_x_log10(labels = comma_format()) +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.line.y = element_blank(),
+        panel.grid.major.y = element_blank())) +
+  plot_annotation(title = "Salary Distribution")
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+clean_fall %>% 
+  filter(salary != 0) %>% 
+  arrange(salary) %>% 
+  slice(1) %>% 
+  pull(salary)
+```
+
+    ## [1] 45000
+
+``` r
+updated_fall <- clean_fall %>% 
+  arrange(-salary) %>% 
+  slice(-c(1:8)) %>% 
+  filter(salary != 45000) 
+```
+
+# Who are these graduates?
+
+``` r
+clean_fall %>% 
+  keep(is.numeric) %>% 
+  select(-sl_no) %>% 
+  pairs(upper.panel = NULL)
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+updated_fall %>% 
+  ggplot(aes(salary, fill = gender)) + 
+  geom_boxplot() +
+  scale_x_log10(label = comma_format()) +
+  labs(x = "Salary", title = "Salary Distribution by Gender") +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid.major.y = element_blank())
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+Below I will create a function to quickly plot **counts** of factor
+variables. It is often advised to make a function if one foresees using
+the same plot/code often.
+
+``` r
+count_plot <- function(x){
+  updated_fall %>% 
+    filter(!is.na({{x}})) %>% 
+    count({{x}}) %>% 
+    ggplot(aes(n, fct_reorder({{x}}, n))) + 
+    geom_col(color = "black", fill = "lightblue") +
+    geom_text(aes(label = n), hjust = 1.3, size = 3)
+}
+```
+
+``` r
+(count_plot(gender) +
+  labs(x = "", y = "", title = "Number of Graduates by Gender") +
+  theme(panel.grid.major.y = element_blank())) /
+count_plot(degree_t) +
+  labs(y = "", x = "", title = "Degree Type") +
+  theme(panel.grid.major.y = element_blank())
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-1.png)<!-- -->
+
+``` r
+(count_plot(hsc_s) +
+   labs(y = "", x = "", title = "Higher Ed Specialisation") +
+   theme(panel.grid.major.y = element_blank())) /
+(count_plot(workex) +
+   labs(y = "", x = "", title = "Work Experience") +
+   theme(panel.grid.major.y = element_blank()))
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-2.png)<!-- -->
