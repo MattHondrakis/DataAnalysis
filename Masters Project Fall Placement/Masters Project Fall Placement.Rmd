@@ -62,7 +62,7 @@ As we can see, we have *N/A* values for:
 
 -   *specialisation* (Area of speciality): **1**
 
--   *hsc_p* (Higher Educated Percentile): **2**
+-   *hsc_p* (Higher Secondary Education percentile): **2**
 
 -   *salary* (Salary of job offered): **67**
 
@@ -108,7 +108,7 @@ fall %>%
   arrange(status)
 ```
 
-As we can see, all missing values for *salary* are from individuals that were not offered a job. Since the Data Dictionary defines *Salary* as "Salary of job offered", individuals that were not offered a job, do not have a salary from an offer. Therefore, *salary* will be 0 for individuals that were not offered a job.
+As we can see, all missing values for *salary* are from individuals that were not offered a job. Since the Data Dictionary defines *Salary* as "Salary of job offered", individuals that were not offered a job, do not have a salary from an offer. Therefore, *salary* will be 0 for individuals that were not offered a job. We will then drop any rows that had missing information, which in total is only **4**.
 
 ```{r}
 clean_fall <- fall %>% 
@@ -151,12 +151,7 @@ updated_fall <- clean_fall %>%
 
 # Who are these graduates?
 
-```{r}
-updated_fall %>% 
-  keep(is.numeric) %>% 
-  select(-sl_no) %>% 
-  GGally::ggpairs()
-```
+A quick check on the **correlations** between **numeric** variables.
 
 ```{r}
 updated_fall %>% 
@@ -169,19 +164,7 @@ updated_fall %>%
   arrange(-abs(corr))
 ```
 
-```{r}
-updated_fall %>% 
-  filter(status == "Placed") %>% 
-  ggplot(aes(salary, fill = gender)) + 
-  geom_boxplot() +
-  scale_x_log10(label = comma_format()) +
-  labs(x = "Salary", title = "Salary Distribution by Gender") +
-  theme(axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        panel.grid.major.y = element_blank())
-```
-
-Below I will create a function to quickly plot **counts** of factor variables. It is often advised to make a function if one foresees using the same plot/code often.
+Below I will create a function to quickly plot **counts** of factor variables. It is often advised to make a function if one foresees using the same plot/code often. Since this dataset contains many **factor** variables, I assume there will be a lot of factor count plotting.
 
 ```{r count_plot_function}
 count_plot <- function(x){
@@ -203,11 +186,54 @@ count_plot(degree_t) +
   theme(panel.grid.major.y = element_blank())
 
 (count_plot(hsc_s) +
-   labs(y = "", x = "", title = "Higher Ed Specialisation") +
+   labs(y = "", x = "", title = "Higher Education Specialisation") +
    theme(panel.grid.major.y = element_blank())) /
 (count_plot(workex) +
    labs(y = "", x = "", title = "Work Experience") +
    theme(panel.grid.major.y = element_blank()))
 ```
 
+## 1. Salary Distribution by Gender
 
+```{r}
+updated_fall %>% 
+  filter(status == "Placed") %>% 
+  ggplot(aes(salary, gender, color = gender)) + 
+  geom_boxplot() +
+  scale_x_log10(label = comma_format()) +
+  labs(y = "", x = "Salary", title = "Salary Distribution by Gender") +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid.major.y = element_blank())
+```
+
+## 2. Percent Specialization in Higher Secondary Education by Gender
+
+Given the unequal
+
+```{r}
+updated_fall %>%
+  group_by(gender) %>% 
+  count(hsc_s) %>% 
+  mutate(prop = n/sum(n)) %>% 
+  ggplot(aes(prop, gender, 
+             fill = fct_reorder2(hsc_s, gender, prop, .desc = FALSE))) +
+  geom_col(color = "black", position = position_dodge()) +
+  geom_text(aes(label = paste0(round(prop*100,1), "%")), 
+            position = position_dodge2(0.9), hjust = 1, size = 3.5) +
+  labs(fill = "", x = "", y = "", 
+       title = "Percent Specialization in Higher Secondary Education by Gender") +
+  scale_x_continuous(label = percent_format(), breaks = seq(0,0.5,0.1)) +
+  theme(panel.grid.major.y = element_blank())
+```
+
+# Who are most likely to get placed?
+
+```{r}
+updated_fall %>% 
+  ggplot(aes(etest_p, status, color = status)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.5, height = 0.1) +
+  labs(y = "", x = "Employability Test Percentile", 
+       title = "Employability Test Percentile by Job Placement")
+```

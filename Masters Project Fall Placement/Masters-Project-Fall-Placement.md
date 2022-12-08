@@ -9,6 +9,16 @@ Matthew
 -   <a href="#outliers" id="toc-outliers">Outliers</a>
 -   <a href="#who-are-these-graduates" id="toc-who-are-these-graduates">Who
     are these graduates?</a>
+    -   <a href="#1-salary-distribution-by-gender"
+        id="toc-1-salary-distribution-by-gender">1. Salary Distribution by
+        Gender</a>
+    -   <a
+        href="#2-percent-specialization-in-higher-secondary-education-by-gender"
+        id="toc-2-percent-specialization-in-higher-secondary-education-by-gender">2.
+        Percent Specialization in Higher Secondary Education by Gender</a>
+-   <a href="#who-are-most-likely-to-get-placed"
+    id="toc-who-are-most-likely-to-get-placed">Who are most likely to get
+    placed?</a>
 
 ``` r
 fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/fall2022Placement.csv")
@@ -136,7 +146,7 @@ As we can see, we have *N/A* values for:
 
 -   *specialisation* (Area of speciality): **1**
 
--   *hsc_p* (Higher Educated Percentile): **2**
+-   *hsc_p* (Higher Secondary Education percentile): **2**
 
 -   *salary* (Salary of job offered): **67**
 
@@ -266,7 +276,8 @@ As we can see, all missing values for *salary* are from individuals that
 were not offered a job. Since the Data Dictionary defines *Salary* as
 “Salary of job offered”, individuals that were not offered a job, do not
 have a salary from an offer. Therefore, *salary* will be 0 for
-individuals that were not offered a job.
+individuals that were not offered a job. We will then drop any rows that
+had missing information, which in total is only **4**.
 
 ``` r
 clean_fall <- fall %>% 
@@ -318,18 +329,7 @@ updated_fall <- clean_fall %>%
 
 # Who are these graduates?
 
-``` r
-updated_fall %>% 
-  keep(is.numeric) %>% 
-  select(-sl_no) %>% 
-  GGally::ggpairs()
-```
-
-    ## Registered S3 method overwritten by 'GGally':
-    ##   method from   
-    ##   +.gg   ggplot2
-
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+A quick check on the **correlations** between **numeric** variables.
 
 ``` r
 updated_fall %>% 
@@ -365,23 +365,10 @@ updated_fall %>%
     ## 20   sl_no  etest_p  0.03951716
     ## 21   sl_no    mba_p  0.01337281
 
-``` r
-updated_fall %>% 
-  filter(status == "Placed") %>% 
-  ggplot(aes(salary, fill = gender)) + 
-  geom_boxplot() +
-  scale_x_log10(label = comma_format()) +
-  labs(x = "Salary", title = "Salary Distribution by Gender") +
-  theme(axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        panel.grid.major.y = element_blank())
-```
-
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
-
 Below I will create a function to quickly plot **counts** of factor
 variables. It is often advised to make a function if one foresees using
-the same plot/code often.
+the same plot/code often. Since this dataset contains many **factor**
+variables, I assume there will be a lot of factor count plotting.
 
 ``` r
 count_plot <- function(x){
@@ -407,7 +394,7 @@ count_plot(degree_t) +
 
 ``` r
 (count_plot(hsc_s) +
-   labs(y = "", x = "", title = "Higher Ed Specialisation") +
+   labs(y = "", x = "", title = "Higher Education Specialisation") +
    theme(panel.grid.major.y = element_blank())) /
 (count_plot(workex) +
    labs(y = "", x = "", title = "Work Experience") +
@@ -415,3 +402,54 @@ count_plot(degree_t) +
 ```
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-2.png)<!-- -->
+
+## 1. Salary Distribution by Gender
+
+``` r
+updated_fall %>% 
+  filter(status == "Placed") %>% 
+  ggplot(aes(salary, gender, color = gender)) + 
+  geom_boxplot() +
+  scale_x_log10(label = comma_format()) +
+  labs(y = "", x = "Salary", title = "Salary Distribution by Gender") +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid.major.y = element_blank())
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+## 2. Percent Specialization in Higher Secondary Education by Gender
+
+Given the unequal
+
+``` r
+updated_fall %>%
+  group_by(gender) %>% 
+  count(hsc_s) %>% 
+  mutate(prop = n/sum(n)) %>% 
+  ggplot(aes(prop, gender, 
+             fill = fct_reorder2(hsc_s, gender, prop, .desc = FALSE))) +
+  geom_col(color = "black", position = position_dodge()) +
+  geom_text(aes(label = paste0(round(prop*100,1), "%")), 
+            position = position_dodge2(0.9), hjust = 1, size = 3.5) +
+  labs(fill = "", x = "", y = "", 
+       title = "Percent Specialization in Higher Secondary Education by Gender") +
+  scale_x_continuous(label = percent_format(), breaks = seq(0,0.5,0.1)) +
+  theme(panel.grid.major.y = element_blank())
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+# Who are most likely to get placed?
+
+``` r
+updated_fall %>% 
+  ggplot(aes(etest_p, status, color = status)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.5, height = 0.1) +
+  labs(y = "", x = "Employability Test Percentile", 
+       title = "Employability Test Percentile by Job Placement")
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
