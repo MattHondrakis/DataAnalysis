@@ -136,6 +136,8 @@ As we can see, we have *N/A* values for:
 
 -   *specialisation* (Area of speciality): **1**
 
+-   *hsc_p* (Higher Educated Percentile): **2**
+
 -   *salary* (Salary of job offered): **67**
 
 ``` r
@@ -268,7 +270,8 @@ individuals that were not offered a job.
 
 ``` r
 clean_fall <- fall %>% 
-  mutate(salary = ifelse(is.na(salary), 0, salary))
+  mutate(salary = ifelse(is.na(salary), 0, salary)) %>% 
+  drop_na()
 ```
 
 # Outliers
@@ -293,6 +296,9 @@ clean_fall <- fall %>%
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
+Removing outliers below by filtering out the top 8 salaries and the
+lowest salary. We are now left with **202** rows out of **215**.
+
 ``` r
 clean_fall %>% 
   filter(salary != 0) %>% 
@@ -313,7 +319,7 @@ updated_fall <- clean_fall %>%
 # Who are these graduates?
 
 ``` r
-clean_fall %>% 
+updated_fall %>% 
   keep(is.numeric) %>% 
   select(-sl_no) %>% 
   GGally::ggpairs()
@@ -327,6 +333,41 @@ clean_fall %>%
 
 ``` r
 updated_fall %>% 
+  keep(is.numeric) %>%
+  cor() %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var = "item1") %>% 
+  gather(key = item2, value = corr, -item1) %>% 
+  filter(item1 > item2) %>% 
+  arrange(-abs(corr))
+```
+
+    ##      item1    item2        corr
+    ## 1    ssc_p   salary  0.60684876
+    ## 2    ssc_p    hsc_p  0.49333061
+    ## 3   salary    hsc_p  0.48980446
+    ## 4   salary degree_p  0.48279542
+    ## 5    ssc_p degree_p  0.47395554
+    ## 6    hsc_p degree_p  0.42149224
+    ## 7    mba_p degree_p  0.37881548
+    ## 8    mba_p    hsc_p  0.35227101
+    ## 9    ssc_p    mba_p  0.33640024
+    ## 10   hsc_p  etest_p  0.21641816
+    ## 11 etest_p degree_p  0.20212580
+    ## 12   mba_p  etest_p  0.19573442
+    ## 13  salary  etest_p  0.19573391
+    ## 14   ssc_p  etest_p  0.19436141
+    ## 15   sl_no    hsc_p -0.11370274
+    ## 16  salary    mba_p  0.09877951
+    ## 17   sl_no degree_p -0.08906533
+    ## 18   sl_no   salary -0.04738195
+    ## 19   ssc_p    sl_no -0.04424477
+    ## 20   sl_no  etest_p  0.03951716
+    ## 21   sl_no    mba_p  0.01337281
+
+``` r
+updated_fall %>% 
+  filter(status == "Placed") %>% 
   ggplot(aes(salary, fill = gender)) + 
   geom_boxplot() +
   scale_x_log10(label = comma_format()) +
@@ -336,7 +377,7 @@ updated_fall %>%
         panel.grid.major.y = element_blank())
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 Below I will create a function to quickly plot **counts** of factor
 variables. It is often advised to make a function if one foresees using

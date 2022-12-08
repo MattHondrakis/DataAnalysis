@@ -62,6 +62,8 @@ As we can see, we have *N/A* values for:
 
 -   *specialisation* (Area of speciality): **1**
 
+-   *hsc_p* (Higher Educated Percentile): **2**
+
 -   *salary* (Salary of job offered): **67**
 
 ```{r count_NA}
@@ -110,7 +112,8 @@ As we can see, all missing values for *salary* are from individuals that were no
 
 ```{r}
 clean_fall <- fall %>% 
-  mutate(salary = ifelse(is.na(salary), 0, salary))
+  mutate(salary = ifelse(is.na(salary), 0, salary)) %>% 
+  drop_na()
 ```
 
 # Outliers
@@ -131,6 +134,8 @@ clean_fall <- fall %>%
   plot_annotation(title = "Salary Distribution")
 ```
 
+Removing outliers below by filtering out the top 8 salaries and the lowest salary. We are now left with **202** rows out of **215**.
+
 ```{r}
 clean_fall %>% 
   filter(salary != 0) %>% 
@@ -147,7 +152,7 @@ updated_fall <- clean_fall %>%
 # Who are these graduates?
 
 ```{r}
-clean_fall %>% 
+updated_fall %>% 
   keep(is.numeric) %>% 
   select(-sl_no) %>% 
   GGally::ggpairs()
@@ -155,6 +160,18 @@ clean_fall %>%
 
 ```{r}
 updated_fall %>% 
+  keep(is.numeric) %>%
+  cor() %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var = "item1") %>% 
+  gather(key = item2, value = corr, -item1) %>% 
+  filter(item1 > item2) %>% 
+  arrange(-abs(corr))
+```
+
+```{r}
+updated_fall %>% 
+  filter(status == "Placed") %>% 
   ggplot(aes(salary, fill = gender)) + 
   geom_boxplot() +
   scale_x_log10(label = comma_format()) +
@@ -192,3 +209,5 @@ count_plot(degree_t) +
    labs(y = "", x = "", title = "Work Experience") +
    theme(panel.grid.major.y = element_blank()))
 ```
+
+
