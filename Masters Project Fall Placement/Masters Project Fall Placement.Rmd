@@ -80,7 +80,7 @@ fall %>%
   select(salary)
 ```
 
-In the case where *hsc_s* (Specialization in Higher Secondary Education) is NA, we also have NA for *salary*; this is not the case for when specialisation is NA.
+The row that has a missing value for *hsc_s* (Specialization in Higher Secondary Education) also contains a missing value for *salary*; this is not the case for when specialisation is NA.
 
 ```{r}
 fall %>% 
@@ -96,3 +96,30 @@ fall %>%
 ```
 
 Most of "Mkt&HR" are evenly distributed between **Science** and **Commerce**. Thus its not possible at the moment to decide which one of the 2 should be used to fill in the missing value. With regards to *hsc_b* (Board of Education), the majority of **Central** are in **Commerce**. This may provide a clue later on, but it is still too early to make an assumption.
+
+```{r NA_salary}
+fall %>% 
+  group_by(missing = is.na(salary)) %>% 
+  count(status) %>% 
+  arrange(status)
+```
+
+As we can see, all missing values for *salary* are from individuals that were not offered a job. Since the Data Dictionary defines *Salary* as "Salary of job offered", individuals that were not offered a job, do not have a salary from an offer. Therefore, *salary* will be 0 for individuals that were not offered a job.
+
+```{r}
+clean_fall <- fall %>% 
+  mutate(salary = ifelse(is.na(salary), 0, salary))
+```
+
+# Outliers
+
+```{r}
+(fall %>% 
+  ggplot(aes(salary)) +
+  geom_boxplot() +
+  scale_x_log10(labels = comma_format()))/
+(fall %>% 
+  ggplot(aes(salary)) +
+  geom_histogram() +
+  scale_x_log10(labels = comma_format()))
+```

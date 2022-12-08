@@ -6,6 +6,7 @@ Matthew
 -   <a href="#intro" id="toc-intro">Intro</a>
     -   <a href="#data-dictionary" id="toc-data-dictionary">Data Dictionary</a>
 -   <a href="#cleanse" id="toc-cleanse">Cleanse</a>
+-   <a href="#outliers" id="toc-outliers">Outliers</a>
 
 ``` r
 fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/fall2022Placement.csv")
@@ -76,7 +77,7 @@ knitr::kable(readxl::read_excel("C:/Users/Matthew Hondrakis/OneDrive/Documents/D
 | specialisation | Area of speciality                           |
 | mba_p          | MBA percentile                               |
 | Salary         | Salary of job offered                        |
-| status         | placed or nor placed (target variable)       |
+| status         | placed or not placed (target variable)       |
 
 # Cleanse
 
@@ -186,9 +187,9 @@ fall %>%
     ##    <dbl>
     ## 1 250000
 
-In the case where *hsc_s* (Specialization in Higher Secondary Education)
-is NA, we also have NA for *salary*; this is not the case for when
-specialisation is NA.
+The row that has a missing value for *hsc_s* (Specialization in Higher
+Secondary Education) also contains a missing value for *salary*; this is
+not the case for when specialisation is NA.
 
 ``` r
 fall %>% 
@@ -238,3 +239,45 @@ the 2 should be used to fill in the missing value. With regards to
 *hsc_b* (Board of Education), the majority of **Central** are in
 **Commerce**. This may provide a clue later on, but it is still too
 early to make an assumption.
+
+``` r
+fall %>% 
+  group_by(missing = is.na(salary)) %>% 
+  count(status) %>% 
+  arrange(status)
+```
+
+    ## # A tibble: 2 x 3
+    ## # Groups:   missing [2]
+    ##   missing status         n
+    ##   <lgl>   <chr>      <int>
+    ## 1 TRUE    Not Placed    67
+    ## 2 FALSE   Placed       148
+
+As we can see, all missing values for *salary* are from individuals that
+were not offered a job. Since the Data Dictionary defines *Salary* as
+“Salary of job offered”, individuals that were not offered a job, do not
+have a salary from an offer. Therefore, *salary* will be 0 for
+individuals that were not offered a job.
+
+``` r
+clean_fall <- fall %>% 
+  mutate(salary = ifelse(is.na(salary), 0, salary))
+```
+
+# Outliers
+
+``` r
+(fall %>% 
+  ggplot(aes(salary)) +
+  geom_boxplot() +
+  scale_x_log10(labels = comma_format()))/
+(fall %>% 
+  ggplot(aes(salary)) +
+  geom_histogram() +
+  scale_x_log10(labels = comma_format()))
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
