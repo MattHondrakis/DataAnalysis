@@ -421,7 +421,13 @@ updated_fall %>%
 
 ## 2. Percent Specialization in Higher Secondary Education by Gender
 
-Given the unequal
+Given the unequal distribution of the *gender* variable, I am plotting
+the **percent** distribution of each specialization for each gender. As
+we can see, the percentage of males or females choosing a certain
+specialization is approximately equal. A *chisq.test* is provided below
+to reinforce our confidence in this assumption. As can be seen, the
+*p.value* is **0.3856** which means there is not enough evidence to
+suggest that the two genders have uneven specialization distributions.
 
 ``` r
 updated_fall %>%
@@ -441,6 +447,16 @@ updated_fall %>%
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
+``` r
+chisq.test(updated_fall$gender, updated_fall$hsc_s)
+```
+
+    ## 
+    ##  Pearson's Chi-squared test
+    ## 
+    ## data:  updated_fall$gender and updated_fall$hsc_s
+    ## X-squared = 1.9058, df = 2, p-value = 0.3856
+
 # Who are most likely to get placed?
 
 ``` r
@@ -452,4 +468,4 @@ updated_fall %>%
        title = "Employability Test Percentile by Job Placement")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->

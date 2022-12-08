@@ -209,7 +209,7 @@ updated_fall %>%
 
 ## 2. Percent Specialization in Higher Secondary Education by Gender
 
-Given the unequal
+Given the unequal distribution of the *gender* variable, I am plotting the **percent** distribution of each specialization for each gender. As we can see, the percentage of males or females choosing a certain specialization is approximately equal. A *chisq.test* is provided below to reinforce our confidence in this assumption. As can be seen, the *p.value* is **0.3856** which means there is not enough evidence to suggest that the two genders have uneven specialization distributions.
 
 ```{r}
 updated_fall %>%
@@ -225,6 +225,10 @@ updated_fall %>%
        title = "Percent Specialization in Higher Secondary Education by Gender") +
   scale_x_continuous(label = percent_format(), breaks = seq(0,0.5,0.1)) +
   theme(panel.grid.major.y = element_blank())
+```
+
+```{r}
+chisq.test(updated_fall$gender, updated_fall$hsc_s)
 ```
 
 # Who are most likely to get placed?
