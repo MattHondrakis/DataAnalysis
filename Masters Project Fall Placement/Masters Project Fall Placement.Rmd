@@ -150,7 +150,7 @@ updated_fall <- clean_fall %>%
 clean_fall %>% 
   keep(is.numeric) %>% 
   select(-sl_no) %>% 
-  pairs(upper.panel = NULL)
+  GGally::ggpairs()
 ```
 
 ```{r}

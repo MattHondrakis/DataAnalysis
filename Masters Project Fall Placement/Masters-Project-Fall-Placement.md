@@ -316,8 +316,12 @@ updated_fall <- clean_fall %>%
 clean_fall %>% 
   keep(is.numeric) %>% 
   select(-sl_no) %>% 
-  pairs(upper.panel = NULL)
+  GGally::ggpairs()
 ```
+
+    ## Registered S3 method overwritten by 'GGally':
+    ##   method from   
+    ##   +.gg   ggplot2
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
