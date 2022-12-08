@@ -212,13 +212,19 @@ updated_fall %>%
 Given the unequal distribution of the *gender* variable, I am plotting the **percent** distribution of each specialization for each gender. As we can see, the percentage of males or females choosing a certain specialization is approximately equal. A *chisq.test* is provided below to reinforce our confidence in this assumption. As can be seen, the *p.value* is **0.3856** which means there is not enough evidence to suggest that the two genders have uneven specialization distributions.
 
 ```{r}
-updated_fall %>%
-  group_by(gender) %>% 
-  count(hsc_s) %>% 
-  mutate(prop = n/sum(n)) %>% 
-  ggplot(aes(prop, gender, 
-             fill = fct_reorder2(hsc_s, gender, prop, .desc = FALSE))) +
-  geom_col(color = "black", position = position_dodge()) +
+group_count <- function(x,y){
+  updated_fall %>%
+    group_by({{x}}) %>% 
+    count({{y}}) %>% 
+    mutate(prop = n/sum(n)) %>% 
+    ggplot(aes(prop, {{x}}, 
+               fill = fct_reorder2({{y}}, {{x}}, prop, .desc = FALSE))) +
+    geom_col(color = "black", position = position_dodge())
+}
+```
+
+```{r}
+group_count(gender,hsc_s) +
   geom_text(aes(label = paste0(round(prop*100,1), "%")), 
             position = position_dodge2(0.9), hjust = 1, size = 3.5) +
   labs(fill = "", x = "", y = "", 

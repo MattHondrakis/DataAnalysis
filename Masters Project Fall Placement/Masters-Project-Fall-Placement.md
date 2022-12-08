@@ -430,13 +430,19 @@ to reinforce our confidence in this assumption. As can be seen, the
 suggest that the two genders have uneven specialization distributions.
 
 ``` r
-updated_fall %>%
-  group_by(gender) %>% 
-  count(hsc_s) %>% 
-  mutate(prop = n/sum(n)) %>% 
-  ggplot(aes(prop, gender, 
-             fill = fct_reorder2(hsc_s, gender, prop, .desc = FALSE))) +
-  geom_col(color = "black", position = position_dodge()) +
+group_count <- function(x,y){
+  updated_fall %>%
+    group_by({{x}}) %>% 
+    count({{y}}) %>% 
+    mutate(prop = n/sum(n)) %>% 
+    ggplot(aes(prop, {{x}}, 
+               fill = fct_reorder2({{y}}, {{x}}, prop, .desc = FALSE))) +
+    geom_col(color = "black", position = position_dodge())
+}
+```
+
+``` r
+group_count(gender,hsc_s) +
   geom_text(aes(label = paste0(round(prop*100,1), "%")), 
             position = position_dodge2(0.9), hjust = 1, size = 3.5) +
   labs(fill = "", x = "", y = "", 
@@ -445,7 +451,7 @@ updated_fall %>%
   theme(panel.grid.major.y = element_blank())
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 chisq.test(updated_fall$gender, updated_fall$hsc_s)
@@ -468,4 +474,4 @@ updated_fall %>%
        title = "Employability Test Percentile by Job Placement")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
