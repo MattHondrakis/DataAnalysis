@@ -206,7 +206,9 @@ count_plot <- function(x){
    labs(y = "", x = "", title = "Status"))
 ```
 
-## 1. Salary Distribution by Gender
+## Gender
+
+### 1. Salary Distribution by Gender
 
 ```{r}
 updated_fall %>% 
@@ -220,7 +222,7 @@ updated_fall %>%
         panel.grid.major.y = element_blank())
 ```
 
-## 2. Percent Specialization in Higher Secondary Education by Gender
+### 2. Percent Specialization in Higher Secondary Education by Gender
 
 Given the unequal distribution of the *gender* variable, I am plotting the **percent** distribution of each specialization for each gender. As we can see, the percentage of males or females choosing a certain specialization is approximately equal.
 
@@ -233,14 +235,14 @@ group_count <- function(x,y){
     ggplot(aes(prop, {{x}}, 
                fill = fct_reorder2({{y}}, {{x}}, prop, .desc = FALSE))) +
     geom_col(color = "black", position = position_dodge()) +
-    labs(y = "", x = "", fill = "")
+    labs(y = "", x = "", fill = "") +
+    geom_text(aes(label = paste0(round(prop*100,1), "%")), 
+            position = position_dodge2(0.9), hjust = 1, size = 3.5)
 }
 ```
 
 ```{r}
 group_count(gender,hsc_s) +
-  geom_text(aes(label = paste0(round(prop*100,1), "%")), 
-            position = position_dodge2(0.9), hjust = 1, size = 3.5) +
   ggtitle("Percent Specialization in Higher Secondary Education by Gender") +
   scale_x_continuous(label = percent_format(), breaks = seq(0,0.5,0.1)) +
   theme(panel.grid.major.y = element_blank())
@@ -252,7 +254,36 @@ A *chisq.test* is provided below to reinforce our confidence in this assumption.
 chisq.test(updated_fall$gender, updated_fall$hsc_s)
 ```
 
+### 3. Work Experience by Gender
+
+```{r}
+group_count(gender, workex) +
+  ggtitle("Work Experience by Gender") +
+  scale_x_continuous(label = percent_format())
+```
+
+## Work Experience
+
+### 4. Work Experience by Undergrad Degree
+
+```{r}
+group_count(degree_t, workex) +
+  scale_fill_discrete(direction = -1) +
+  ggtitle("Work Experience by Undergrad Degree") +
+  scale_x_continuous(label = percent_format())
+```
+
+The group with the highest percentage of individuals that have *work experience* is **Sci&Tech**; yet every group still have less than **50%** work experience. It may be interesting to see later on how *work experience* relates to *status* (Job Placement), and whether this gives Sci&Tech an advantage.
+
 # Who are most likely to get placed?
+
+```{r}
+group_count(workex, status) +
+  scale_x_continuous(label = percent_format()) +
+  ggtitle("Placement by Work Experience")
+```
+
+As expected, individuals that have *work experience* are more likely to get a job offer. Almost **85%** of individuals with work experience, received a job offer.
 
 ```{r}
 updated_fall %>% 
@@ -265,8 +296,6 @@ updated_fall %>%
 
 ```{r}
 group_count(degree_t, status) +
-  geom_text(aes(label = paste0(round(prop*100,1), "%")), 
-            hjust = 1, position = position_dodge2(0.9)) +
   ggtitle("Under Graduation Degree by Placement") +
   scale_x_continuous(label = percent_format())
 ```

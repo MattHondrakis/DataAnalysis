@@ -10,13 +10,20 @@ Matthew
 -   <a href="#who-are-these-graduates" id="toc-who-are-these-graduates">Who
     are these graduates?</a>
     -   <a href="#count-plots" id="toc-count-plots">Count Plots</a>
-    -   <a href="#1-salary-distribution-by-gender"
-        id="toc-1-salary-distribution-by-gender">1. Salary Distribution by
-        Gender</a>
-    -   <a
-        href="#2-percent-specialization-in-higher-secondary-education-by-gender"
-        id="toc-2-percent-specialization-in-higher-secondary-education-by-gender">2.
-        Percent Specialization in Higher Secondary Education by Gender</a>
+    -   <a href="#gender" id="toc-gender">Gender</a>
+        -   <a href="#1-salary-distribution-by-gender"
+            id="toc-1-salary-distribution-by-gender">1. Salary Distribution by
+            Gender</a>
+        -   <a
+            href="#2-percent-specialization-in-higher-secondary-education-by-gender"
+            id="toc-2-percent-specialization-in-higher-secondary-education-by-gender">2.
+            Percent Specialization in Higher Secondary Education by Gender</a>
+        -   <a href="#3-work-experience-by-gender"
+            id="toc-3-work-experience-by-gender">3. Work Experience by Gender</a>
+    -   <a href="#work-experience" id="toc-work-experience">Work Experience</a>
+        -   <a href="#4-work-experience-by-undergrad-degree"
+            id="toc-4-work-experience-by-undergrad-degree">4. Work Experience by
+            Undergrad Degree</a>
 -   <a href="#who-are-most-likely-to-get-placed"
     id="toc-who-are-most-likely-to-get-placed">Who are most likely to get
     placed?</a>
@@ -387,7 +394,9 @@ count_plot <- function(x){
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-1.png)<!-- -->![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-2.png)<!-- -->![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-3.png)<!-- -->![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-4.png)<!-- -->
 
-## 1. Salary Distribution by Gender
+## Gender
+
+### 1. Salary Distribution by Gender
 
 ``` r
 updated_fall %>% 
@@ -403,7 +412,7 @@ updated_fall %>%
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
-## 2. Percent Specialization in Higher Secondary Education by Gender
+### 2. Percent Specialization in Higher Secondary Education by Gender
 
 Given the unequal distribution of the *gender* variable, I am plotting
 the **percent** distribution of each specialization for each gender. As
@@ -419,14 +428,14 @@ group_count <- function(x,y){
     ggplot(aes(prop, {{x}}, 
                fill = fct_reorder2({{y}}, {{x}}, prop, .desc = FALSE))) +
     geom_col(color = "black", position = position_dodge()) +
-    labs(y = "", x = "", fill = "")
+    labs(y = "", x = "", fill = "") +
+    geom_text(aes(label = paste0(round(prop*100,1), "%")), 
+            position = position_dodge2(0.9), hjust = 1, size = 3.5)
 }
 ```
 
 ``` r
 group_count(gender,hsc_s) +
-  geom_text(aes(label = paste0(round(prop*100,1), "%")), 
-            position = position_dodge2(0.9), hjust = 1, size = 3.5) +
   ggtitle("Percent Specialization in Higher Secondary Education by Gender") +
   scale_x_continuous(label = percent_format(), breaks = seq(0,0.5,0.1)) +
   theme(panel.grid.major.y = element_blank())
@@ -449,7 +458,48 @@ chisq.test(updated_fall$gender, updated_fall$hsc_s)
     ## data:  updated_fall$gender and updated_fall$hsc_s
     ## X-squared = 1.9058, df = 2, p-value = 0.3856
 
+### 3. Work Experience by Gender
+
+``` r
+group_count(gender, workex) +
+  ggtitle("Work Experience by Gender") +
+  scale_x_continuous(label = percent_format())
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+## Work Experience
+
+### 4. Work Experience by Undergrad Degree
+
+``` r
+group_count(degree_t, workex) +
+  scale_fill_discrete(direction = -1) +
+  ggtitle("Work Experience by Undergrad Degree") +
+  scale_x_continuous(label = percent_format())
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+The group with the highest percentage of individuals that have *work
+experience* is **Sci&Tech**; yet every group still have less than
+**50%** work experience. It may be interesting to see later on how *work
+experience* relates to *status* (Job Placement), and whether this gives
+Sci&Tech an advantage.
+
 # Who are most likely to get placed?
+
+``` r
+group_count(workex, status) +
+  scale_x_continuous(label = percent_format()) +
+  ggtitle("Placement by Work Experience")
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+As expected, individuals that have *work experience* are more likely to
+get a job offer. Almost **85%** of individuals with work experience,
+received a job offer.
 
 ``` r
 updated_fall %>% 
@@ -460,14 +510,12 @@ updated_fall %>%
        title = "Employability Test Percentile by Job Placement")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
 group_count(degree_t, status) +
-  geom_text(aes(label = paste0(round(prop*100,1), "%")), 
-            hjust = 1, position = position_dodge2(0.9)) +
   ggtitle("Under Graduation Degree by Placement") +
   scale_x_continuous(label = percent_format())
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
