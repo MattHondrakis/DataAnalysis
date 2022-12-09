@@ -73,7 +73,13 @@ fall %>%
   count(specialisation, sort = TRUE)
 ```
 
-I am going to make a few assumptions. I will take "Mkt" to mean "Marketing", "Fin" to mean "Finance", "HR" to mean "Human Resources". We see only one variable having the value of "Mt", which we may assume is a typo or just an outlier. For now, I will consider this a valid data point, assume it means something like "Management or Math" and wont change it to "Mkt".
+I am going to make a few assumptions. I will take "Mkt" to mean "Marketing", "Fin" to mean "Finance", "HR" to mean "Human Resources". We see only one variable having the value of "Mt", which we may assume is a typo or just an outlier. For simplicity's sake, I will consider this a typo and convert it to "Mkt".
+
+```{r}
+fall <- fall %>% 
+  mutate(specialisation = 
+           ifelse(grepl("Mt", specialisation), "Mkt&HR", specialisation))
+```
 
 ```{r mutual_NAs}
 fall %>% 
@@ -274,6 +280,21 @@ group_count(degree_t, workex) +
 ```
 
 The group with the highest percentage of individuals that have *work experience* is **Sci&Tech**; yet every group still have less than **50%** work experience. It may be interesting to see later on how *work experience* relates to *status* (Job Placement), and whether this gives Sci&Tech an advantage.
+
+### 5. Work Experience by Specialization
+
+```{r}
+group_count(specialisation, workex) +
+  scale_fill_discrete(direction = -1) +
+  scale_x_continuous(label = percent_format()) +
+  ggtitle("Work Experience by Specialization")
+```
+
+There appears to be a difference between the two groups (Finance **vs** HR) with regards to *work experience*, although it does not appear to be statistically significant. For now, while we can't reject the hypothesis that the two groups are equal, we will keep in mind that they do in fact have slightly different proportions.
+
+```{r}
+chisq.test(updated_fall$workex, updated_fall$specialisation)
+```
 
 # Who are most likely to get placed?
 

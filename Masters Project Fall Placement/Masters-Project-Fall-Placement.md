@@ -24,6 +24,9 @@ Matthew
         -   <a href="#4-work-experience-by-undergrad-degree"
             id="toc-4-work-experience-by-undergrad-degree">4. Work Experience by
             Undergrad Degree</a>
+        -   <a href="#5-work-experience-by-specialization"
+            id="toc-5-work-experience-by-specialization">5. Work Experience by
+            Specialization</a>
 -   <a href="#who-are-most-likely-to-get-placed"
     id="toc-who-are-most-likely-to-get-placed">Who are most likely to get
     placed?</a>
@@ -187,9 +190,14 @@ fall %>%
 I am going to make a few assumptions. I will take “Mkt” to mean
 “Marketing”, “Fin” to mean “Finance”, “HR” to mean “Human Resources”. We
 see only one variable having the value of “Mt”, which we may assume is a
-typo or just an outlier. For now, I will consider this a valid data
-point, assume it means something like “Management or Math” and wont
-change it to “Mkt”.
+typo or just an outlier. For simplicity’s sake, I will consider this a
+typo and convert it to “Mkt”.
+
+``` r
+fall <- fall %>% 
+  mutate(specialisation = 
+           ifelse(grepl("Mt", specialisation), "Mkt&HR", specialisation))
+```
 
 ``` r
 fall %>% 
@@ -225,19 +233,18 @@ fall %>%
   arrange(specialisation, -n)
 ```
 
-    ## # A tibble: 9 x 4
-    ## # Groups:   specialisation [4]
+    ## # A tibble: 8 x 4
+    ## # Groups:   specialisation [3]
     ##   specialisation hsc_s        n   prop
     ##   <chr>          <chr>    <int>  <dbl>
     ## 1 Mkt&Fin        Commerce    69 0.580 
     ## 2 Mkt&Fin        Science     42 0.353 
     ## 3 Mkt&Fin        Arts         8 0.0672
-    ## 4 Mkt&HR         Science     48 0.511 
-    ## 5 Mkt&HR         Commerce    42 0.447 
-    ## 6 Mkt&HR         Arts         3 0.0319
-    ## 7 Mkt&HR         <NA>         1 0.0106
-    ## 8 Mt&HR          Science      1 1     
-    ## 9 <NA>           Commerce     1 1
+    ## 4 Mkt&HR         Science     49 0.516 
+    ## 5 Mkt&HR         Commerce    42 0.442 
+    ## 6 Mkt&HR         Arts         3 0.0316
+    ## 7 Mkt&HR         <NA>         1 0.0105
+    ## 8 <NA>           Commerce     1 1
 
 ``` r
 fall %>% 
@@ -313,7 +320,7 @@ clean_fall <- fall %>%
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 Removing outliers below by filtering out the top 8 salaries and the
 lowest salary. We are now left with **202** rows out of **215**.
@@ -410,7 +417,7 @@ updated_fall %>%
         panel.grid.major.y = element_blank())
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ### 2. Percent Specialization in Higher Secondary Education by Gender
 
@@ -441,7 +448,7 @@ group_count(gender,hsc_s) +
   theme(panel.grid.major.y = element_blank())
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 A *chisq.test* is provided below to reinforce our confidence in this
 assumption. As can be seen, the *p.value* is **0.3856** which means
@@ -466,7 +473,7 @@ group_count(gender, workex) +
   scale_x_continuous(label = percent_format())
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ## Work Experience
 
@@ -479,13 +486,40 @@ group_count(degree_t, workex) +
   scale_x_continuous(label = percent_format())
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 The group with the highest percentage of individuals that have *work
 experience* is **Sci&Tech**; yet every group still have less than
 **50%** work experience. It may be interesting to see later on how *work
 experience* relates to *status* (Job Placement), and whether this gives
 Sci&Tech an advantage.
+
+### 5. Work Experience by Specialization
+
+``` r
+group_count(specialisation, workex) +
+  scale_fill_discrete(direction = -1) +
+  scale_x_continuous(label = percent_format()) +
+  ggtitle("Work Experience by Specialization")
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+There appears to be a difference between the two groups (Finance **vs**
+HR) with regards to *work experience*, although it does not appear to be
+statistically significant. For now, while we can’t reject the hypothesis
+that the two groups are equal, we will keep in mind that they do in fact
+have slightly different proportions.
+
+``` r
+chisq.test(updated_fall$workex, updated_fall$specialisation)
+```
+
+    ## 
+    ##  Pearson's Chi-squared test with Yates' continuity correction
+    ## 
+    ## data:  updated_fall$workex and updated_fall$specialisation
+    ## X-squared = 3.4077, df = 1, p-value = 0.06489
 
 # Who are most likely to get placed?
 
@@ -495,7 +529,7 @@ group_count(workex, status) +
   ggtitle("Placement by Work Experience")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 As expected, individuals that have *work experience* are more likely to
 get a job offer. Almost **85%** of individuals with work experience,
@@ -510,7 +544,7 @@ updated_fall %>%
        title = "Employability Test Percentile by Job Placement")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ``` r
 group_count(degree_t, status) +
@@ -518,4 +552,4 @@ group_count(degree_t, status) +
   scale_x_continuous(label = percent_format())
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
