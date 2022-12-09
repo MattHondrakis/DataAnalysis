@@ -9,6 +9,7 @@ Matthew
 -   <a href="#outliers" id="toc-outliers">Outliers</a>
 -   <a href="#who-are-these-graduates" id="toc-who-are-these-graduates">Who
     are these graduates?</a>
+    -   <a href="#count-plots" id="toc-count-plots">Count Plots</a>
     -   <a href="#1-salary-distribution-by-gender"
         id="toc-1-salary-distribution-by-gender">1. Salary Distribution by
         Gender</a>
@@ -377,31 +378,14 @@ count_plot <- function(x){
     count({{x}}) %>% 
     ggplot(aes(n, fct_reorder({{x}}, n))) + 
     geom_col(color = "black", fill = "lightblue") +
-    geom_text(aes(label = n), hjust = 1.3, size = 3)
+    geom_text(aes(label = n), hjust = 1.3, size = 3) +
+    theme(panel.grid.major.y = element_blank())
 }
 ```
 
-``` r
-(count_plot(gender) +
-  labs(x = "", y = "", title = "Number of Graduates by Gender") +
-  theme(panel.grid.major.y = element_blank())) /
-count_plot(degree_t) +
-  labs(y = "", x = "", title = "Degree Type") +
-  theme(panel.grid.major.y = element_blank())
-```
+## Count Plots
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-1.png)<!-- -->
-
-``` r
-(count_plot(hsc_s) +
-   labs(y = "", x = "", title = "Higher Education Specialisation") +
-   theme(panel.grid.major.y = element_blank())) /
-(count_plot(workex) +
-   labs(y = "", x = "", title = "Work Experience") +
-   theme(panel.grid.major.y = element_blank()))
-```
-
-![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-2.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-1.png)<!-- -->![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-2.png)<!-- -->![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-3.png)<!-- -->![](Masters-Project-Fall-Placement_files/figure-gfm/character_plot-4.png)<!-- -->
 
 ## 1. Salary Distribution by Gender
 
@@ -424,10 +408,7 @@ updated_fall %>%
 Given the unequal distribution of the *gender* variable, I am plotting
 the **percent** distribution of each specialization for each gender. As
 we can see, the percentage of males or females choosing a certain
-specialization is approximately equal. A *chisq.test* is provided below
-to reinforce our confidence in this assumption. As can be seen, the
-*p.value* is **0.3856** which means there is not enough evidence to
-suggest that the two genders have uneven specialization distributions.
+specialization is approximately equal.
 
 ``` r
 group_count <- function(x,y){
@@ -437,7 +418,8 @@ group_count <- function(x,y){
     mutate(prop = n/sum(n)) %>% 
     ggplot(aes(prop, {{x}}, 
                fill = fct_reorder2({{y}}, {{x}}, prop, .desc = FALSE))) +
-    geom_col(color = "black", position = position_dodge())
+    geom_col(color = "black", position = position_dodge()) +
+    labs(y = "", x = "", fill = "")
 }
 ```
 
@@ -445,13 +427,17 @@ group_count <- function(x,y){
 group_count(gender,hsc_s) +
   geom_text(aes(label = paste0(round(prop*100,1), "%")), 
             position = position_dodge2(0.9), hjust = 1, size = 3.5) +
-  labs(fill = "", x = "", y = "", 
-       title = "Percent Specialization in Higher Secondary Education by Gender") +
+  ggtitle("Percent Specialization in Higher Secondary Education by Gender") +
   scale_x_continuous(label = percent_format(), breaks = seq(0,0.5,0.1)) +
   theme(panel.grid.major.y = element_blank())
 ```
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+A *chisq.test* is provided below to reinforce our confidence in this
+assumption. As can be seen, the *p.value* is **0.3856** which means
+there is not enough evidence to suggest that the two genders have uneven
+specialization distributions.
 
 ``` r
 chisq.test(updated_fall$gender, updated_fall$hsc_s)
@@ -475,3 +461,13 @@ updated_fall %>%
 ```
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+group_count(degree_t, status) +
+  geom_text(aes(label = paste0(round(prop*100,1), "%")), 
+            hjust = 1, position = position_dodge2(0.9)) +
+  ggtitle("Under Graduation Degree by Placement") +
+  scale_x_continuous(label = percent_format())
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
