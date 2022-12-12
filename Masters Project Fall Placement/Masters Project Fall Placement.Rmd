@@ -385,7 +385,7 @@ updated_fall %>%
   scale_x_continuous(label = percent_format())
 ```
 
-## Test Scores
+## Employability Test Scores
 
 ```{r}
 updated_fall %>% 
@@ -398,6 +398,8 @@ updated_fall %>%
 
 We can see that the distribution of *employability test* scores in the **0** to **25** percentile of *Placed* and *Not Placed* are equivalent. Changes start to show after the **25th** percentile and above. This suggests that fewer students among the higher percentiles were not being placed (offered jobs).
 
+### Employability Quantiles
+
 ```{r}
 updated_fall %>%
   group_by(status) %>% 
@@ -405,4 +407,193 @@ updated_fall %>%
             prob = quantile(etest_p, probs = c(0,.25,.50,.75,1))) %>% 
   pivot_wider(names_from = status, values_from = prob) %>% 
   knitr::kable()
+```
+
+## MBA Percentile
+
+```{r}
+updated_fall %>% 
+  ggplot(aes(mba_p, status, color = status)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.5, height = 0.1) +
+  labs(y = "", x = "MBA Test Percentile", 
+       title = "MBA Test Percentile by Job Placement")
+
+t.test(mba_p ~ status, data = updated_fall)
+```
+
+There does not appear to be a clear difference between whether an individual got a job based on their **MBA percentile**. A *t.test* does not suggest a difference in average MBA percentile between the two groups, and the boxplot shows that both groups are equally distributed among the same percentiles.
+
+## Gender
+
+```{r}
+group_count(gender, status)
+
+chisq.test(updated_fall$status, updated_fall$gender)
+```
+
+Although gender does not appear to play a major role in job placement, males appear to have a slight advantage. A *chisq.test* is also provided, showing that there is not enough evidence to suggest there is a statistical difference between the two groups, with respect to job offers.
+
+## Conclusion
+
+The variables that seem to have to biggest impact in predicting whether an individual gets a job offer are:
+
+-   Work Experience (*workex*)
+
+-   Employability Test Percentile (*etest_p*)
+
+-   Undergrad Degree (*degree_t*)
+
+-   Highschool Specialization (*hsc_s*)
+
+# Prepare and Run a "regression" Analysis
+
+The intro suggests that a regression should be run and I often take "regression" to mean that the *dependent* variable (what is being predicted) is a number. I don't believe this to be the case so I will instead fit a **classification** model, attempting to predict who gets a job offer or not. Maybe we can be a bit cheeky and fit a logistic **regression** model.
+
+## Prepare Data
+
+Setting the target factor to be *Placed*
+
+```{r}
+updated_fall$status <- factor(updated_fall$status, 
+                              levels = c("Placed","Not Placed"))
+```
+
+```{r}
+set.seed(123)
+
+splits <- initial_split(updated_fall, strata = status, prop = 2/3) # Split data
+train_data <- training(splits)
+test_data <- testing(splits)
+```
+
+## Preprocess and Model Choice
+
+### Logistic Regression
+
+```{r}
+glm_mod <- logistic_reg() %>% 
+  set_mode("classification") %>%
+  set_engine("glm") 
+
+glm_rec <- recipe(status ~ workex + etest_p + degree_t + hsc_s, train_data) %>% 
+  step_dummy(all_nominal_predictors()) 
+
+glm_wkfl_fit <- workflow() %>% 
+  add_model(glm_mod) %>% 
+  add_recipe(glm_rec) %>% 
+  last_fit(splits)
+```
+
+#### Metrics
+
+```{r}
+(glm_wkfl_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(status, `.pred_Placed`) %>% 
+  autoplot()) /
+(glm_wkfl_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(status, .pred_class) %>% 
+  autoplot(type = "heatmap"))
+
+glm_wkfl_fit %>% 
+  collect_metrics() %>% select(-.config)
+```
+
+### Random Forest
+
+```{r}
+rf_mod <- rand_forest() %>% 
+  set_mode("classification") %>% 
+  set_engine("ranger")
+
+rf_rec <- recipe(status ~ ., train_data) %>% 
+  step_rm("salary") %>% 
+  step_dummy(all_nominal_predictors())
+
+rf_wkfl_fit <- workflow() %>% 
+  add_model(rf_mod) %>% 
+  add_recipe(rf_rec) %>% 
+  last_fit(splits) 
+```
+
+#### Metrics
+
+```{r}
+(rf_wkfl_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(status, `.pred_Placed`) %>% 
+  autoplot()) /
+(rf_wkfl_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(status, .pred_class) %>% 
+  autoplot(type = "heatmap"))
+
+rf_wkfl_fit %>% 
+  collect_metrics() %>% select(-.config)
+```
+
+# Final Models
+
+Here I intend to go further, to fit models using all variables as predictors and see how well our models perform. I will then check which variables played the biggest role in predicting whether an individual got a job offer.
+
+## Final Logistic Regression
+
+```{r}
+glm_rec_final <- recipe(status ~ ., train_data) %>% 
+  step_rm("salary") %>% 
+  step_dummy(all_nominal_predictors())
+
+final_glm_fit <- workflow() %>% 
+  add_model(glm_mod) %>% 
+  add_recipe(glm_rec_final) %>% 
+  last_fit(splits)
+```
+
+## Final Random Forest
+
+```{r}
+rf_rec_final <- recipe(status ~ ., train_data) %>% 
+  step_rm("salary") %>% 
+  step_dummy(all_nominal_predictors())
+
+final_rf_fit <- workflow() %>% 
+  add_model(rf_mod) %>% 
+  add_recipe(rf_rec_final) %>% 
+  last_fit(splits)
+```
+
+## Metrics
+
+### Final Logistic Regression
+
+```{r}
+(final_glm_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(status, `.pred_Placed`) %>% 
+  autoplot()) /
+(final_glm_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(status, .pred_class) %>% 
+  autoplot(type = "heatmap"))
+
+final_glm_fit %>% 
+  collect_metrics() %>% select(-.config)
+```
+
+### Final Random Forest
+
+```{r}
+(final_rf_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(status, `.pred_Placed`) %>% 
+  autoplot()) /
+(final_rf_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(status, .pred_class) %>% 
+  autoplot(type = "heatmap"))
+
+final_rf_fit %>% 
+  collect_metrics() %>% select(-.config)
 ```

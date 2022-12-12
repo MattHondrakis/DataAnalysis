@@ -38,7 +38,32 @@ Matthew
     -   <a href="#work-experience-1" id="toc-work-experience-1">Work
         Experience</a>
     -   <a href="#education" id="toc-education">Education</a>
-    -   <a href="#test-scores" id="toc-test-scores">Test Scores</a>
+    -   <a href="#employability-test-scores"
+        id="toc-employability-test-scores">Employability Test Scores</a>
+        -   <a href="#employability-quantiles"
+            id="toc-employability-quantiles">Employability Quantiles</a>
+    -   <a href="#mba-percentile" id="toc-mba-percentile">MBA Percentile</a>
+    -   <a href="#gender-1" id="toc-gender-1">Gender</a>
+    -   <a href="#conclusion" id="toc-conclusion">Conclusion</a>
+-   <a href="#prepare-and-run-a-regression-analysis"
+    id="toc-prepare-and-run-a-regression-analysis">Prepare and Run a
+    “regression” Analysis</a>
+    -   <a href="#prepare-data" id="toc-prepare-data">Prepare Data</a>
+    -   <a href="#preprocess-and-model-choice"
+        id="toc-preprocess-and-model-choice">Preprocess and Model Choice</a>
+        -   <a href="#logistic-regression" id="toc-logistic-regression">Logistic
+            Regression</a>
+        -   <a href="#random-forest" id="toc-random-forest">Random Forest</a>
+-   <a href="#final-models" id="toc-final-models">Final Models</a>
+    -   <a href="#final-logistic-regression"
+        id="toc-final-logistic-regression">Final Logistic Regression</a>
+    -   <a href="#final-random-forest" id="toc-final-random-forest">Final Random
+        Forest</a>
+    -   <a href="#metrics-2" id="toc-metrics-2">Metrics</a>
+        -   <a href="#final-logistic-regression-1"
+            id="toc-final-logistic-regression-1">Final Logistic Regression</a>
+        -   <a href="#final-random-forest-1" id="toc-final-random-forest-1">Final
+            Random Forest</a>
 
 ``` r
 fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/fall2022Placement.csv")
@@ -656,7 +681,7 @@ updated_fall %>%
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
-## Test Scores
+## Employability Test Scores
 
 ``` r
 updated_fall %>% 
@@ -674,6 +699,8 @@ We can see that the distribution of *employability test* scores in the
 Changes start to show after the **25th** percentile and above. This
 suggests that fewer students among the higher percentiles were not being
 placed (offered jobs).
+
+### Employability Quantiles
 
 ``` r
 updated_fall %>%
@@ -694,3 +721,275 @@ updated_fall %>%
 | 50%      |         67 |   72.0 |
 | 75%      |         77 |   85.0 |
 | 100%     |         97 |  103.4 |
+
+## MBA Percentile
+
+``` r
+updated_fall %>% 
+  ggplot(aes(mba_p, status, color = status)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.5, height = 0.1) +
+  labs(y = "", x = "MBA Test Percentile", 
+       title = "MBA Test Percentile by Job Placement")
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+
+``` r
+t.test(mba_p ~ status, data = updated_fall)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  mba_p by status
+    ## t = -0.67691, df = 130.05, p-value = 0.4997
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -2.314060  1.134219
+    ## sample estimates:
+    ## mean in group Not Placed     mean in group Placed 
+    ##                 61.76585                 62.35577
+
+There does not appear to be a clear difference between whether an
+individual got a job based on their **MBA percentile**. A *t.test* does
+not suggest a difference in average MBA percentile between the two
+groups, and the boxplot shows that both groups are equally distributed
+among the same percentiles.
+
+## Gender
+
+``` r
+group_count(gender, status)
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
+``` r
+chisq.test(updated_fall$status, updated_fall$gender)
+```
+
+    ## 
+    ##  Pearson's Chi-squared test with Yates' continuity correction
+    ## 
+    ## data:  updated_fall$status and updated_fall$gender
+    ## X-squared = 0.89046, df = 1, p-value = 0.3454
+
+Although gender does not appear to play a major role in job placement,
+males appear to have a slight advantage. A *chisq.test* is also
+provided, showing that there is not enough evidence to suggest there is
+a statistical difference between the two groups, with respect to job
+offers.
+
+## Conclusion
+
+The variables that seem to have to biggest impact in predicting whether
+an individual gets a job offer are:
+
+-   Work Experience (*workex*)
+
+-   Employability Test Percentile (*etest_p*)
+
+-   Undergrad Degree (*degree_t*)
+
+-   Highschool Specialization (*hsc_s*)
+
+# Prepare and Run a “regression” Analysis
+
+The intro suggests that a regression should be run and I often take
+“regression” to mean that the *dependent* variable (what is being
+predicted) is a number. I don’t believe this to be the case so I will
+instead fit a **classification** model, attempting to predict who gets a
+job offer or not. Maybe we can be a bit cheeky and fit a logistic
+**regression** model.
+
+## Prepare Data
+
+Setting the target factor to be *Placed*
+
+``` r
+updated_fall$status <- factor(updated_fall$status, 
+                              levels = c("Placed","Not Placed"))
+```
+
+``` r
+set.seed(123)
+
+splits <- initial_split(updated_fall, strata = status, prop = 2/3) # Split data
+train_data <- training(splits)
+test_data <- testing(splits)
+```
+
+## Preprocess and Model Choice
+
+### Logistic Regression
+
+``` r
+glm_mod <- logistic_reg() %>% 
+  set_mode("classification") %>%
+  set_engine("glm") 
+
+glm_rec <- recipe(status ~ workex + etest_p + degree_t + hsc_s, train_data) %>% 
+  step_dummy(all_nominal_predictors()) 
+
+glm_wkfl_fit <- workflow() %>% 
+  add_model(glm_mod) %>% 
+  add_recipe(glm_rec) %>% 
+  last_fit(splits)
+```
+
+#### Metrics
+
+``` r
+(glm_wkfl_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(status, `.pred_Placed`) %>% 
+  autoplot()) /
+(glm_wkfl_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(status, .pred_class) %>% 
+  autoplot(type = "heatmap"))
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+
+``` r
+glm_wkfl_fit %>% 
+  collect_metrics() %>% select(-.config)
+```
+
+    ## # A tibble: 2 x 3
+    ##   .metric  .estimator .estimate
+    ##   <chr>    <chr>          <dbl>
+    ## 1 accuracy binary         0.706
+    ## 2 roc_auc  binary         0.730
+
+### Random Forest
+
+``` r
+rf_mod <- rand_forest() %>% 
+  set_mode("classification") %>% 
+  set_engine("ranger")
+
+rf_rec <- recipe(status ~ ., train_data) %>% 
+  step_rm("salary") %>% 
+  step_dummy(all_nominal_predictors())
+
+rf_wkfl_fit <- workflow() %>% 
+  add_model(rf_mod) %>% 
+  add_recipe(rf_rec) %>% 
+  last_fit(splits) 
+```
+
+#### Metrics
+
+``` r
+(rf_wkfl_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(status, `.pred_Placed`) %>% 
+  autoplot()) /
+(rf_wkfl_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(status, .pred_class) %>% 
+  autoplot(type = "heatmap"))
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+
+``` r
+rf_wkfl_fit %>% 
+  collect_metrics() %>% select(-.config)
+```
+
+    ## # A tibble: 2 x 3
+    ##   .metric  .estimator .estimate
+    ##   <chr>    <chr>          <dbl>
+    ## 1 accuracy binary         0.838
+    ## 2 roc_auc  binary         0.896
+
+# Final Models
+
+Here I intend to go further, to fit models using all variables as
+predictors and see how well our models perform. I will then check which
+variables played the biggest role in predicting whether an individual
+got a job offer.
+
+## Final Logistic Regression
+
+``` r
+glm_rec_final <- recipe(status ~ ., train_data) %>% 
+  step_rm("salary") %>% 
+  step_dummy(all_nominal_predictors())
+
+final_glm_fit <- workflow() %>% 
+  add_model(glm_mod) %>% 
+  add_recipe(glm_rec_final) %>% 
+  last_fit(splits)
+```
+
+## Final Random Forest
+
+``` r
+rf_rec_final <- recipe(status ~ ., train_data) %>% 
+  step_rm("salary") %>% 
+  step_dummy(all_nominal_predictors())
+
+final_rf_fit <- workflow() %>% 
+  add_model(rf_mod) %>% 
+  add_recipe(rf_rec_final) %>% 
+  last_fit(splits)
+```
+
+## Metrics
+
+### Final Logistic Regression
+
+``` r
+(final_glm_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(status, `.pred_Placed`) %>% 
+  autoplot()) /
+(final_glm_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(status, .pred_class) %>% 
+  autoplot(type = "heatmap"))
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+
+``` r
+final_glm_fit %>% 
+  collect_metrics() %>% select(-.config)
+```
+
+    ## # A tibble: 2 x 3
+    ##   .metric  .estimator .estimate
+    ##   <chr>    <chr>          <dbl>
+    ## 1 accuracy binary         0.853
+    ## 2 roc_auc  binary         0.932
+
+### Final Random Forest
+
+``` r
+(final_rf_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(status, `.pred_Placed`) %>% 
+  autoplot()) /
+(final_rf_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(status, .pred_class) %>% 
+  autoplot(type = "heatmap"))
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
+
+``` r
+final_rf_fit %>% 
+  collect_metrics() %>% select(-.config)
+```
+
+    ## # A tibble: 2 x 3
+    ##   .metric  .estimator .estimate
+    ##   <chr>    <chr>          <dbl>
+    ## 1 accuracy binary         0.853
+    ## 2 roc_auc  binary         0.898
