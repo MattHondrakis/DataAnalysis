@@ -678,7 +678,7 @@ placed (offered jobs).
 ``` r
 updated_fall %>%
   group_by(status) %>% 
-  summarize(Quantile = paste0(c(0,25,59,75,100),"%"),
+  summarize(Quantile = paste0(c(0,25,50,75,100),"%"),
             prob = quantile(etest_p, probs = c(0,.25,.50,.75,1))) %>% 
   pivot_wider(names_from = status, values_from = prob) %>% 
   knitr::kable()
@@ -691,6 +691,6 @@ updated_fall %>%
 |:---------|-----------:|-------:|
 | 0%       |         50 |   50.0 |
 | 25%      |         60 |   60.0 |
-| 59%      |         67 |   72.0 |
+| 50%      |         67 |   72.0 |
 | 75%      |         77 |   85.0 |
 | 100%     |         97 |  103.4 |

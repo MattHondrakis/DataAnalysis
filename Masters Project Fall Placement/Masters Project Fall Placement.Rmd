@@ -401,7 +401,7 @@ We can see that the distribution of *employability test* scores in the **0** to 
 ```{r}
 updated_fall %>%
   group_by(status) %>% 
-  summarize(Quantile = paste0(c(0,25,59,75,100),"%"),
+  summarize(Quantile = paste0(c(0,25,50,75,100),"%"),
             prob = quantile(etest_p, probs = c(0,.25,.50,.75,1))) %>% 
   pivot_wider(names_from = status, values_from = prob) %>% 
   knitr::kable()
