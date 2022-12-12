@@ -27,9 +27,18 @@ Matthew
         -   <a href="#5-work-experience-by-specialization"
             id="toc-5-work-experience-by-specialization">5. Work Experience by
             Specialization</a>
+    -   <a href="#highschool-and-undergrad"
+        id="toc-highschool-and-undergrad">Highschool and Undergrad</a>
+        -   <a href="#6-highschool-specialization-and-undergrad-degree"
+            id="toc-6-highschool-specialization-and-undergrad-degree">6. Highschool
+            Specialization and Undergrad Degree</a>
 -   <a href="#who-are-most-likely-to-get-placed"
     id="toc-who-are-most-likely-to-get-placed">Who are most likely to get
     placed?</a>
+    -   <a href="#work-experience-1" id="toc-work-experience-1">Work
+        Experience</a>
+    -   <a href="#education" id="toc-education">Education</a>
+    -   <a href="#test-scores" id="toc-test-scores">Test Scores</a>
 
 ``` r
 fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/fall2022Placement.csv")
@@ -521,7 +530,41 @@ chisq.test(updated_fall$workex, updated_fall$specialisation)
     ## data:  updated_fall$workex and updated_fall$specialisation
     ## X-squared = 3.4077, df = 1, p-value = 0.06489
 
+## Highschool and Undergrad
+
+### 6. Highschool Specialization and Undergrad Degree
+
+``` r
+updated_fall %>%
+  group_by(hsc_s) %>% 
+  count(degree_t) %>% 
+  mutate(prop = n/sum(n)) %>% 
+  ggplot(aes(prop, hsc_s, 
+             fill = fct_reorder2(degree_t, hsc_s, prop, .desc = FALSE))) +
+  geom_col(color = "black", position = position_dodge()) +
+  labs(y = "", x = "", fill = "", 
+       title = "Undergrad Degree by Highschool Specialization") +
+  geom_text(aes(label = paste0(round(prop*100,1), "%"),
+                hjust = ifelse(prop > 0.1, 1.1, -0.2)), 
+            position = position_dodge2(0.9), size = 3.5) +
+  scale_fill_manual(values = c("pink", "lightblue", "lightgreen")) +
+  theme(legend.position = "bottom") +
+  scale_x_continuous(label = percent_format())
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+We can see that there is a bias with regards to what students study for
+their Undergrad. Students that specialized in *Science* or *Commerce*,
+stayed within those fields. We can see that students that studied
+*Commerce* were overwhelming more likely (**96.3%**) to go onto studying
+*Comm&Mgmt.* Individuals that studied *Science* were more likely
+(**59.5%**) to go onto studying *Sci&Tech*. On the other hand, most of
+the *Art* students (**63%**) later went on to studying *Comm&Mgmt*.
+
 # Who are most likely to get placed?
+
+## Work Experience
 
 ``` r
 group_count(workex, status) +
@@ -529,7 +572,7 @@ group_count(workex, status) +
   ggtitle("Placement by Work Experience")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 As expected, individuals that have *work experience* are more likely to
 get a job offer. Almost **85%** of individuals with work experience,
@@ -544,12 +587,110 @@ updated_fall %>%
        title = "Employability Test Percentile by Job Placement")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+We can see that the distribution of *employability test* scores in the
+**0** to **25** percentile of *Placed* and *Not Placed* are equivalent.
+Changes start to show after the **25th** percentile and above. This
+suggests that fewer students among the higher percentiles were not being
+placed (offered jobs).
 
 ``` r
-group_count(degree_t, status) +
-  ggtitle("Under Graduation Degree by Placement") +
+updated_fall %>%
+  group_by(status) %>% 
+  summarize(Quantile = paste0(c(0,25,59,75,100),"%"),
+            prob = quantile(etest_p, probs = c(0,.25,.50,.75,1))) %>% 
+  pivot_wider(names_from = status, values_from = prob) %>% 
+  knitr::kable()
+```
+
+    ## `summarise()` has grouped output by 'status'. You can override using the
+    ## `.groups` argument.
+
+| Quantile | Not Placed | Placed |
+|:---------|-----------:|-------:|
+| 0%       |         50 |   50.0 |
+| 25%      |         60 |   60.0 |
+| 59%      |         67 |   72.0 |
+| 75%      |         77 |   85.0 |
+| 100%     |         97 |  103.4 |
+
+## Education
+
+``` r
+(group_count(degree_t, status) +
+  ggtitle("Under Graduation Degree by Job Offer") +
+  scale_x_continuous(label = percent_format())) /
+(group_count(hsc_s, status) +
+   ggtitle("Higher Secondary Education by Job Offer") +
+   scale_x_continuous(label = percent_format())) +
+plot_layout(guides = "collect")
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+With regards to Undergrad degree, both *Sci&Tech* and *Comm&Mgmt* had
+approximately equal proportions of students getting job offers while
+*Others* had a majority not getting job offers. As we saw from **Plot
+6** *(Highschool Specialization by Undergrad Degree),* **Science** and
+**Sci&Tech** are correlated, as are **Commerce** and **Comm&Mgmt**.
+
+``` r
+updated_fall %>% 
+  group_by(hsc_s, degree_t) %>% 
+  count(status, sort = TRUE) %>% 
+  ungroup(hsc_s) %>% 
+  mutate(prop = n/sum(n)) %>% 
+  filter(status == "Placed") %>% 
+  ggplot(aes(prop, fct_reorder(degree_t, prop, .fun = max, .desc = FALSE), 
+             fill = hsc_s)) +
+  geom_col(position = position_dodge2(), color = "black") +
+  geom_text(aes(label = paste0(round(prop*100,1), "%"),
+                hjust = ifelse(prop > 0.1, 1.1, -0.2)),
+            position = position_dodge2(0.9)) +
+  scale_fill_manual(values = c("pink", "lightblue", "lightgreen")) +
+  labs(y = "Undergrad", x = "", fill = "Highschool",
+       title = "Percent Job offers by Education") +
   scale_x_continuous(label = percent_format())
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+
+## Test Scores
+
+``` r
+updated_fall %>% 
+  ggplot(aes(etest_p, status, color = status)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.5, height = 0.1) +
+  labs(y = "", x = "Employability Test Percentile", 
+       title = "Employability Test Percentile by Job Placement")
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+
+We can see that the distribution of *employability test* scores in the
+**0** to **25** percentile of *Placed* and *Not Placed* are equivalent.
+Changes start to show after the **25th** percentile and above. This
+suggests that fewer students among the higher percentiles were not being
+placed (offered jobs).
+
+``` r
+updated_fall %>%
+  group_by(status) %>% 
+  summarize(Quantile = paste0(c(0,25,59,75,100),"%"),
+            prob = quantile(etest_p, probs = c(0,.25,.50,.75,1))) %>% 
+  pivot_wider(names_from = status, values_from = prob) %>% 
+  knitr::kable()
+```
+
+    ## `summarise()` has grouped output by 'status'. You can override using the
+    ## `.groups` argument.
+
+| Quantile | Not Placed | Placed |
+|:---------|-----------:|-------:|
+| 0%       |         50 |   50.0 |
+| 25%      |         60 |   60.0 |
+| 59%      |         67 |   72.0 |
+| 75%      |         77 |   85.0 |
+| 100%     |         97 |  103.4 |
