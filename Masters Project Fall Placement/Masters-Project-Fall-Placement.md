@@ -44,7 +44,9 @@ Matthew
             id="toc-employability-quantiles">Employability Quantiles</a>
     -   <a href="#mba-percentile" id="toc-mba-percentile">MBA Percentile</a>
     -   <a href="#gender-1" id="toc-gender-1">Gender</a>
-    -   <a href="#conclusion" id="toc-conclusion">Conclusion</a>
+    -   <a href="#highschool-education-percentile"
+        id="toc-highschool-education-percentile">Highschool Education
+        Percentile</a>
 -   <a href="#prepare-and-run-a-regression-analysis"
     id="toc-prepare-and-run-a-regression-analysis">Prepare and Run a
     “regression” Analysis</a>
@@ -783,18 +785,19 @@ provided, showing that there is not enough evidence to suggest there is
 a statistical difference between the two groups, with respect to job
 offers.
 
-## Conclusion
+## Highschool Education Percentile
 
-The variables that seem to have to biggest impact in predicting whether
-an individual gets a job offer are:
+``` r
+updated_fall %>% 
+  ggplot(aes(ssc_p, status, color = status)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.5, height = 0.1) +
+  labs(y = "", x = "MBA Test Percentile", 
+       title = "MBA Test Percentile by Job Placement") +
+  scale_color_discrete(direction = -1)
+```
 
--   Work Experience (*workex*)
-
--   Employability Test Percentile (*etest_p*)
-
--   Undergrad Degree (*degree_t*)
-
--   Highschool Specialization (*hsc_s*)
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 # Prepare and Run a “regression” Analysis
 
@@ -853,7 +856,7 @@ glm_wkfl_fit <- workflow() %>%
   autoplot(type = "heatmap"))
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 ``` r
 glm_wkfl_fit %>% 
@@ -895,7 +898,7 @@ rf_wkfl_fit <- workflow() %>%
   autoplot(type = "heatmap"))
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
 ``` r
 rf_wkfl_fit %>% 
@@ -956,7 +959,7 @@ final_rf_fit <- workflow() %>%
   autoplot(type = "heatmap"))
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
 
 ``` r
 final_glm_fit %>% 
@@ -982,7 +985,7 @@ final_glm_fit %>%
   autoplot(type = "heatmap"))
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
 
 ``` r
 final_rf_fit %>% 
@@ -997,22 +1000,28 @@ final_rf_fit %>%
 
 ### Most Important Predictors
 
+#### Logistic Regression
+
 ``` r
 final_glm_fit %>% 
   extract_fit_parsnip() %>% 
   tidy() %>% 
   mutate(sign = ifelse(estimate > 0, "Positive", "Negative")) %>% 
   filter(term != "(Intercept)") %>% 
+  mutate(estimate = exp(estimate)) %>% 
   ggplot(aes(abs(estimate), fct_reorder(term, estimate, .fun = abs))) +
   geom_col(aes(fill = sign), color = "black") +
-  labs(y = "", title = "GLM's Variable Importance")
+  labs(y = "", x = "Likelihood of Prediction (Multiple)",  
+       title = "GLM's Variable Importance")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+
+#### Random Forest
 
 ``` r
 vip::vip(final_rf_fit %>% extract_fit_parsnip()) +
   labs(title = "Random Forest Variable Importance")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->

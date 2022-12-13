@@ -434,17 +434,17 @@ chisq.test(updated_fall$status, updated_fall$gender)
 
 Although gender does not appear to play a major role in job placement, males appear to have a slight advantage. A *chisq.test* is also provided, showing that there is not enough evidence to suggest there is a statistical difference between the two groups, with respect to job offers.
 
-## Conclusion
+## Highschool Education Percentile
 
-The variables that seem to have to biggest impact in predicting whether an individual gets a job offer are:
-
--   Work Experience (*workex*)
-
--   Employability Test Percentile (*etest_p*)
-
--   Undergrad Degree (*degree_t*)
-
--   Highschool Specialization (*hsc_s*)
+```{r}
+updated_fall %>% 
+  ggplot(aes(ssc_p, status, color = status)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.5, height = 0.1) +
+  labs(y = "", x = "MBA Test Percentile", 
+       title = "MBA Test Percentile by Job Placement") +
+  scale_color_discrete(direction = -1)
+```
 
 # Prepare and Run a "regression" Analysis
 
@@ -599,16 +599,22 @@ final_rf_fit %>%
 
 ### Most Important Predictors
 
+#### Logistic Regression
+
 ```{r}
 final_glm_fit %>% 
   extract_fit_parsnip() %>% 
   tidy() %>% 
   mutate(sign = ifelse(estimate > 0, "Positive", "Negative")) %>% 
   filter(term != "(Intercept)") %>% 
+  mutate(estimate = exp(estimate)) %>% 
   ggplot(aes(abs(estimate), fct_reorder(term, estimate, .fun = abs))) +
   geom_col(aes(fill = sign), color = "black") +
-  labs(y = "", title = "GLM's Variable Importance")
+  labs(y = "", x = "Likelihood of Prediction (Multiple)",  
+       title = "GLM's Variable Importance")
 ```
+
+#### Random Forest
 
 ```{r}
 vip::vip(final_rf_fit %>% extract_fit_parsnip()) +
