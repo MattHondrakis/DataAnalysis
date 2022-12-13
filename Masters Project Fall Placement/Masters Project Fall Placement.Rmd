@@ -508,8 +508,7 @@ rf_mod <- rand_forest() %>%
   set_mode("classification") %>% 
   set_engine("ranger")
 
-rf_rec <- recipe(status ~ ., train_data) %>% 
-  step_rm("salary") %>% 
+rf_rec <- recipe(status ~ workex + etest_p + degree_t + hsc_s, train_data) %>% 
   step_dummy(all_nominal_predictors())
 
 rf_wkfl_fit <- workflow() %>% 
@@ -596,4 +595,17 @@ final_glm_fit %>%
 
 final_rf_fit %>% 
   collect_metrics() %>% select(-.config)
+```
+
+### Most Important Predictors
+
+```{r}
+final_glm_fit %>% 
+  extract_fit_parsnip() %>% 
+  tidy() %>% 
+  mutate(sign = ifelse(estimate > 0, "Positive", "Negative")) %>% 
+  filter(term != "(Intercept)" & p.value < 0.05) %>% 
+  ggplot(aes(abs(estimate), fct_reorder(term, estimate, .fun = abs))) +
+  geom_col(aes(fill = sign), color = "black") +
+  labs(y = "", title = "GLM's Most Impactful Variables in Predicting Job Offers")
 ```

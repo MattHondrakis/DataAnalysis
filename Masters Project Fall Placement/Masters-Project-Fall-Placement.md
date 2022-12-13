@@ -64,6 +64,8 @@ Matthew
             id="toc-final-logistic-regression-1">Final Logistic Regression</a>
         -   <a href="#final-random-forest-1" id="toc-final-random-forest-1">Final
             Random Forest</a>
+        -   <a href="#most-important-predictors"
+            id="toc-most-important-predictors">Most Important Predictors</a>
 
 ``` r
 fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/fall2022Placement.csv")
@@ -871,8 +873,7 @@ rf_mod <- rand_forest() %>%
   set_mode("classification") %>% 
   set_engine("ranger")
 
-rf_rec <- recipe(status ~ ., train_data) %>% 
-  step_rm("salary") %>% 
+rf_rec <- recipe(status ~ workex + etest_p + degree_t + hsc_s, train_data) %>% 
   step_dummy(all_nominal_predictors())
 
 rf_wkfl_fit <- workflow() %>% 
@@ -904,8 +905,8 @@ rf_wkfl_fit %>%
     ## # A tibble: 2 x 3
     ##   .metric  .estimator .estimate
     ##   <chr>    <chr>          <dbl>
-    ## 1 accuracy binary         0.838
-    ## 2 roc_auc  binary         0.896
+    ## 1 accuracy binary         0.676
+    ## 2 roc_auc  binary         0.558
 
 # Final Models
 
@@ -991,5 +992,20 @@ final_rf_fit %>%
     ## # A tibble: 2 x 3
     ##   .metric  .estimator .estimate
     ##   <chr>    <chr>          <dbl>
-    ## 1 accuracy binary         0.853
-    ## 2 roc_auc  binary         0.898
+    ## 1 accuracy binary         0.838
+    ## 2 roc_auc  binary         0.897
+
+### Most Important Predictors
+
+``` r
+final_glm_fit %>% 
+  extract_fit_parsnip() %>% 
+  tidy() %>% 
+  mutate(sign = ifelse(estimate > 0, "Positive", "Negative")) %>% 
+  filter(term != "(Intercept)" & p.value < 0.05) %>% 
+  ggplot(aes(abs(estimate), fct_reorder(term, estimate, .fun = abs))) +
+  geom_col(aes(fill = sign), color = "black") +
+  labs(y = "", title = "GLM's Most Impactful Variables in Predicting Job Offers")
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
