@@ -871,7 +871,7 @@ glm_wkfl_fit %>%
 ``` r
 rf_mod <- rand_forest() %>% 
   set_mode("classification") %>% 
-  set_engine("ranger")
+  set_engine("ranger", importance = "impurity")
 
 rf_rec <- recipe(status ~ workex + etest_p + degree_t + hsc_s, train_data) %>% 
   step_dummy(all_nominal_predictors())
@@ -1002,10 +1002,17 @@ final_glm_fit %>%
   extract_fit_parsnip() %>% 
   tidy() %>% 
   mutate(sign = ifelse(estimate > 0, "Positive", "Negative")) %>% 
-  filter(term != "(Intercept)" & p.value < 0.05) %>% 
+  filter(term != "(Intercept)") %>% 
   ggplot(aes(abs(estimate), fct_reorder(term, estimate, .fun = abs))) +
   geom_col(aes(fill = sign), color = "black") +
-  labs(y = "", title = "GLM's Most Impactful Variables in Predicting Job Offers")
+  labs(y = "", title = "GLM's Variable Importance")
 ```
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+
+``` r
+vip::vip(final_rf_fit %>% extract_fit_parsnip()) +
+  labs(title = "Random Forest Variable Importance")
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
