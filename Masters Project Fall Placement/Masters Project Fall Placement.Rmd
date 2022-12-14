@@ -554,7 +554,7 @@ rf_wkfl_fit %>%
 
 Here I intend to go further, to fit models using all variables as predictors and see how well our models perform. I will then check which variables played the biggest role in predicting whether an individual got a job offer.
 
-## Final Logistic Regression
+## Final Logistic Regression Fit
 
 ```{r}
 glm_rec_final <- recipe(status ~ ., train_data) %>% 
@@ -567,7 +567,7 @@ final_glm_fit <- workflow() %>%
   last_fit(splits)
 ```
 
-## Final Random Forest
+## Final Random Forest Fit
 
 ```{r}
 rf_rec_final <- recipe(status ~ ., train_data) %>% 
@@ -582,41 +582,39 @@ final_rf_fit <- workflow() %>%
 
 ## Metrics
 
-### Final Logistic Regression
-
 ```{r}
-(final_glm_fit %>% 
+((final_glm_fit %>% 
   collect_predictions() %>% 
   roc_curve(status, `.pred_Placed`) %>% 
-  autoplot()) /
+  autoplot() + ggtitle("Logistic Regression")) /
 (final_glm_fit %>% 
   collect_predictions() %>% 
   conf_mat(status, .pred_class) %>% 
-  autoplot(type = "heatmap"))
+  autoplot(type = "heatmap"))) |
+((final_rf_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(status, `.pred_Placed`) %>% 
+  autoplot() + ggtitle("Random Forest")) /
+(final_rf_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(status, .pred_class) %>% 
+  autoplot(type = "heatmap")))
 
 final_glm_fit %>% 
-  collect_metrics() %>% select(-.config)
+  collect_metrics() %>% 
+  select(-.config, -.estimator) %>% 
+  mutate(model = "Logistic Regression") %>% 
+  rbind(final_rf_fit %>% 
+  collect_metrics() %>% 
+  select(-.config, -.estimator) %>% 
+  mutate(model = "Random Forest")) %>% 
+  arrange(-.estimate) %>% 
+  knitr::kable()
 ```
 
-### Final Random Forest
+## Variable Importance
 
-```{r}
-(final_rf_fit %>% 
-  collect_predictions() %>% 
-  roc_curve(status, `.pred_Placed`) %>% 
-  autoplot()) /
-(final_rf_fit %>% 
-  collect_predictions() %>% 
-  conf_mat(status, .pred_class) %>% 
-  autoplot(type = "heatmap"))
-
-final_rf_fit %>% 
-  collect_metrics() %>% select(-.config)
-```
-
-### Most Important Predictors
-
-#### Logistic Regression
+### Logistic Regression
 
 ```{r}
 final_glm_fit %>% 
@@ -631,13 +629,13 @@ final_glm_fit %>%
        title = "GLM's Variable Importance")
 ```
 
-#### Random Forest
+### Random Forest
 
 ```{r}
 vip::vip(final_rf_fit %>% extract_fit_parsnip()) +
   labs(title = "Random Forest Variable Importance")
 ```
 
-## Conclusion
+### Conclusion
 
-Surprisingly, *Random Forest* used mostly **numeric** variables for its predictions, while *Logistic Regression* used mostly **factor** variables for its predictions. Intuitively, I expect Random Forest to get more value out of **factor** variables because of the nature of the model. A Random Forest model is a type of tree based model which uses conditional statements for its predictions; and thus it would make sense that factor variables make for better conditionals. On the other hand, a Logistic Regression model is very similar to a typical Linear Regression and thus I don't expect it to have a "preference ". What actually surprised me the most, is that the most important variables for Random Forest, *Highschool and Undergrad Education* (ssc_p & degree_p), were not very important to the Logistic Regression mopdel for its predictions. In fact, it perceived it as a negative effect in predicting job offers. This is often an issue of using multiple predictors in GLM based models; the coefficients start to lose their "truthfulness" because of correlated predictors (multicollinearity).
+Surprisingly, *Random Forest* used mostly **numeric** variables for its predictions, while *Logistic Regression* used mostly **factor** variables for its predictions. Intuitively, I expect Random Forest to get more value out of **factor** variables because of the nature of the model. A Random Forest model is a type of tree based model which uses conditional statements for its predictions; and thus it would make sense that factor variables make for better conditionals. On the other hand, a Logistic Regression model is very similar to a typical Linear Regression and thus I don't expect it to have a "preference". What actually surprised me the most, is that the most important variables for Random Forest, *Highschool and Undergrad Education* (ssc_p & degree_p), were not very important to the Logistic Regression mopdel for its predictions. In fact, it perceived it as a negative effect in predicting job offers. This is often an issue of using multiple predictors in GLM based models; the coefficients start to lose their "truthfulness" because of correlated predictors (multicollinearity).

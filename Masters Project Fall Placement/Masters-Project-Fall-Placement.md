@@ -57,18 +57,17 @@ Matthew
             Regression</a>
         -   <a href="#random-forest" id="toc-random-forest">Random Forest</a>
 -   <a href="#final-models" id="toc-final-models">Final Models</a>
-    -   <a href="#final-logistic-regression"
-        id="toc-final-logistic-regression">Final Logistic Regression</a>
-    -   <a href="#final-random-forest" id="toc-final-random-forest">Final Random
-        Forest</a>
+    -   <a href="#final-logistic-regression-fit"
+        id="toc-final-logistic-regression-fit">Final Logistic Regression Fit</a>
+    -   <a href="#final-random-forest-fit"
+        id="toc-final-random-forest-fit">Final Random Forest Fit</a>
     -   <a href="#metrics-2" id="toc-metrics-2">Metrics</a>
-        -   <a href="#final-logistic-regression-1"
-            id="toc-final-logistic-regression-1">Final Logistic Regression</a>
-        -   <a href="#final-random-forest-1" id="toc-final-random-forest-1">Final
-            Random Forest</a>
-        -   <a href="#most-important-predictors"
-            id="toc-most-important-predictors">Most Important Predictors</a>
-    -   <a href="#conclusion" id="toc-conclusion">Conclusion</a>
+    -   <a href="#variable-importance" id="toc-variable-importance">Variable
+        Importance</a>
+        -   <a href="#logistic-regression-1" id="toc-logistic-regression-1">Logistic
+            Regression</a>
+        -   <a href="#random-forest-1" id="toc-random-forest-1">Random Forest</a>
+        -   <a href="#conclusion" id="toc-conclusion">Conclusion</a>
 
 ``` r
 fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/fall2022Placement.csv")
@@ -969,7 +968,7 @@ predictors and see how well our models perform. I will then check which
 variables played the biggest role in predicting whether an individual
 got a job offer.
 
-## Final Logistic Regression
+## Final Logistic Regression Fit
 
 ``` r
 glm_rec_final <- recipe(status ~ ., train_data) %>% 
@@ -982,7 +981,7 @@ final_glm_fit <- workflow() %>%
   last_fit(splits)
 ```
 
-## Final Random Forest
+## Final Random Forest Fit
 
 ``` r
 rf_rec_final <- recipe(status ~ ., train_data) %>% 
@@ -997,61 +996,50 @@ final_rf_fit <- workflow() %>%
 
 ## Metrics
 
-### Final Logistic Regression
-
 ``` r
-(final_glm_fit %>% 
+((final_glm_fit %>% 
   collect_predictions() %>% 
   roc_curve(status, `.pred_Placed`) %>% 
-  autoplot()) /
+  autoplot() + ggtitle("Logistic Regression")) /
 (final_glm_fit %>% 
   collect_predictions() %>% 
   conf_mat(status, .pred_class) %>% 
-  autoplot(type = "heatmap"))
+  autoplot(type = "heatmap"))) |
+((final_rf_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(status, `.pred_Placed`) %>% 
+  autoplot() + ggtitle("Random Forest")) /
+(final_rf_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(status, .pred_class) %>% 
+  autoplot(type = "heatmap")))
 ```
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
 
 ``` r
 final_glm_fit %>% 
-  collect_metrics() %>% select(-.config)
+  collect_metrics() %>% 
+  select(-.config, -.estimator) %>% 
+  mutate(model = "Logistic Regression") %>% 
+  rbind(final_rf_fit %>% 
+  collect_metrics() %>% 
+  select(-.config, -.estimator) %>% 
+  mutate(model = "Random Forest")) %>% 
+  arrange(-.estimate) %>% 
+  knitr::kable()
 ```
 
-    ## # A tibble: 2 x 3
-    ##   .metric  .estimator .estimate
-    ##   <chr>    <chr>          <dbl>
-    ## 1 accuracy binary         0.853
-    ## 2 roc_auc  binary         0.932
+| .metric  | .estimate | model               |
+|:---------|----------:|:--------------------|
+| roc_auc  | 0.9318182 | Logistic Regression |
+| roc_auc  | 0.8972332 | Random Forest       |
+| accuracy | 0.8529412 | Logistic Regression |
+| accuracy | 0.8382353 | Random Forest       |
 
-### Final Random Forest
+## Variable Importance
 
-``` r
-(final_rf_fit %>% 
-  collect_predictions() %>% 
-  roc_curve(status, `.pred_Placed`) %>% 
-  autoplot()) /
-(final_rf_fit %>% 
-  collect_predictions() %>% 
-  conf_mat(status, .pred_class) %>% 
-  autoplot(type = "heatmap"))
-```
-
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
-
-``` r
-final_rf_fit %>% 
-  collect_metrics() %>% select(-.config)
-```
-
-    ## # A tibble: 2 x 3
-    ##   .metric  .estimator .estimate
-    ##   <chr>    <chr>          <dbl>
-    ## 1 accuracy binary         0.838
-    ## 2 roc_auc  binary         0.897
-
-### Most Important Predictors
-
-#### Logistic Regression
+### Logistic Regression
 
 ``` r
 final_glm_fit %>% 
@@ -1066,18 +1054,18 @@ final_glm_fit %>%
        title = "GLM's Variable Importance")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
 
-#### Random Forest
+### Random Forest
 
 ``` r
 vip::vip(final_rf_fit %>% extract_fit_parsnip()) +
   labs(title = "Random Forest Variable Importance")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
-## Conclusion
+### Conclusion
 
 Surprisingly, *Random Forest* used mostly **numeric** variables for its
 predictions, while *Logistic Regression* used mostly **factor**
