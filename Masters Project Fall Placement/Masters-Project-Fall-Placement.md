@@ -44,9 +44,9 @@ Matthew
             id="toc-employability-quantiles">Employability Quantiles</a>
     -   <a href="#mba-percentile" id="toc-mba-percentile">MBA Percentile</a>
     -   <a href="#gender-1" id="toc-gender-1">Gender</a>
-    -   <a href="#highschool-education-percentile"
-        id="toc-highschool-education-percentile">Highschool Education
-        Percentile</a>
+    -   <a href="#highschool-and-undergrad-degree-percentile"
+        id="toc-highschool-and-undergrad-degree-percentile">Highschool and
+        Undergrad Degree Percentile</a>
 -   <a href="#prepare-and-run-a-regression-analysis"
     id="toc-prepare-and-run-a-regression-analysis">Prepare and Run a
     “regression” Analysis</a>
@@ -68,6 +68,7 @@ Matthew
             Random Forest</a>
         -   <a href="#most-important-predictors"
             id="toc-most-important-predictors">Most Important Predictors</a>
+    -   <a href="#conclusion" id="toc-conclusion">Conclusion</a>
 
 ``` r
 fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/fall2022Placement.csv")
@@ -785,19 +786,69 @@ provided, showing that there is not enough evidence to suggest there is
 a statistical difference between the two groups, with respect to job
 offers.
 
-## Highschool Education Percentile
+## Highschool and Undergrad Degree Percentile
+
+These plot was added **after** the model fitting process. Because I was
+rushed for time, I supplied only a few plots to satisfy the grading
+rubric and thus did not check every variable. I added this plot here
+because after checking for which variable were most important in
+predicting *job offers*, I noticed that this variable was ranked very
+high.
 
 ``` r
-updated_fall %>% 
+(updated_fall %>% 
   ggplot(aes(ssc_p, status, color = status)) +
   geom_boxplot() +
   geom_jitter(alpha = 0.5, height = 0.1) +
-  labs(y = "", x = "MBA Test Percentile", 
-       title = "MBA Test Percentile by Job Placement") +
-  scale_color_discrete(direction = -1)
+  labs(y = "", x = "", 
+       title = "Highschool Percentile by Job Placement") +
+  scale_color_discrete(direction = -1)) /
+(updated_fall %>% 
+  ggplot(aes(degree_p, status, color = status)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.5, height = 0.1) +
+  labs(y = "", x = "", 
+       title = "Degree Percentile by Job Placement") +
+  scale_color_discrete(direction = -1)) +
+plot_layout(guides = "collect")
 ```
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+
+As we can see, we were right to include this plot because there is quite
+a clear difference between the two groups.
+
+``` r
+t.test(ssc_p ~ status, updated_fall)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  ssc_p by status
+    ## t = -11.224, df = 142.01, p-value < 2.2e-16
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -17.53814 -12.28565
+    ## sample estimates:
+    ## mean in group Not Placed     mean in group Placed 
+    ##                  57.3300                  72.2419
+
+``` r
+t.test(degree_p ~ status, updated_fall)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  degree_p by status
+    ## t = -7.8348, df = 128.83, p-value = 1.529e-12
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -9.381462 -5.598509
+    ## sample estimates:
+    ## mean in group Not Placed     mean in group Placed 
+    ##                 61.24600                 68.73599
 
 # Prepare and Run a “regression” Analysis
 
@@ -856,7 +907,7 @@ glm_wkfl_fit <- workflow() %>%
   autoplot(type = "heatmap"))
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 ``` r
 glm_wkfl_fit %>% 
@@ -898,7 +949,7 @@ rf_wkfl_fit <- workflow() %>%
   autoplot(type = "heatmap"))
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 ``` r
 rf_wkfl_fit %>% 
@@ -959,7 +1010,7 @@ final_rf_fit <- workflow() %>%
   autoplot(type = "heatmap"))
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
 
 ``` r
 final_glm_fit %>% 
@@ -985,7 +1036,7 @@ final_glm_fit %>%
   autoplot(type = "heatmap"))
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
 
 ``` r
 final_rf_fit %>% 
@@ -1015,7 +1066,7 @@ final_glm_fit %>%
        title = "GLM's Variable Importance")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 #### Random Forest
 
@@ -1024,4 +1075,23 @@ vip::vip(final_rf_fit %>% extract_fit_parsnip()) +
   labs(title = "Random Forest Variable Importance")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+
+## Conclusion
+
+Surprisingly, *Random Forest* used mostly **numeric** variables for its
+predictions, while *Logistic Regression* used mostly **factor**
+variables for its predictions. Intuitively, I expect Random Forest to
+get more value out of **factor** variables because of the nature of the
+model. A Random Forest model is a type of tree based model which uses
+conditional statements for its predictions; and thus it would make sense
+that factor variables make for better conditionals. On the other hand, a
+Logistic Regression model is very similar to a typical Linear Regression
+and thus I don’t expect it to have a “preference”. What actually
+surprised me the most, is that the most important variables for Random
+Forest, *Highschool and Undergrad Education* (ssc_p & degree_p), were
+not very important to the Logistic Regression mopdel for its
+predictions. In fact, it perceived it as a negative effect in predicting
+job offers. This is often an issue of using multiple predictors in GLM
+based models; the coefficients start to lose their “truthfulness”
+because of correlated predictors (multicollinearity).

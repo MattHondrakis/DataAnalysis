@@ -434,16 +434,33 @@ chisq.test(updated_fall$status, updated_fall$gender)
 
 Although gender does not appear to play a major role in job placement, males appear to have a slight advantage. A *chisq.test* is also provided, showing that there is not enough evidence to suggest there is a statistical difference between the two groups, with respect to job offers.
 
-## Highschool Education Percentile
+## Highschool and Undergrad Degree Percentile
+
+These plot was added **after** the model fitting process. Because I was rushed for time, I supplied only a few plots to satisfy the grading rubric and thus did not check every variable. I added this plot here because after checking for which variable were most important in predicting *job offers*, I noticed that this variable was ranked very high.
 
 ```{r}
-updated_fall %>% 
+(updated_fall %>% 
   ggplot(aes(ssc_p, status, color = status)) +
   geom_boxplot() +
   geom_jitter(alpha = 0.5, height = 0.1) +
-  labs(y = "", x = "MBA Test Percentile", 
-       title = "MBA Test Percentile by Job Placement") +
-  scale_color_discrete(direction = -1)
+  labs(y = "", x = "", 
+       title = "Highschool Percentile by Job Placement") +
+  scale_color_discrete(direction = -1)) /
+(updated_fall %>% 
+  ggplot(aes(degree_p, status, color = status)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.5, height = 0.1) +
+  labs(y = "", x = "", 
+       title = "Degree Percentile by Job Placement") +
+  scale_color_discrete(direction = -1)) +
+plot_layout(guides = "collect")
+```
+
+As we can see, we were right to include this plot because there is quite a clear difference between the two groups.
+
+```{r}
+t.test(ssc_p ~ status, updated_fall)
+t.test(degree_p ~ status, updated_fall)
 ```
 
 # Prepare and Run a "regression" Analysis
@@ -620,3 +637,7 @@ final_glm_fit %>%
 vip::vip(final_rf_fit %>% extract_fit_parsnip()) +
   labs(title = "Random Forest Variable Importance")
 ```
+
+## Conclusion
+
+Surprisingly, *Random Forest* used mostly **numeric** variables for its predictions, while *Logistic Regression* used mostly **factor** variables for its predictions. Intuitively, I expect Random Forest to get more value out of **factor** variables because of the nature of the model. A Random Forest model is a type of tree based model which uses conditional statements for its predictions; and thus it would make sense that factor variables make for better conditionals. On the other hand, a Logistic Regression model is very similar to a typical Linear Regression and thus I don't expect it to have a "preference ". What actually surprised me the most, is that the most important variables for Random Forest, *Highschool and Undergrad Education* (ssc_p & degree_p), were not very important to the Logistic Regression mopdel for its predictions. In fact, it perceived it as a negative effect in predicting job offers. This is often an issue of using multiple predictors in GLM based models; the coefficients start to lose their "truthfulness" because of correlated predictors (multicollinearity).
