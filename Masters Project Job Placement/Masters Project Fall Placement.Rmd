@@ -21,7 +21,7 @@ theme_update(panel.grid.minor = element_blank())
 ```
 
 ```{r}
-fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/fall2022Placement.csv")
+fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Job Placement/fall2022Placement.csv")
 ```
 
 # Intro
@@ -47,7 +47,7 @@ This is a structured analysis guided by the assignment provided by my friends pr
 ## Data Dictionary
 
 ```{r data_dictionary}
-knitr::kable(readxl::read_excel("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/Data dictionary.xlsx"))
+knitr::kable(readxl::read_excel("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Job Placement/Data dictionary.xlsx"))
 ```
 
 # Cleanse

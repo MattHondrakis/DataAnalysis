@@ -70,7 +70,7 @@ Matthew
         -   <a href="#conclusion" id="toc-conclusion">Conclusion</a>
 
 ``` r
-fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/fall2022Placement.csv")
+fall <- read_csv("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Job Placement/fall2022Placement.csv")
 ```
 
     ## Rows: 215 Columns: 15
@@ -123,7 +123,7 @@ friends professor. The task is as follows.
 ## Data Dictionary
 
 ``` r
-knitr::kable(readxl::read_excel("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Fall Placement/Data dictionary.xlsx"))
+knitr::kable(readxl::read_excel("C:/Users/Matthew Hondrakis/OneDrive/Documents/DataAnalysis/Masters Project Job Placement/Data dictionary.xlsx"))
 ```
 
 | Column         | Explanation                                  |
