@@ -264,6 +264,7 @@ chisq.test(updated_fall$gender, updated_fall$hsc_s)
 
 ```{r}
 group_count(gender, workex) +
+  scale_fill_discrete(direction = -1) +
   ggtitle("Work Experience by Gender") +
   scale_x_continuous(label = percent_format())
 ```
@@ -422,7 +423,7 @@ updated_fall %>%
 t.test(mba_p ~ status, data = updated_fall)
 ```
 
-There does not appear to be a clear difference between whether an individual got a job based on their **MBA percentile**. A *t.test* does not suggest a difference in average MBA percentile between the two groups, and the boxplot shows that both groups are approximately distributed among the same percentiles.
+There does not appear to be a clear difference between whether an individual got a job based on their **MBA percentile**. A *t.test* does not suggest a difference in average MBA percentile between the two groups, and the boxplot shows that both groups are approximately equally distributed among the same percentiles.
 
 ## Gender
 
@@ -436,7 +437,7 @@ Although gender does not appear to play a major role in job placement, males app
 
 ## Highschool and Undergrad Degree Percentile
 
-These plots were added **after** the model fitting process. Because I was rushed for time, I supplied only a few plots to satisfy the grading rubric and thus did not check every variable. I added this plot here because after checking for which variable were most important in predicting *job offers*, I noticed that this variable was ranked very high.
+These plots were added **after** the model fitting process. Because I was rushed for time, I supplied only a few plots to satisfy the grading rubric and thus did not check every variable. I added these plots here because after checking for which variables were most important in predicting *job offers*, I noticed that these variables were ranked very high. 
 
 ```{r}
 (updated_fall %>% 
@@ -456,7 +457,7 @@ These plots were added **after** the model fitting process. Because I was rushed
 plot_layout(guides = "collect")
 ```
 
-As we can see, we were right to include this plot because there is quite a clear difference between the two groups.
+As we can see, we were right to include these plots because they clearly show that individuals with job offers have higher test scores.
 
 ```{r}
 t.test(ssc_p ~ status, updated_fall)
