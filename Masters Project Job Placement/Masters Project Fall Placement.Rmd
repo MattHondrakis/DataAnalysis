@@ -84,7 +84,7 @@ fall <- fall %>%
 ```{r mutual_NAs}
 fall %>% 
   filter(is.na(hsc_s)) %>% 
-  select(salary)
+  select(hsc_s, salary)
 fall %>% 
   filter(is.na(specialisation)) %>% 
   select(salary)
@@ -422,7 +422,7 @@ updated_fall %>%
 t.test(mba_p ~ status, data = updated_fall)
 ```
 
-There does not appear to be a clear difference between whether an individual got a job based on their **MBA percentile**. A *t.test* does not suggest a difference in average MBA percentile between the two groups, and the boxplot shows that both groups are equally distributed among the same percentiles.
+There does not appear to be a clear difference between whether an individual got a job based on their **MBA percentile**. A *t.test* does not suggest a difference in average MBA percentile between the two groups, and the boxplot shows that both groups are approximately distributed among the same percentiles.
 
 ## Gender
 
@@ -436,7 +436,7 @@ Although gender does not appear to play a major role in job placement, males app
 
 ## Highschool and Undergrad Degree Percentile
 
-These plot was added **after** the model fitting process. Because I was rushed for time, I supplied only a few plots to satisfy the grading rubric and thus did not check every variable. I added this plot here because after checking for which variable were most important in predicting *job offers*, I noticed that this variable was ranked very high.
+These plots were added **after** the model fitting process. Because I was rushed for time, I supplied only a few plots to satisfy the grading rubric and thus did not check every variable. I added this plot here because after checking for which variable were most important in predicting *job offers*, I noticed that this variable was ranked very high.
 
 ```{r}
 (updated_fall %>% 
@@ -463,7 +463,7 @@ t.test(ssc_p ~ status, updated_fall)
 t.test(degree_p ~ status, updated_fall)
 ```
 
-# Prepare and Run a "regression" Analysis
+# Prepare and Run a "Regression" Analysis
 
 The intro suggests that a regression should be run and I often take "regression" to mean that the *dependent* variable (what is being predicted) is a number. I don't believe this to be the case so I will instead fit a **classification** model, attempting to predict who gets a job offer or not. Maybe we can be a bit cheeky and fit a logistic **regression** model.
 
