@@ -437,7 +437,7 @@ Although gender does not appear to play a major role in job placement, males app
 
 ## Highschool and Undergrad Degree Percentile
 
-These plots were added **after** the model fitting process. Because I was rushed for time, I supplied only a few plots to satisfy the grading rubric and thus did not check every variable. I added these plots here because after checking for which variables were most important in predicting *job offers*, I noticed that these variables were ranked very high. 
+These plots were added **after** the model fitting process. Because I was rushed for time, I supplied only a few plots to satisfy the grading rubric and thus did not check every variable. I added these plots here because after checking for which variables were most important in predicting *job offers*, I noticed that these variables were ranked very high.
 
 ```{r}
 (updated_fall %>% 

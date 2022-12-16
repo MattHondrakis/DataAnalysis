@@ -49,7 +49,7 @@ Matthew
         Undergrad Degree Percentile</a>
 -   <a href="#prepare-and-run-a-regression-analysis"
     id="toc-prepare-and-run-a-regression-analysis">Prepare and Run a
-    “regression” Analysis</a>
+    “Regression” Analysis</a>
     -   <a href="#prepare-data" id="toc-prepare-data">Prepare Data</a>
     -   <a href="#preprocess-and-model-choice"
         id="toc-preprocess-and-model-choice">Preprocess and Model Choice</a>
@@ -240,13 +240,13 @@ fall <- fall %>%
 ``` r
 fall %>% 
   filter(is.na(hsc_s)) %>% 
-  select(salary)
+  select(hsc_s, salary)
 ```
 
-    ## # A tibble: 1 x 1
-    ##   salary
-    ##    <dbl>
-    ## 1     NA
+    ## # A tibble: 1 x 2
+    ##   hsc_s salary
+    ##   <chr>  <dbl>
+    ## 1 <NA>      NA
 
 ``` r
 fall %>% 
@@ -507,6 +507,7 @@ chisq.test(updated_fall$gender, updated_fall$hsc_s)
 
 ``` r
 group_count(gender, workex) +
+  scale_fill_discrete(direction = -1) +
   ggtitle("Work Experience by Gender") +
   scale_x_continuous(label = percent_format())
 ```
@@ -758,8 +759,8 @@ t.test(mba_p ~ status, data = updated_fall)
 There does not appear to be a clear difference between whether an
 individual got a job based on their **MBA percentile**. A *t.test* does
 not suggest a difference in average MBA percentile between the two
-groups, and the boxplot shows that both groups are equally distributed
-among the same percentiles.
+groups, and the boxplot shows that both groups are approximately equally
+distributed among the same percentiles.
 
 ## Gender
 
@@ -787,11 +788,11 @@ offers.
 
 ## Highschool and Undergrad Degree Percentile
 
-These plot was added **after** the model fitting process. Because I was
-rushed for time, I supplied only a few plots to satisfy the grading
-rubric and thus did not check every variable. I added this plot here
-because after checking for which variable were most important in
-predicting *job offers*, I noticed that this variable was ranked very
+These plots were added **after** the model fitting process. Because I
+was rushed for time, I supplied only a few plots to satisfy the grading
+rubric and thus did not check every variable. I added these plots here
+because after checking for which variables were most important in
+predicting *job offers*, I noticed that these variables were ranked very
 high.
 
 ``` r
@@ -814,8 +815,8 @@ plot_layout(guides = "collect")
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
-As we can see, we were right to include this plot because there is quite
-a clear difference between the two groups.
+As we can see, we were right to include these plots because they clearly
+show that individuals with job offers have higher test scores.
 
 ``` r
 t.test(ssc_p ~ status, updated_fall)
@@ -849,7 +850,7 @@ t.test(degree_p ~ status, updated_fall)
     ## mean in group Not Placed     mean in group Placed 
     ##                 61.24600                 68.73599
 
-# Prepare and Run a “regression” Analysis
+# Prepare and Run a “Regression” Analysis
 
 The intro suggests that a regression should be run and I often take
 “regression” to mean that the *dependent* variable (what is being
