@@ -998,25 +998,31 @@ final_rf_fit <- workflow() %>%
 ## Metrics
 
 ``` r
-((final_glm_fit %>% 
-  collect_predictions() %>% 
-  roc_curve(status, `.pred_Placed`) %>% 
-  autoplot() + ggtitle("Logistic Regression")) /
 (final_glm_fit %>% 
   collect_predictions() %>% 
-  conf_mat(status, .pred_class) %>% 
-  autoplot(type = "heatmap"))) |
-((final_rf_fit %>% 
-  collect_predictions() %>% 
+  mutate(Model = "Logistic Regression") %>% 
+  rbind(final_rf_fit %>% 
+          collect_predictions() %>% 
+          mutate(Model = "Random Forest")) %>%
+  group_by(Model) %>% 
   roc_curve(status, `.pred_Placed`) %>% 
-  autoplot() + ggtitle("Random Forest")) /
-(final_rf_fit %>% 
-  collect_predictions() %>% 
-  conf_mat(status, .pred_class) %>% 
-  autoplot(type = "heatmap")))
+  autoplot() + theme(legend.position = "top", legend.title = element_blank()))
 ```
 
 ![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+
+``` r
+(final_glm_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(status, .pred_class) %>% 
+  autoplot(type = "heatmap") + ggtitle("Logistic Regression")) /
+(final_rf_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(status, .pred_class) %>% 
+  autoplot(type = "heatmap") + ggtitle("Random Forest"))
+```
+
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-36-2.png)<!-- -->
 
 ``` r
 final_glm_fit %>% 
@@ -1055,7 +1061,7 @@ final_glm_fit %>%
        title = "GLM's Variable Importance")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 ### Random Forest
 
@@ -1064,7 +1070,7 @@ vip::vip(final_rf_fit %>% extract_fit_parsnip()) +
   labs(title = "Random Forest Variable Importance")
 ```
 
-![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
+![](Masters-Project-Fall-Placement_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
 
 ### Conclusion
 
