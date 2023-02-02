@@ -35,7 +35,7 @@ stocks %>%
   geom_line(aes(color = name)) +
   labs(x = "", y = "Open", color = "",
        title = "Opening Stock Prices of Major Tech Companies",
-       subtitle = "These prices range from January 2010 to January 2023")
+       subtitle = "Prices range from January 2010 to January 2023")
 ```
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
