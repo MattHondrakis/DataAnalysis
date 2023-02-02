@@ -13,3 +13,4 @@ The datasets in this repository tend be updated regularly, and thus the code and
 * [Office Supplies](https://github.com/MattHondrakis/DataAnalysis/blob/main/Office%20Supplies/Office-Supplies.md)
 * [Coursera Case Study: Bikes](https://github.com/MattHondrakis/DataAnalysis/blob/main/Coursera%20Case%20Study/Bikes.md)
 * [Masters Final Project: Fall Placement](https://github.com/MattHondrakis/DataAnalysis/blob/main/Masters%20Project%20Job%20Placement/Masters-Project-Fall-Placement.md)
+* [Tech Stock Prices](https://github.com/MattHondrakis/DataAnalysis/blob/main/Tech%20Stock%20Prices/Tech-Stock-Prices.md)
