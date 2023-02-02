@@ -22,9 +22,11 @@ theme_update(plot.title = element_text(hjust = 0.5),
              text = element_text(family = "Roboto"))
 ```
 
+*Data from Evan Gower on [Kaggle](https://www.kaggle.com/datasets/evangower/big-tech-stock-prices?resource=download&select=TSLA.csv)*
+
 # Read Data
 
-```{r}
+```{r message=FALSE}
 files <- list.files(path = "./Data")
 
 stocks <- read_csv(paste0("./Data/", files), 
@@ -34,13 +36,7 @@ stocks <- read_csv(paste0("./Data/", files),
   rename_with(tolower)
 ```
 
-The code starts by creating a list of files in the directory **`"./Data"`** using the **`list.files`** function and storing it in the object **`files`**.
-
-Next, the **`read_csv`** function is used to read in each file in the **`files`** list and create a new dataframe called **`stocks`**. The **`paste0`** function is used to concatenate the path **`"./Data/"`** with each file name in the **`files`** list.
-
-The **`stocks`** dataframe is then processed further using the **`mutate`** function to modify the "name" column. The first call to **`gsub`** uses the **`gsub`** function to replace the string **`"./Data/"`** in the "name" column with an empty string. The second call to **`gsub`** uses the **`gsub`** function to remove the **`".csv"`** extension from each string in the "name" column.
-
-Finally, the modified "name" column is stored back in the **`stocks`** dataframe.
+I'm reading in a list of *csv* files from a directory and creating a dataframe from them. I'm then cleaning up the "name" column in the dataframe and storing the cleaned "name" column in the dataframe as the final output.
 
 # Exploratory Data Analysis
 
@@ -49,6 +45,6 @@ stocks %>%
   ggplot(aes(date, open)) +
   geom_line(aes(color = name)) +
   labs(x = "", y = "Open", color = "",
-       title = "Opening Stock Prices of 14 Popular Tech Companies",
-       subtitle = "")
+       title = "Opening Stock Prices of Major Tech Companies",
+       subtitle = "These prices range from January 2010 to January 2023")
 ```
