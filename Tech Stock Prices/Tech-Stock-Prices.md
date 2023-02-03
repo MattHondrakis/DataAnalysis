@@ -30,12 +30,23 @@ final output.
 # Exploratory Data Analysis
 
 ``` r
+end_labels <- 
+  (stocks %>% 
+  group_by(name) %>% 
+  filter(date == max(date)) %>% 
+  arrange(-open) %>% 
+  select(open, name))[c(1:3,12:14),]
+
 stocks %>% 
   ggplot(aes(date, open)) +
   geom_line(aes(color = name)) +
+  scale_y_continuous(
+    sec.axis = sec_axis(~.,breaks = end_labels$open, labels = end_labels$name)) +
+  scale_x_date(expand = c(0,0)) +
   labs(x = "", y = "Open", color = "",
        title = "Opening Stock Prices of Major Tech Companies",
-       subtitle = "Prices range from January 2010 to January 2023")
+       subtitle = "Prices range from January 2010 to January 2023. The names shown are the top and bottom 3 tech stocks at the most recent date.") +
+  theme(legend.position = "none")
 ```
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
