@@ -45,7 +45,7 @@ stocks %>%
   scale_x_date(expand = c(0,0)) +
   labs(x = "", y = "Open", color = "",
        title = "Opening Stock Prices of Major Tech Companies",
-       subtitle = "Prices range from January 2010 to January 2023. The names shown are the top and bottom 3 tech stocks at the most recent date.") +
+       subtitle = "Prices range from Jan 2010 to Jan 2023. The names shown are\nthe top and bottom 3 tech stocks at the most recent date.") +
   theme(legend.position = "none")
 ```
 
