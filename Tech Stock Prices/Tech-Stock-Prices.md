@@ -31,20 +31,13 @@ final output.
 
 ``` r
 big_tech_companies <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-02-07/big_tech_companies.csv')
-```
 
-    ## Rows: 14 Columns: 2
-    ## -- Column specification --------------------------------------------------------
-    ## Delimiter: ","
-    ## chr (2): stock_symbol, company
-    ## 
-    ## i Use `spec()` to retrieve the full column specification for this data.
-    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 stocks <- stocks %>% 
   inner_join(big_tech_companies, by = c("name" = "stock_symbol"))
 ```
+
+Datasets are joined in order to retrieve the full names of the
+companies.
 
 # Exploratory Data Analysis
 
