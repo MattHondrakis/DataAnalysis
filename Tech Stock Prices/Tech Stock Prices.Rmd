@@ -112,3 +112,15 @@ stocks %>%
        subtitle = "Out of 13 tech stocks, 6 of them reached their peak in November 2021",
        caption = "IBM's peak was in March, 2013 and thus is not included.")
 ```
+
+## Volume
+
+```{r}
+stocks %>% 
+  mutate(diff = close - open) %>% 
+  ggplot(aes(volume, diff)) +
+  geom_point(alpha = 0.2) +
+  scale_x_log10()
+
+cor((stocks %>% mutate(diff = close - open))$diff, stocks$volume)
+```

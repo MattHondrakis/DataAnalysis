@@ -8,6 +8,7 @@ Matthew
   id="toc-exploratory-data-analysis">Exploratory Data Analysis</a>
   - <a href="#top-3" id="toc-top-3">Top 3</a>
   - <a href="#peak-month" id="toc-peak-month">Peak Month</a>
+  - <a href="#volume" id="toc-volume">Volume</a>
 
 *Data from Evan Gower on
 [Kaggle](https://www.kaggle.com/datasets/evangower/big-tech-stock-prices?resource=download&select=TSLA.csv)*
@@ -109,3 +110,21 @@ stocks %>%
 ```
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+## Volume
+
+``` r
+stocks %>% 
+  mutate(diff = close - open) %>% 
+  ggplot(aes(volume, diff)) +
+  geom_point(alpha = 0.2) +
+  scale_x_log10()
+```
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+cor((stocks %>% mutate(diff = close - open))$diff, stocks$volume)
+```
+
+    ## [1] -0.003965457
