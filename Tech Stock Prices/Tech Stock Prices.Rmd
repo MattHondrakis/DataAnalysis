@@ -124,3 +124,25 @@ stocks %>%
 
 cor((stocks %>% mutate(diff = close - open))$diff, stocks$volume)
 ```
+
+# Time Series
+
+```{r}
+library(prophet)
+ts_data_aapl <- stocks %>% 
+  filter(name == "AAPL") %>% 
+  select(ds = date, y = open)
+```
+
+## Apple
+
+```{r}
+m_aapl <- prophet(ts_data_aapl)
+future_dates <- make_future_dataframe(m_aapl, periods = 90)
+
+forecast <- predict(m_aapl, future_dates)
+
+plot(m_aapl, forecast)
+
+prophet_plot_components(m_aapl, forecast)
+```

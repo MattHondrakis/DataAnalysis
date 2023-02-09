@@ -9,6 +9,8 @@ Matthew
   - <a href="#top-3" id="toc-top-3">Top 3</a>
   - <a href="#peak-month" id="toc-peak-month">Peak Month</a>
   - <a href="#volume" id="toc-volume">Volume</a>
+- <a href="#time-series" id="toc-time-series">Time Series</a>
+  - <a href="#apple" id="toc-apple">Apple</a>
 
 *Data from Evan Gower on
 [Kaggle](https://www.kaggle.com/datasets/evangower/big-tech-stock-prices?resource=download&select=TSLA.csv)*
@@ -128,3 +130,51 @@ cor((stocks %>% mutate(diff = close - open))$diff, stocks$volume)
 ```
 
     ## [1] -0.003965457
+
+# Time Series
+
+``` r
+library(prophet)
+```
+
+    ## Loading required package: Rcpp
+
+    ## Loading required package: rlang
+
+    ## 
+    ## Attaching package: 'rlang'
+
+    ## The following objects are masked from 'package:purrr':
+    ## 
+    ##     %@%, as_function, flatten, flatten_chr, flatten_dbl, flatten_int,
+    ##     flatten_lgl, flatten_raw, invoke, splice
+
+``` r
+ts_data_aapl <- stocks %>% 
+  filter(name == "AAPL") %>% 
+  select(ds = date, y = open)
+```
+
+## Apple
+
+``` r
+m_aapl <- prophet(ts_data_aapl)
+```
+
+    ## Disabling daily seasonality. Run prophet with daily.seasonality=TRUE to override this.
+
+``` r
+future_dates <- make_future_dataframe(m_aapl, periods = 90)
+
+forecast <- predict(m_aapl, future_dates)
+
+plot(m_aapl, forecast)
+```
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+prophet_plot_components(m_aapl, forecast)
+```
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
