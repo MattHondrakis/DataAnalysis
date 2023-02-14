@@ -137,6 +137,10 @@ ts_data_aapl <- stocks %>%
 ## Apple
 
 ```{r}
+plot(diff(ts_data_aapl$y))
+```
+
+```{r}
 m_aapl <- prophet(ts_data_aapl)
 future_dates <- make_future_dataframe(m_aapl, periods = 90)
 

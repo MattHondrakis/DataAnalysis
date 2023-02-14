@@ -158,6 +158,12 @@ ts_data_aapl <- stocks %>%
 ## Apple
 
 ``` r
+plot(diff(ts_data_aapl$y))
+```
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
 m_aapl <- prophet(ts_data_aapl)
 ```
 
@@ -171,10 +177,10 @@ forecast <- predict(m_aapl, future_dates)
 plot(m_aapl, forecast)
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 prophet_plot_components(m_aapl, forecast)
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
