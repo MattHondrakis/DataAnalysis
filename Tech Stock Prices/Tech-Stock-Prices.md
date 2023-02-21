@@ -11,6 +11,7 @@ Matthew
   - <a href="#volume" id="toc-volume">Volume</a>
 - <a href="#time-series" id="toc-time-series">Time Series</a>
   - <a href="#apple" id="toc-apple">Apple</a>
+    - <a href="#prophet" id="toc-prophet">Prophet</a>
 
 *Data from Evan Gower on
 [Kaggle](https://www.kaggle.com/datasets/evangower/big-tech-stock-prices?resource=download&select=TSLA.csv)*
@@ -157,11 +158,28 @@ ts_data_aapl <- stocks %>%
 
 ## Apple
 
+Often, the differences allows us to understand how volatile a trend is.
+As can be seen below, the **Apple** stock becomes increasingly more
+volatile over time.
+
 ``` r
-plot(diff(ts_data_aapl$y))
+(ts_data_aapl %>% 
+  mutate(diff = c(NA, diff(y))) %>% 
+  ggplot(aes(ds, diff)) + 
+  geom_point(color = "steelblue4", alpha = 0.7) +
+  labs(y = "Difference", x = "Date",
+       title = "One Day Returns")
+) /
+(ts_data_aapl %>% 
+   mutate(diff = c(NA, diff(y))) %>% 
+   ggplot(aes(diff)) +
+   geom_histogram(bins = 50, fill = "steelblue4", color = "black")
+)
 ```
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+### Prophet
 
 ``` r
 m_aapl <- prophet(ts_data_aapl)
