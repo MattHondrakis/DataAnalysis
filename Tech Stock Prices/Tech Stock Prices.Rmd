@@ -129,6 +129,8 @@ cor((stocks %>% mutate(diff = close - open))$diff, stocks$volume)
 
 ```{r}
 library(prophet)
+library(astsa)
+library(forecast)
 ts_data_aapl <- stocks %>% 
   filter(name == "AAPL") %>% 
   select(ds = date, y = open)
@@ -164,4 +166,12 @@ forecast <- predict(m_aapl, future_dates)
 plot(m_aapl, forecast)
 
 prophet_plot_components(m_aapl, forecast)
+```
+
+### ARIMA
+
+```{r}
+arima_fit <- auto.arima(ts_data_aapl$y)
+
+plot(forecast(arima_fit, h = 100))
 ```
