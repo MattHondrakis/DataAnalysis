@@ -15,6 +15,9 @@ Matthew
     - <a href="#arima" id="toc-arima">ARIMA</a>
 - <a href="#correlated-stocks" id="toc-correlated-stocks">Correlated
   Stocks</a>
+  - <a href="#highly-correlated" id="toc-highly-correlated">Highly
+    Correlated</a>
+  - <a href="#low-correlation" id="toc-low-correlation">Low Correlation</a>
 
 *Data from Evan Gower on
 [Kaggle](https://www.kaggle.com/datasets/evangower/big-tech-stock-prices?resource=download&select=TSLA.csv)*
@@ -320,6 +323,8 @@ lines(ts_aapl)
     ## 10 Apple Inc.            Alphabet Inc.               0.965
     ## # ... with 81 more rows
 
+## Highly Correlated
+
 ``` r
 stocks %>% 
   filter(company %in% 
@@ -327,7 +332,9 @@ stocks %>%
   ggplot(aes(date, open, color = company)) + 
   geom_line() +
   labs(x = "", y = "Open Price", color = "",
-       title = "The 6 Most Correlated Stocks Have Nearly Identical Trends")
+       title = "The 6 Most Correlated Stocks Have Nearly Identical Trends") +
+  theme(legend.position = c(0.2,0.75),
+        legend.background = element_rect(fill = "white"))
 ```
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
@@ -347,3 +354,43 @@ stocks %>%
     ## `geom_smooth()` using formula 'y ~ x'
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+
+## Low Correlation
+
+``` r
+stock_corr %>% 
+  filter(str_detect(item1, "Netflix") & str_detect(item2, "Machine"))
+```
+
+    ## # A tibble: 1 x 3
+    ##   item1         item2                                       correlation
+    ##   <chr>         <chr>                                             <dbl>
+    ## 1 Netflix, Inc. International Business Machines Corporation      -0.546
+
+``` r
+stocks %>% 
+  filter(str_detect(company, "Netflix|Machine")) %>% 
+  ggplot(aes(date, open, color = name)) + 
+  geom_line() +
+  labs(x = "", y = "Open Price", color = "",
+       title = "IBM and Netflix Have Very Different Trends") +
+  theme(legend.position = c(0.45,0.8))
+```
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
+``` r
+stocks %>% 
+  filter(str_detect(company, "Netflix|Machine")) %>% 
+  select(date, name, open) %>% 
+  pivot_wider(names_from = name, values_from = open) %>% 
+  ggplot(aes(`IBM`, `NFLX`)) +
+  geom_point(alpha = 0.7, color = "steelblue2") +
+  geom_smooth(method = "lm", se = FALSE, color = "black",
+              linetype = "dashed") +
+  labs(title = "IBM and Netflix")
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
