@@ -222,6 +222,9 @@ prophet_plot_components(m_aapl, forecast)
 
 ### ARIMA
 
+First, we begin with fitting an “auto.arima”, which automatically fits
+an ARIMA model with by choosing optimal ARIMA terms.
+
 ``` r
 arima_fit <- auto.arima(aapl$y)
 plot(forecast(arima_fit, h = 100))
