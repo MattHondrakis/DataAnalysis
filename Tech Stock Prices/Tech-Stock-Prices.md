@@ -205,9 +205,8 @@ m_aapl <- prophet(aapl)
     ## Disabling daily seasonality. Run prophet with daily.seasonality=TRUE to override this.
 
 ``` r
-future_dates <- make_future_dataframe(m_aapl, periods = 90)
-
-forecast <- predict(m_aapl, future_dates)
+forecast <- predict(m_aapl, 
+                    make_future_dataframe(m_aapl, periods = 140))
 
 plot(m_aapl, forecast)
 ```
@@ -231,6 +230,12 @@ plot(forecast(arima_fit, h = 100))
 ```
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+Now, we will try to fit an ARIMA by looking at a stationary version of
+the time series. It appears as though the best fit in an ARIMA(2,1,3),
+although this is of course not the true model for the stock. ARIMA
+models are not great at modeling stock prices, as their prices are often
+a product of unknown variables.
 
 ``` r
 plot(diff(log(aapl$y)),type = "l")
