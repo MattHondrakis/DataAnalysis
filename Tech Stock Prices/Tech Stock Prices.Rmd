@@ -209,7 +209,20 @@ lines(ts_aapl)
 (stock_corr <- stocks %>% 
   widyr::pairwise_cor(company, date, open) %>% 
   filter(item1 > item2) %>% 
+  mutate(corrstr = ifelse(abs(correlation > 0.5), "Strong", "Weak"),
+         type = ifelse(correlation > 0, "Positive", "Negative")) %>% 
   arrange(-abs(correlation)))
+
+stock_corr %>% 
+  ggplot(aes(correlation)) +
+  geom_histogram(aes(fill = type), 
+                 alpha = 0.7, binwidth = 0.05) +
+  xlim(c(-1,1)) +
+  labs(title = "Distribution of Correlation Values",
+       subtitle = "The majority of companies have a strong positive correlation",
+       fill = "Positive Correlation") +
+  theme(legend.position = c(0.2,0.8),
+        legend.background = element_rect(fill = "white", color = "white"))
 ```
 
 ## Highly Correlated
@@ -223,7 +236,8 @@ stocks %>%
   labs(x = "", y = "Open Price", color = "",
        title = "The 6 Most Correlated Stocks Have Nearly Identical Trends") +
   theme(legend.position = c(0.2,0.75),
-        legend.background = element_rect(fill = "white"))
+        legend.background = element_rect(fill = "white",
+                                         color = "white"))
 
 stocks %>% 
   filter(company %in% c(stock_corr[1,1:2])) %>% 

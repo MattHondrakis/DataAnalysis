@@ -305,23 +305,40 @@ lines(ts_aapl)
 (stock_corr <- stocks %>% 
   widyr::pairwise_cor(company, date, open) %>% 
   filter(item1 > item2) %>% 
+  mutate(corrstr = ifelse(abs(correlation > 0.5), "Strong", "Weak"),
+         type = ifelse(correlation > 0, "Positive", "Negative")) %>% 
   arrange(-abs(correlation)))
 ```
 
-    ## # A tibble: 91 x 3
-    ##    item1                 item2                 correlation
-    ##    <chr>                 <chr>                       <dbl>
-    ##  1 Amazon.com, Inc.      Adobe Inc.                  0.988
-    ##  2 Salesforce, Inc.      Adobe Inc.                  0.985
-    ##  3 Microsoft Corporation Apple Inc.                  0.984
-    ##  4 Salesforce, Inc.      Amazon.com, Inc.            0.983
-    ##  5 Microsoft Corporation Alphabet Inc.               0.981
-    ##  6 Oracle Corporation    Alphabet Inc.               0.969
-    ##  7 Microsoft Corporation Adobe Inc.                  0.968
-    ##  8 Salesforce, Inc.      Netflix, Inc.               0.968
-    ##  9 NVIDIA Corporation    Microsoft Corporation       0.965
-    ## 10 Apple Inc.            Alphabet Inc.               0.965
+    ## # A tibble: 91 x 5
+    ##    item1                 item2                 correlation corrstr type    
+    ##    <chr>                 <chr>                       <dbl> <chr>   <chr>   
+    ##  1 Amazon.com, Inc.      Adobe Inc.                  0.988 Strong  Positive
+    ##  2 Salesforce, Inc.      Adobe Inc.                  0.985 Strong  Positive
+    ##  3 Microsoft Corporation Apple Inc.                  0.984 Strong  Positive
+    ##  4 Salesforce, Inc.      Amazon.com, Inc.            0.983 Strong  Positive
+    ##  5 Microsoft Corporation Alphabet Inc.               0.981 Strong  Positive
+    ##  6 Oracle Corporation    Alphabet Inc.               0.969 Strong  Positive
+    ##  7 Microsoft Corporation Adobe Inc.                  0.968 Strong  Positive
+    ##  8 Salesforce, Inc.      Netflix, Inc.               0.968 Strong  Positive
+    ##  9 NVIDIA Corporation    Microsoft Corporation       0.965 Strong  Positive
+    ## 10 Apple Inc.            Alphabet Inc.               0.965 Strong  Positive
     ## # ... with 81 more rows
+
+``` r
+stock_corr %>% 
+  ggplot(aes(correlation)) +
+  geom_histogram(aes(fill = type), 
+                 alpha = 0.7, binwidth = 0.05) +
+  xlim(c(-1,1)) +
+  labs(title = "Distribution of Correlation Values",
+       subtitle = "The majority of companies have a strong positive correlation",
+       fill = "Positive Correlation") +
+  theme(legend.position = c(0.2,0.8),
+        legend.background = element_rect(fill = "white", color = "white"))
+```
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ## Highly Correlated
 
@@ -334,7 +351,8 @@ stocks %>%
   labs(x = "", y = "Open Price", color = "",
        title = "The 6 Most Correlated Stocks Have Nearly Identical Trends") +
   theme(legend.position = c(0.2,0.75),
-        legend.background = element_rect(fill = "white"))
+        legend.background = element_rect(fill = "white",
+                                         color = "white"))
 ```
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
@@ -362,10 +380,10 @@ stock_corr %>%
   filter(str_detect(item1, "Netflix") & str_detect(item2, "Machine"))
 ```
 
-    ## # A tibble: 1 x 3
-    ##   item1         item2                                       correlation
-    ##   <chr>         <chr>                                             <dbl>
-    ## 1 Netflix, Inc. International Business Machines Corporation      -0.546
+    ## # A tibble: 1 x 5
+    ##   item1         item2                                  correlation corrstr type 
+    ##   <chr>         <chr>                                        <dbl> <chr>   <chr>
+    ## 1 Netflix, Inc. International Business Machines Corpo~      -0.546 Weak    Nega~
 
 ``` r
 stocks %>% 
