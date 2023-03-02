@@ -213,6 +213,13 @@ lines(ts_aapl)
          type = ifelse(correlation > 0, "Positive", "Negative")) %>% 
   arrange(-abs(correlation)))
 
+```
+
+```{r}
+
+```
+
+```{r}
 stock_corr %>% 
   ggplot(aes(correlation)) +
   geom_histogram(aes(fill = type), 
