@@ -15,9 +15,10 @@ Matthew
     - <a href="#arima" id="toc-arima">ARIMA</a>
 - <a href="#correlated-stocks" id="toc-correlated-stocks">Correlated
   Stocks</a>
-  - <a href="#highly-correlated" id="toc-highly-correlated">Highly
-    Correlated</a>
-  - <a href="#low-correlation" id="toc-low-correlation">Low Correlation</a>
+  - <a href="#positively-correlated"
+    id="toc-positively-correlated">Positively Correlated</a>
+  - <a href="#negatively-correlated"
+    id="toc-negatively-correlated">Negatively Correlated</a>
 
 *Data from Evan Gower on
 [Kaggle](https://www.kaggle.com/datasets/evangower/big-tech-stock-prices?resource=download&select=TSLA.csv)*
@@ -338,9 +339,9 @@ stock_corr %>%
         legend.background = element_rect(fill = "white", color = "white"))
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
-## Highly Correlated
+## Positively Correlated
 
 ``` r
 stocks %>% 
@@ -355,7 +356,7 @@ stocks %>%
                                          color = "white"))
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ``` r
 stocks %>% 
@@ -371,9 +372,9 @@ stocks %>%
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
 
-## Low Correlation
+## Negatively Correlated
 
 ``` r
 stock_corr %>% 
@@ -395,7 +396,7 @@ stocks %>%
   theme(legend.position = c(0.45,0.8))
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 stocks %>% 
@@ -411,4 +412,4 @@ stocks %>%
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->

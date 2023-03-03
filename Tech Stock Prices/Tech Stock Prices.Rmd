@@ -227,7 +227,7 @@ stock_corr %>%
         legend.background = element_rect(fill = "white", color = "white"))
 ```
 
-## Highly Correlated
+## Positively Correlated
 
 ```{r}
 stocks %>% 
@@ -252,7 +252,7 @@ stocks %>%
   labs(title = "Amazon and Adobe Trend")
 ```
 
-## Low Correlation
+## Negatively Correlated
 
 ```{r}
 stock_corr %>% 
