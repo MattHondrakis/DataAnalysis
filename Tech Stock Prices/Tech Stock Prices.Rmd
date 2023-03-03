@@ -17,6 +17,8 @@ library(scales)
 library(patchwork)
 library(sysfonts)
 library(showtext)
+library(corrr)
+library(rstatix)
 font_add_google("Roboto Slab", "Roboto")
 theme_set(theme_minimal())
 theme_update(plot.title = element_text(hjust = 0.5),
@@ -225,6 +227,17 @@ stock_corr %>%
        fill = "Positive Correlation") +
   theme(legend.position = c(0.2,0.8),
         legend.background = element_rect(fill = "white", color = "white"))
+```
+
+## IBM, The Outlier
+
+```{r}
+(stocks %>% 
+  widyr::pairwise_cor(name, date, open) %>% 
+  rename(var1 = item1, var2 = item2) %>% 
+  cor_spread(value = "correlation") %>% 
+  rename(term = rowname))[c(14,1:13),] %>% 
+  network_plot()
 ```
 
 ## Positively Correlated

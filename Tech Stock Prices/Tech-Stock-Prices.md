@@ -15,6 +15,7 @@ Matthew
     - <a href="#arima" id="toc-arima">ARIMA</a>
 - <a href="#correlated-stocks" id="toc-correlated-stocks">Correlated
   Stocks</a>
+  - <a href="#ibm-the-outlier" id="toc-ibm-the-outlier">IBM, The Outlier</a>
   - <a href="#positively-correlated"
     id="toc-positively-correlated">Positively Correlated</a>
   - <a href="#negatively-correlated"
@@ -341,6 +342,19 @@ stock_corr %>%
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
+## IBM, The Outlier
+
+``` r
+(stocks %>% 
+  widyr::pairwise_cor(name, date, open) %>% 
+  rename(var1 = item1, var2 = item2) %>% 
+  cor_spread(value = "correlation") %>% 
+  rename(term = rowname))[c(14,1:13),] %>% 
+  network_plot()
+```
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
 ## Positively Correlated
 
 ``` r
@@ -356,7 +370,7 @@ stocks %>%
                                          color = "white"))
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 stocks %>% 
@@ -372,7 +386,7 @@ stocks %>%
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
 
 ## Negatively Correlated
 
@@ -396,7 +410,7 @@ stocks %>%
   theme(legend.position = c(0.45,0.8))
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 ``` r
 stocks %>% 
@@ -412,4 +426,4 @@ stocks %>%
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
