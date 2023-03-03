@@ -212,11 +212,6 @@ lines(ts_aapl)
   mutate(corrstr = ifelse(abs(correlation > 0.5), "Strong", "Weak"),
          type = ifelse(correlation > 0, "Positive", "Negative")) %>% 
   arrange(-abs(correlation)))
-
-```
-
-```{r}
-
 ```
 
 ```{r}
