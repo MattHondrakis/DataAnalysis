@@ -355,6 +355,19 @@ stock_corr %>%
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
+``` r
+stocks %>% 
+  ggplot(aes(date, open, color = name)) +
+  geom_line() +
+  gghighlight::gghighlight(name == "IBM") +
+  labs(x = "", y = "", 
+       title = "IBM is an Outlier Among Tech Stocks")
+```
+
+    ## label_key: name
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+
 ## Positively Correlated
 
 ``` r
