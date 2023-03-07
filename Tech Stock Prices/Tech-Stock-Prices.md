@@ -352,7 +352,8 @@ stock_corr %>%
   rename(term = rowname))[c(14,1:13),] %>% 
   network_plot() +
   labs(title = "Correlation of Tech Stocks") +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(family = "Roboto"))
 ```
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
