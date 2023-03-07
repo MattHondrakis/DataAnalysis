@@ -237,7 +237,9 @@ stock_corr %>%
   rename(var1 = item1, var2 = item2) %>% 
   cor_spread(value = "correlation") %>% 
   rename(term = rowname))[c(14,1:13),] %>% 
-  network_plot()
+  network_plot() +
+  labs(title = "Correlation of Tech Stocks") +
+  theme(plot.title = element_text(hjust = 0.5))
 
 
 stocks %>% 
