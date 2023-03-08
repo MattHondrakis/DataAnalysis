@@ -132,7 +132,7 @@ cor((stocks %>% mutate(diff = close - open))$diff, stocks$volume)
 
 # Time Series
 
-```{r}
+```{r include = FALSE}
 library(prophet)
 library(astsa)
 library(forecast)

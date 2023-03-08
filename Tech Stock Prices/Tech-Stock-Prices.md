@@ -147,38 +147,6 @@ cor((stocks %>% mutate(diff = close - open))$diff, stocks$volume)
 
 # Time Series
 
-``` r
-library(prophet)
-```
-
-    ## Loading required package: Rcpp
-
-    ## Loading required package: rlang
-
-    ## 
-    ## Attaching package: 'rlang'
-
-    ## The following objects are masked from 'package:purrr':
-    ## 
-    ##     %@%, as_function, flatten, flatten_chr, flatten_dbl, flatten_int,
-    ##     flatten_lgl, flatten_raw, invoke, splice
-
-``` r
-library(astsa)
-library(forecast)
-```
-
-    ## Registered S3 method overwritten by 'quantmod':
-    ##   method            from
-    ##   as.zoo.data.frame zoo
-
-    ## 
-    ## Attaching package: 'forecast'
-
-    ## The following object is masked from 'package:astsa':
-    ## 
-    ##     gas
-
 ## Apple
 
 ``` r
