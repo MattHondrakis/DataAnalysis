@@ -72,7 +72,7 @@ stocks %>%
   theme(legend.position = "none")
 ```
 
-## Top 3
+## Top and Bottom 3 Most Recent Open Values
 
 ```{r}
 (stocks %>% 
@@ -122,7 +122,10 @@ stocks %>%
   mutate(diff = close - open) %>% 
   ggplot(aes(volume, diff)) +
   geom_point(alpha = 0.2) +
-  scale_x_log10()
+  scale_x_log10() +
+  labs(title = "Difference Between Open and Close by Volume",
+       y = "Difference",
+       x = "Volume")
 
 cor((stocks %>% mutate(diff = close - open))$diff, stocks$volume)
 ```

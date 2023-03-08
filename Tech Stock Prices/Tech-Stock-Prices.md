@@ -6,7 +6,9 @@ Matthew
 - <a href="#read-data" id="toc-read-data">Read Data</a>
 - <a href="#exploratory-data-analysis"
   id="toc-exploratory-data-analysis">Exploratory Data Analysis</a>
-  - <a href="#top-3" id="toc-top-3">Top 3</a>
+  - <a href="#top-and-bottom-3-most-recent-open-values"
+    id="toc-top-and-bottom-3-most-recent-open-values">Top and Bottom 3 Most
+    Recent Open Values</a>
   - <a href="#peak-month" id="toc-peak-month">Peak Month</a>
   - <a href="#volume" id="toc-volume">Volume</a>
 - <a href="#time-series" id="toc-time-series">Time Series</a>
@@ -75,7 +77,7 @@ stocks %>%
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
-## Top 3
+## Top and Bottom 3 Most Recent Open Values
 
 ``` r
 (stocks %>% 
@@ -129,7 +131,10 @@ stocks %>%
   mutate(diff = close - open) %>% 
   ggplot(aes(volume, diff)) +
   geom_point(alpha = 0.2) +
-  scale_x_log10()
+  scale_x_log10() +
+  labs(title = "Difference Between Open and Close by Volume",
+       y = "Difference",
+       x = "Volume")
 ```
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
