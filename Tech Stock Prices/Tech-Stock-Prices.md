@@ -22,6 +22,7 @@ Matthew
     id="toc-positively-correlated">Positively Correlated</a>
   - <a href="#negatively-correlated"
     id="toc-negatively-correlated">Negatively Correlated</a>
+- <a href="#volatility" id="toc-volatility">Volatility</a>
 
 *Data from Evan Gower on
 [Kaggle](https://www.kaggle.com/datasets/evangower/big-tech-stock-prices?resource=download&select=TSLA.csv)*
@@ -416,3 +417,41 @@ stocks %>%
     ## `geom_smooth()` using formula 'y ~ x'
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
+
+# Volatility
+
+``` r
+stocks %>% 
+  mutate(diff = close - open,
+         col = ifelse(name == "IBM", "Yes", "No")) %>% 
+  ggplot(aes(date, diff)) +
+  geom_line(aes(color = col)) +
+  facet_wrap(~name, scales = "free") +
+  scale_color_manual(values = c("steelblue4", "red4")) +
+  theme(legend.position = "none", plot.subtitle = element_text(hjust = 0.5)) +
+  labs(title = 
+         "IBM's Same Day Volatility is Unique with Respect to Other Tech Stocks",
+       subtitle = "Difference = (Close - Open)")
+```
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+``` r
+(stocks %>% 
+  filter(name == "IBM") %>% 
+  mutate(diff = close - open) %>% 
+  ggplot(aes(date, diff)) +
+  geom_line(color = "steelblue4") +
+  labs(y = "Difference",
+       title = "IBM's Open vs Close Difference")) /
+(stocks %>% 
+  filter(name == "AAPL") %>% 
+  mutate(diff = close - open) %>% 
+  ggplot(aes(date, diff)) +
+  geom_line(color = "steelblue4") +
+  labs(y = "Difference",
+       title = "AAPL's Open vs Close Difference")) +
+plot_annotation(title = "IBM's Volatility has Been Higher than Other Tech Stocks")
+```
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->

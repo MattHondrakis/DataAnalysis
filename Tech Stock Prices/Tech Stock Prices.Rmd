@@ -303,3 +303,37 @@ stocks %>%
               linetype = "dashed") +
   labs(title = "IBM and Netflix")
 ```
+
+# Volatility
+
+```{r}
+stocks %>% 
+  mutate(diff = close - open,
+         col = ifelse(name == "IBM", "Yes", "No")) %>% 
+  ggplot(aes(date, diff)) +
+  geom_line(aes(color = col)) +
+  facet_wrap(~name, scales = "free") +
+  scale_color_manual(values = c("steelblue4", "red4")) +
+  theme(legend.position = "none", plot.subtitle = element_text(hjust = 0.5)) +
+  labs(title = 
+         "IBM's Same Day Volatility is Unique with Respect to Other Tech Stocks",
+       subtitle = "Difference = (Close - Open)")
+```
+
+```{r}
+(stocks %>% 
+  filter(name == "IBM") %>% 
+  mutate(diff = close - open) %>% 
+  ggplot(aes(date, diff)) +
+  geom_line(color = "steelblue4") +
+  labs(y = "Difference",
+       title = "IBM's Open vs Close Difference")) /
+(stocks %>% 
+  filter(name == "AAPL") %>% 
+  mutate(diff = close - open) %>% 
+  ggplot(aes(date, diff)) +
+  geom_line(color = "steelblue4") +
+  labs(y = "Difference",
+       title = "AAPL's Open vs Close Difference")) +
+plot_annotation(title = "IBM's Volatility has Been Higher than Other Tech Stocks")
+```
