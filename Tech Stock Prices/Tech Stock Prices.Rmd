@@ -272,12 +272,11 @@ stock_corr %>%
   theme(plot.title = element_text(hjust = 0.5),
         text = element_text(family = "Roboto"))
 
-
 stocks %>% 
   ggplot(aes(date, open, color = name)) +
   geom_line() +
-  gghighlight::gghighlight(name == "IBM") +
-  labs(x = "", y = "", 
+  gghighlight::gghighlight(name == "IBM", use_direct_label = FALSE) +
+  labs(x = "", y = "", color = "",
        title = "IBM is an Outlier Among Tech Stocks")
 ```
 

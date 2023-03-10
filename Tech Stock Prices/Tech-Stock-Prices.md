@@ -378,12 +378,10 @@ stock_corr %>%
 stocks %>% 
   ggplot(aes(date, open, color = name)) +
   geom_line() +
-  gghighlight::gghighlight(name == "IBM") +
-  labs(x = "", y = "", 
+  gghighlight::gghighlight(name == "IBM", use_direct_label = FALSE) +
+  labs(x = "", y = "", color = "",
        title = "IBM is an Outlier Among Tech Stocks")
 ```
-
-    ## label_key: name
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
 
