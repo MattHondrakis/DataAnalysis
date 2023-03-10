@@ -208,6 +208,33 @@ sarima.for(aapl_fit,
 lines(window(ts_aapl, start = 2018), col = "red")
 ```
 
+## IBM
+
+### Prophet
+
+```{r}
+ibm <- stocks %>% 
+  filter(name == "IBM") %>% 
+  select(ds = date, y = open)
+```
+
+```{r}
+m_ibm <- prophet(ibm)
+
+forecast_ibm <- predict(m_ibm, 
+                    make_future_dataframe(m_ibm, periods = 140))
+
+plot(m_ibm, forecast_ibm)
+
+prophet_plot_components(m_ibm, forecast_ibm)
+```
+
+### ARIMA
+
+```{r}
+plot(forecast(auto.arima(ibm$y), h = 365), ylim = c(0,250))
+```
+
 # Correlated Stocks
 
 ```{r}

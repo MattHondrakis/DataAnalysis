@@ -15,6 +15,9 @@ Matthew
   - <a href="#apple" id="toc-apple">Apple</a>
     - <a href="#prophet" id="toc-prophet">Prophet</a>
     - <a href="#arima" id="toc-arima">ARIMA</a>
+  - <a href="#ibm" id="toc-ibm">IBM</a>
+    - <a href="#prophet-1" id="toc-prophet-1">Prophet</a>
+    - <a href="#arima-1" id="toc-arima-1">ARIMA</a>
 - <a href="#correlated-stocks" id="toc-correlated-stocks">Correlated
   Stocks</a>
   - <a href="#ibm-the-outlier" id="toc-ibm-the-outlier">IBM, The Outlier</a>
@@ -275,6 +278,45 @@ lines(window(ts_aapl, start = 2018), col = "red")
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
+## IBM
+
+### Prophet
+
+``` r
+ibm <- stocks %>% 
+  filter(name == "IBM") %>% 
+  select(ds = date, y = open)
+```
+
+``` r
+m_ibm <- prophet(ibm)
+```
+
+    ## Disabling daily seasonality. Run prophet with daily.seasonality=TRUE to override this.
+
+``` r
+forecast_ibm <- predict(m_ibm, 
+                    make_future_dataframe(m_ibm, periods = 140))
+
+plot(m_ibm, forecast_ibm)
+```
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+``` r
+prophet_plot_components(m_ibm, forecast_ibm)
+```
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+
+### ARIMA
+
+``` r
+plot(forecast(auto.arima(ibm$y), h = 365), ylim = c(0,250))
+```
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
 # Correlated Stocks
 
 ``` r
@@ -314,7 +356,7 @@ stock_corr %>%
         legend.background = element_rect(fill = "white", color = "white"))
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 ## IBM, The Outlier
 
@@ -330,7 +372,7 @@ stock_corr %>%
         text = element_text(family = "Roboto"))
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 ``` r
 stocks %>% 
@@ -343,7 +385,7 @@ stocks %>%
 
     ## label_key: name
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
 
 ## Positively Correlated
 
@@ -360,7 +402,7 @@ stocks %>%
                                          color = "white"))
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 ``` r
 stocks %>% 
@@ -376,7 +418,7 @@ stocks %>%
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->
 
 ## Negatively Correlated
 
@@ -400,7 +442,7 @@ stocks %>%
   theme(legend.position = c(0.45,0.8))
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 ``` r
 stocks %>% 
@@ -416,7 +458,7 @@ stocks %>%
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-22-2.png)<!-- -->
 
 # Volatility
 
@@ -434,7 +476,7 @@ stocks %>%
        subtitle = "Difference = (Close - Open)")
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 ``` r
 (stocks %>% 
@@ -454,4 +496,4 @@ stocks %>%
 plot_annotation(title = "IBM's Volatility has Been Higher than Other Tech Stocks")
 ```
 
-![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
