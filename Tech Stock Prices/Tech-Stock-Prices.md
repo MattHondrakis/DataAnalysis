@@ -213,7 +213,7 @@ aapl_fit <- window(ts_aapl, end = 2018)
 ``` r
 auto_arima_fit <- auto.arima(aapl_fit)
 plot(forecast(auto_arima_fit, h = 365), ylim = c(0,200))
-lines(ts_aapl)
+lines(window(ts_aapl, start = 2018), col = "red")
 ```
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
@@ -270,7 +270,7 @@ sarima.for(aapl_fit,
     ## NULL
 
 ``` r
-lines(ts_aapl)
+lines(window(ts_aapl, start = 2018), col = "red")
 ```
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
