@@ -1085,7 +1085,7 @@ Logistic Regression model is very similar to a typical Linear Regression
 and thus I don’t expect it to have a “preference”. What actually
 surprised me the most, is that the most important variables for Random
 Forest, *Highschool and Undergrad Education* (ssc_p & degree_p), were
-not very important to the Logistic Regression mopdel for its
+not very important to the Logistic Regression model for its
 predictions. In fact, it perceived it as a negative effect in predicting
 job offers. This is often an issue of using multiple predictors in GLM
 based models; the coefficients start to lose their “truthfulness”
