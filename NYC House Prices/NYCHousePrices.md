@@ -439,7 +439,7 @@ gplot2(improvement_cost)) + plot_layout(guides = 'collect')
 
 The bimodal distribution is finally explained by this new variable. Type
 of property accounts for this separation, Coop vs (Single & Multi
-Family, Townhouse and Condo).
+Family, Townhouse and Condo). Thus, an unsupervised learning method such as K-Means won't be necessary.
 
 # Model
 
