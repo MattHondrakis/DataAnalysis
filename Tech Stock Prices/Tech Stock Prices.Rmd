@@ -116,21 +116,6 @@ stocks %>%
        caption = "IBM's peak was in March, 2013 and thus is not included.")
 ```
 
-## Volume
-
-```{r}
-stocks %>% 
-  mutate(diff = close - open) %>% 
-  ggplot(aes(volume, diff)) +
-  geom_point(alpha = 0.2) +
-  scale_x_log10() +
-  labs(title = "Difference Between Open and Close by Volume",
-       y = "Difference",
-       x = "Volume")
-
-cor((stocks %>% mutate(diff = close - open))$diff, stocks$volume)
-```
-
 # Time Series
 
 ```{r include = FALSE}
