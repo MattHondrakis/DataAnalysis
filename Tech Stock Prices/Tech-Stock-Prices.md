@@ -519,3 +519,20 @@ stocks %>%
     ## `geom_smooth()` using formula 'y ~ x'
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+
+``` r
+p.adjust(stocks %>% 
+  mutate(volume = log(volume)) %>% 
+  group_by(name) %>% 
+  summarize(lm(close ~ volume, cur_data()) %>% tidy) %>% 
+  filter(term == "volume") %>% 
+  arrange(p.value) %>% 
+  pull(p.value), method = "holm")
+```
+
+    ## `summarise()` has grouped output by 'name'. You can override using the
+    ## `.groups` argument.
+
+    ##  [1]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00 2.124387e-283
+    ##  [6] 2.445616e-169 1.843364e-163  1.382517e-91  7.665132e-82  1.412118e-35
+    ## [11]  1.750614e-29  5.003894e-12  3.723455e-07  1.947973e-01

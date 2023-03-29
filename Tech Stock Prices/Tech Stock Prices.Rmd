@@ -366,4 +366,12 @@ stocks %>%
   geom_smooth(method = "lm", se = FALSE) +
   scale_x_log10() +
   scale_y_log10()
+
+p.adjust(stocks %>% 
+  mutate(volume = log(volume)) %>% 
+  group_by(name) %>% 
+  summarize(lm(close ~ volume, cur_data()) %>% tidy) %>% 
+  filter(term == "volume") %>% 
+  arrange(p.value) %>% 
+  pull(p.value), method = "holm")
 ```
