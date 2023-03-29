@@ -26,6 +26,7 @@ Matthew
   - <a href="#negatively-correlated"
     id="toc-negatively-correlated">Negatively Correlated</a>
 - <a href="#volatility" id="toc-volatility">Volatility</a>
+- <a href="#volume-1" id="toc-volume-1">Volume</a>
 
 *Data from Evan Gower on
 [Kaggle](https://www.kaggle.com/datasets/evangower/big-tech-stock-prices?resource=download&select=TSLA.csv)*
@@ -495,3 +496,48 @@ plot_annotation(title = "IBM's Volatility has Been Higher than Other Tech Stocks
 ```
 
 ![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+
+# Volume
+
+``` r
+stocks %>% 
+  mutate(volume = log(volume)) %>% 
+  group_by(name) %>% 
+  summarize(lm(close ~ volume, cur_data()) %>% tidy) %>% 
+  filter(term == "volume", p.value < 0.01) %>% 
+  arrange(-abs(estimate))
+```
+
+    ## `summarise()` has grouped output by 'name'. You can override using the
+    ## `.groups` argument.
+
+    ## # A tibble: 13 x 6
+    ## # Groups:   name [13]
+    ##    name  term   estimate std.error statistic   p.value
+    ##    <chr> <chr>     <dbl>     <dbl>     <dbl>     <dbl>
+    ##  1 NFLX  volume   -145.      2.56     -56.5  0        
+    ##  2 ADBE  volume   -102.      5.14     -19.8  1.28e- 82
+    ##  3 META  volume    -70.6     2.41     -29.3  2.30e-164
+    ##  4 MSFT  volume    -65.0     3.09     -21.1  1.98e- 92
+    ##  5 AAPL  volume    -39.5     0.857    -46.1  0        
+    ##  6 GOOGL volume    -32.0     0.801    -39.9  2.12e-284
+    ##  7 TSLA  volume     20.3     1.76      11.5  4.38e- 30
+    ##  8 ORCL  volume    -18.4     0.419    -43.9  0        
+    ##  9 CRM   volume    -16.2     2.29      -7.09 1.67e- 12
+    ## 10 CSCO  volume    -14.6     0.330    -44.2  0        
+    ## 11 IBM   volume    -12.5     0.982    -12.7  2.82e- 36
+    ## 12 INTC  volume    -11.9     0.403    -29.5  2.72e-170
+    ## 13 AMZN  volume    -10.7     2.05      -5.22 1.86e-  7
+
+``` r
+stocks %>% 
+  ggplot(aes(volume, close, color = name)) +
+  geom_point(alpha = 0.1) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_x_log10() +
+  scale_y_log10()
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](Tech-Stock-Prices_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->

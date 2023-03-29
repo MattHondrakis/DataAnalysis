@@ -19,6 +19,7 @@ library(sysfonts)
 library(showtext)
 library(corrr)
 library(rstatix)
+showtext_auto()
 font_add_google("Roboto Slab", "Roboto")
 theme_set(theme_minimal())
 theme_update(plot.title = element_text(hjust = 0.5),
@@ -362,4 +363,22 @@ stocks %>%
   labs(y = "Difference",
        title = "AAPL's Open vs Close Difference")) +
 plot_annotation(title = "IBM's Volatility has Been Higher than Other Tech Stocks")
+```
+
+# Volume
+
+```{r}
+stocks %>% 
+  mutate(volume = log(volume)) %>% 
+  group_by(name) %>% 
+  summarize(lm(close ~ volume, cur_data()) %>% tidy) %>% 
+  filter(term == "volume", p.value < 0.01) %>% 
+  arrange(-abs(estimate))
+
+stocks %>% 
+  ggplot(aes(volume, close, color = name)) +
+  geom_point(alpha = 0.1) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_x_log10() +
+  scale_y_log10()
 ```
