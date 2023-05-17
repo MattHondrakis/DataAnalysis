@@ -90,7 +90,7 @@ data %>%
   mutate(logmdev = log(MEDV)) %>% 
   select(logmdev, LSTAT, RM, TAX) %>% 
   pivot_longer(-logmdev) %>% 
-  ggplot(aes(logmdev, value)) + 
+  ggplot(aes(value, logmdev)) + 
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
   facet_wrap(~name, scales = "free") +

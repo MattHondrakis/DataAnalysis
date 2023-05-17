@@ -93,7 +93,7 @@ data %>%
   mutate(logmdev = log(MEDV)) %>% 
   select(logmdev, LSTAT, RM, TAX) %>% 
   pivot_longer(-logmdev) %>% 
-  ggplot(aes(logmdev, value)) + 
+  ggplot(aes(value, logmdev)) + 
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
   facet_wrap(~name, scales = "free") +
@@ -131,7 +131,7 @@ library(tidymodels)
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
     ## x tune::tune()      masks parsnip::tune()
-    ## * Use tidymodels_prefer() to resolve common conflicts.
+    ## * Use suppressPackageStartupMessages() to eliminate package startup messages
 
 ``` r
 data_split <- initial_split(data, 1/2)
