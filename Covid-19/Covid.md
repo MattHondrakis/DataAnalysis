@@ -15,20 +15,19 @@ Matthew
     - <a href="#death-count" id="toc-death-count">Death count</a>
   - <a href="#death-count-by-borough" id="toc-death-count-by-borough">Death
     count by borough</a>
-    - <a href="#last-100-days" id="toc-last-100-days">Last 100 days</a>
 
 ``` r
 df <- read_csv("https://data.cityofnewyork.us/resource/rc75-m7u3.csv")
 ```
 
     ## Rows: 1000 Columns: 67
-    ## ── Column specification ────────────────────────────────────────────────────────
+    ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
     ## dbl  (66): case_count, probable_case_count, hospitalized_count, death_count,...
     ## dttm  (1): date_of_interest
     ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+    ## i Use `spec()` to retrieve the full column specification for this data.
+    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
 df <- df %>%
@@ -97,9 +96,9 @@ df %>%
   filter(proportion > 1) 
 ```
 
-    ## # A tibble: 0 × 4
-    ## # ℹ 4 variables: date <dttm>, death_count <dbl>, hospitalized_count <dbl>,
-    ## #   proportion <dbl>
+    ## # A tibble: 0 x 4
+    ## # ... with 4 variables: date <dttm>, death_count <dbl>,
+    ## #   hospitalized_count <dbl>, proportion <dbl>
 
 ### Death count
 
@@ -124,20 +123,6 @@ df %>%
 
 ![](Covid_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-### Last 100 days
-
-``` r
-df %>%
-  select(date, bk_death_count, bx_death_count,
-         mn_death_count, si_death_count, qn_death_count) %>%
-  arrange(desc(date)) %>%
-  head(100) %>%
-  pivot_longer(!date) %>%
-  ggplot(aes(date, value, color = name)) + geom_line()
-```
-
-![](Covid_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
-
 ``` r
 df %>%
   mutate(dow = weekdays(date),
@@ -150,4 +135,4 @@ df %>%
   scale_y_continuous(labels = scales::comma)
 ```
 
-![](Covid_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Covid_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->

@@ -90,18 +90,6 @@ df %>%
 ```
 
 
-### Last 100 days
-```{r}
-df %>%
-  select(date, bk_death_count, bx_death_count,
-         mn_death_count, si_death_count, qn_death_count) %>%
-  arrange(desc(date)) %>%
-  head(100) %>%
-  pivot_longer(!date) %>%
-  ggplot(aes(date, value, color = name)) + geom_line()
-```
-
-
 
 ```{r}
 df %>%
