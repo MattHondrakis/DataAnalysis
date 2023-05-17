@@ -14,6 +14,10 @@ library(tidyverse)
 theme_set(theme_bw())
 ```
 
+```{r}
+plot(dbinom(1:12, 12, 0.8))
+```
+
 
 ```{r}
 df <- read_csv("https://data.cityofnewyork.us/resource/rc75-m7u3.csv")

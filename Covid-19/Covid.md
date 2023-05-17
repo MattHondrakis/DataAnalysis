@@ -18,6 +18,12 @@ Matthew
     - <a href="#last-100-days" id="toc-last-100-days">Last 100 days</a>
 
 ``` r
+plot(dbinom(1:12, 12, 0.8))
+```
+
+![](Covid_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+``` r
 df <- read_csv("https://data.cityofnewyork.us/resource/rc75-m7u3.csv")
 ```
 
@@ -49,7 +55,7 @@ df %>%
   labs(y = "", x = "", title = "NYC Case Count", subtitle = "From 2/29/20 to 2/20/22")
 ```
 
-![](Covid_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](Covid_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ``` r
 df %>%
@@ -62,7 +68,7 @@ df %>%
   labs(y = "", x = "", title = "NYC Case Count", subtitle = "From 11/20/21 to 2/20/22")
 ```
 
-![](Covid_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
+![](Covid_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
 
 ## Line plot of case count and hospitalization over time
 
@@ -73,7 +79,7 @@ df %>%
   ggplot(aes(date, value, color = Metric)) + geom_line()
 ```
 
-![](Covid_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](Covid_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ## Proportion of dead over hospitalized per year
 
@@ -87,7 +93,7 @@ df %>%
   theme(panel.grid.minor = element_blank())
 ```
 
-![](Covid_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Covid_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 df %>%
@@ -110,7 +116,7 @@ df %>%
   labs(title = "Last 90 days", y = "Deaths", x = "")
 ```
 
-![](Covid_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Covid_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ## Death count by borough
 
@@ -122,7 +128,7 @@ df %>%
   ggplot(aes(date, value, color = name)) + geom_line()
 ```
 
-![](Covid_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Covid_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ### Last 100 days
 
@@ -136,7 +142,7 @@ df %>%
   ggplot(aes(date, value, color = name)) + geom_line()
 ```
 
-![](Covid_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Covid_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 df %>%
@@ -150,4 +156,4 @@ df %>%
   scale_y_continuous(labels = scales::comma)
 ```
 
-![](Covid_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Covid_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
