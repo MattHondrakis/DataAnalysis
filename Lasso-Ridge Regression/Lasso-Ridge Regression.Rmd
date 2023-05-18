@@ -44,7 +44,7 @@ col_names <- c(
  "LSTAT",
  "MEDV")
 
-data <- read.table("C:/Users/Matthew Hondrakis/OneDrive/Documents/data.txt", col.names = col_names)
+data <- read.table("~/DataAnalysis/Lasso-Ridge Regression/data.txt", col.names = col_names)
 ```
 
 ```{r}
@@ -108,6 +108,3 @@ data_testing <- testing(data_split)
 ```
 
 # Linear Regression
-
-```{}
-```
