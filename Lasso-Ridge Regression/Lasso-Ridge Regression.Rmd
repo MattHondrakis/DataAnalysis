@@ -108,3 +108,50 @@ data_testing <- testing(data_split)
 ```
 
 # Linear Regression
+
+```{r}
+rec <- recipe(MEDV ~ ., data_train) %>% 
+  step_log(all_outcomes())
+
+lm_spec <- linear_reg() %>% 
+  set_mode("regression") %>% 
+  set_engine("lm")
+
+lm_mod <- workflow() %>% 
+  add_model(lm_spec) %>% 
+  add_recipe(rec) %>% 
+  last_fit(data_split)
+
+lm_mod %>% collect_metrics()
+```
+
+# Ridge Regression
+
+```{r}
+ridge_spec <- linear_reg(mixture = 0, penalty = tune()) %>% 
+  set_mode("regression") %>% 
+  set_engine("glmnet")
+
+penaltygrid <- grid_regular(penalty(range = c(-3,3)), levels = 30)
+
+ridge_wkfl <- workflow() %>% 
+  add_model(ridge_spec) %>% 
+  add_recipe(rec)
+
+tune_res <- tune_grid(
+  ridge_wkfl,
+  resamples = vfold_cv(data_train, v = 10), 
+  grid = penaltygrid
+)
+
+autoplot(tune_res)
+
+best_p <- select_best(tune_res, metric = "rsq")
+
+ridge_wkfl_fit <- ridge_wkfl %>% 
+  finalize_workflow(best_p) %>% 
+  last_fit(data_split)
+
+ridge_wkfl_fit %>% 
+  collect_metrics()
+```
