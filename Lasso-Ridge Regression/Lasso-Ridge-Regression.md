@@ -8,6 +8,10 @@ May 17, 2023
 - <a href="#split-data" id="toc-split-data">Split Data</a>
 - <a href="#linear-regression" id="toc-linear-regression">Linear
   Regression</a>
+- <a href="#ridge-regression" id="toc-ridge-regression">Ridge
+  Regression</a>
+- <a href="#lasso-regression" id="toc-lasso-regression">Lasso
+  Regression</a>
 
 # Read Data
 
@@ -28,7 +32,7 @@ col_names <- c(
  "LSTAT",
  "MEDV")
 
-data <- read.table("C:/Users/Matthew Hondrakis/OneDrive/Documents/data.txt", col.names = col_names)
+data <- read.table("~/DataAnalysis/Lasso-Ridge Regression/data.txt", col.names = col_names)
 ```
 
 ``` r
@@ -131,12 +135,159 @@ library(tidymodels)
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
     ## x tune::tune()      masks parsnip::tune()
-    ## * Use suppressPackageStartupMessages() to eliminate package startup messages
+    ## * Learn how to get started at https://www.tidymodels.org/start/
 
 ``` r
+set.seed(123)
 data_split <- initial_split(data, 1/2)
 data_train <- training(data_split)
 data_testing <- testing(data_split)
 ```
 
 # Linear Regression
+
+``` r
+rec <- recipe(MEDV ~ ., data_train) %>% 
+  step_log(all_outcomes())
+
+lm_spec <- linear_reg() %>% 
+  set_mode("regression") %>% 
+  set_engine("lm")
+
+lm_mod <- workflow() %>% 
+  add_model(lm_spec) %>% 
+  add_recipe(rec) %>% 
+  last_fit(data_split)
+
+lm_mod %>% collect_metrics()
+```
+
+    ## # A tibble: 2 x 4
+    ##   .metric .estimator .estimate .config             
+    ##   <chr>   <chr>          <dbl> <chr>               
+    ## 1 rmse    standard       0.206 Preprocessor1_Model1
+    ## 2 rsq     standard       0.754 Preprocessor1_Model1
+
+# Ridge Regression
+
+``` r
+ridge_spec <- linear_reg(mixture = 0, penalty = tune()) %>% 
+  set_mode("regression") %>% 
+  set_engine("glmnet")
+
+penaltygrid <- grid_regular(penalty(range = c(-3,3)), levels = 30)
+
+ridge_wkfl <- workflow() %>% 
+  add_model(ridge_spec) %>% 
+  add_recipe(rec)
+
+tune_res_ridge <- tune_grid(
+  ridge_wkfl,
+  resamples = vfold_cv(data_train, v = 10), 
+  grid = penaltygrid
+)
+```
+
+    ## ! Fold01: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold02: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold03: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold04: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold05: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold06: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold07: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold08: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold09: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold10: internal: A correlation computation is required, but `estimate` is const...
+
+``` r
+autoplot(tune_res_ridge)
+```
+
+![](Lasso-Ridge-Regression_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+best_p_ridge <- select_best(tune_res_ridge, metric = "rsq")
+
+ridge_wkfl_fit <- ridge_wkfl %>% 
+  finalize_workflow(best_p_ridge) %>% 
+  last_fit(data_split)
+
+ridge_wkfl_fit %>% 
+  collect_metrics()
+```
+
+    ## # A tibble: 2 x 4
+    ##   .metric .estimator .estimate .config             
+    ##   <chr>   <chr>          <dbl> <chr>               
+    ## 1 rmse    standard       0.205 Preprocessor1_Model1
+    ## 2 rsq     standard       0.753 Preprocessor1_Model1
+
+# Lasso Regression
+
+``` r
+lasso_spec <- linear_reg(mixture = 1, penalty = tune()) %>% 
+  set_mode("regression") %>% 
+  set_engine("glmnet")
+
+lasso_wkfl <- workflow() %>% 
+  add_model(ridge_spec) %>% 
+  add_recipe(rec)
+
+tune_res_lasso <- tune_grid(
+  ridge_wkfl,
+  resamples = vfold_cv(data_train, v = 10), 
+  grid = penaltygrid
+)
+```
+
+    ## ! Fold01: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold02: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold03: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold04: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold05: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold06: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold07: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold08: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold09: internal: A correlation computation is required, but `estimate` is const...
+
+    ## ! Fold10: internal: A correlation computation is required, but `estimate` is const...
+
+``` r
+autoplot(tune_res_lasso)
+```
+
+![](Lasso-Ridge-Regression_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+best_p_lasso <- select_best(tune_res_lasso, metric = "rsq")
+
+ridge_wkfl_fit <- ridge_wkfl %>% 
+  finalize_workflow(best_p_lasso) %>% 
+  last_fit(data_split)
+
+ridge_wkfl_fit %>% 
+  collect_metrics()
+```
+
+    ## # A tibble: 2 x 4
+    ##   .metric .estimator .estimate .config             
+    ##   <chr>   <chr>          <dbl> <chr>               
+    ## 1 rmse    standard       0.205 Preprocessor1_Model1
+    ## 2 rsq     standard       0.753 Preprocessor1_Model1

@@ -1,7 +1,7 @@
 ---
 title: "Lasso-Ridge Regression"
 author: "Matthew"
-date: "`r format(Sys.Date(), '%B %d, %Y')`"
+date: "May 17, 2023"
 output: 
   github_document:
     toc: true
@@ -101,7 +101,7 @@ data %>%
 
 ```{r}
 library(tidymodels)
-
+set.seed(123)
 data_split <- initial_split(data, 1/2)
 data_train <- training(data_split)
 data_testing <- testing(data_split)
@@ -138,18 +138,47 @@ ridge_wkfl <- workflow() %>%
   add_model(ridge_spec) %>% 
   add_recipe(rec)
 
-tune_res <- tune_grid(
+tune_res_ridge <- tune_grid(
   ridge_wkfl,
   resamples = vfold_cv(data_train, v = 10), 
   grid = penaltygrid
 )
 
-autoplot(tune_res)
+autoplot(tune_res_ridge)
 
-best_p <- select_best(tune_res, metric = "rsq")
+best_p_ridge <- select_best(tune_res_ridge, metric = "rsq")
 
 ridge_wkfl_fit <- ridge_wkfl %>% 
-  finalize_workflow(best_p) %>% 
+  finalize_workflow(best_p_ridge) %>% 
+  last_fit(data_split)
+
+ridge_wkfl_fit %>% 
+  collect_metrics()
+```
+
+# Lasso Regression
+
+```{r}
+lasso_spec <- linear_reg(mixture = 1, penalty = tune()) %>% 
+  set_mode("regression") %>% 
+  set_engine("glmnet")
+
+lasso_wkfl <- workflow() %>% 
+  add_model(ridge_spec) %>% 
+  add_recipe(rec)
+
+tune_res_lasso <- tune_grid(
+  ridge_wkfl,
+  resamples = vfold_cv(data_train, v = 10), 
+  grid = penaltygrid
+)
+
+autoplot(tune_res_lasso)
+
+best_p_lasso <- select_best(tune_res_lasso, metric = "rsq")
+
+ridge_wkfl_fit <- ridge_wkfl %>% 
+  finalize_workflow(best_p_lasso) %>% 
   last_fit(data_split)
 
 ridge_wkfl_fit %>% 
