@@ -177,10 +177,28 @@ autoplot(tune_res_lasso)
 
 best_p_lasso <- select_best(tune_res_lasso, metric = "rsq")
 
-ridge_wkfl_fit <- ridge_wkfl %>% 
+lasso_wkfl_fit <- lasso_wkfl %>% 
   finalize_workflow(best_p_lasso) %>% 
   last_fit(data_split)
 
-ridge_wkfl_fit %>% 
+lasso_wkfl_fit %>% 
   collect_metrics()
+```
+
+# MSE
+
+```{r}
+lasso_wkfl_fit %>% 
+  collect_metrics() %>% 
+  mutate(model = "lasso") %>% 
+  bind_rows(ridge_wkfl_fit %>% 
+  collect_metrics() %>% 
+  mutate(model = "ridge")) %>% 
+  bind_rows(lm_mod %>% 
+  collect_metrics() %>% 
+  mutate(model = "linear")) %>% 
+  mutate(.estimate = .estimate^2) %>% 
+  filter(.metric == "rmse") %>% 
+  select(.estimate, model) %>% 
+  arrange(.estimate)
 ```

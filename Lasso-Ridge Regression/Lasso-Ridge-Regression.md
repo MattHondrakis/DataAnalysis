@@ -12,6 +12,7 @@ May 17, 2023
   Regression</a>
 - <a href="#lasso-regression" id="toc-lasso-regression">Lasso
   Regression</a>
+- <a href="#mse" id="toc-mse">MSE</a>
 
 # Read Data
 
@@ -135,7 +136,7 @@ library(tidymodels)
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
     ## x tune::tune()      masks parsnip::tune()
-    ## * Learn how to get started at https://www.tidymodels.org/start/
+    ## * Use suppressPackageStartupMessages() to eliminate package startup messages
 
 ``` r
 set.seed(123)
@@ -278,11 +279,11 @@ autoplot(tune_res_lasso)
 ``` r
 best_p_lasso <- select_best(tune_res_lasso, metric = "rsq")
 
-ridge_wkfl_fit <- ridge_wkfl %>% 
+lasso_wkfl_fit <- lasso_wkfl %>% 
   finalize_workflow(best_p_lasso) %>% 
   last_fit(data_split)
 
-ridge_wkfl_fit %>% 
+lasso_wkfl_fit %>% 
   collect_metrics()
 ```
 
@@ -291,3 +292,28 @@ ridge_wkfl_fit %>%
     ##   <chr>   <chr>          <dbl> <chr>               
     ## 1 rmse    standard       0.205 Preprocessor1_Model1
     ## 2 rsq     standard       0.753 Preprocessor1_Model1
+
+# MSE
+
+``` r
+lasso_wkfl_fit %>% 
+  collect_metrics() %>% 
+  mutate(model = "lasso") %>% 
+  bind_rows(ridge_wkfl_fit %>% 
+  collect_metrics() %>% 
+  mutate(model = "ridge")) %>% 
+  bind_rows(lm_mod %>% 
+  collect_metrics() %>% 
+  mutate(model = "linear")) %>% 
+  mutate(.estimate = .estimate^2) %>% 
+  filter(.metric == "rmse") %>% 
+  select(.estimate, model) %>% 
+  arrange(.estimate)
+```
+
+    ## # A tibble: 3 x 2
+    ##   .estimate model 
+    ##       <dbl> <chr> 
+    ## 1    0.0419 lasso 
+    ## 2    0.0419 ridge 
+    ## 3    0.0423 linear
