@@ -26,7 +26,7 @@ showtext_auto()
 ```
 
 ```{r, message = FALSE}
-data <- read_csv("~/DataAnalysis/Car Accidents/FilteredAccidents.csv") %>% 
+data <- read_csv("~/DataAnalysis/FilteredAccidents.csv") %>% 
   rename_with(tolower)
 ```
 
