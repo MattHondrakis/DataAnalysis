@@ -1,0 +1,36 @@
+---
+title: "Title"
+author: "Matthew"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output: 
+  github_document:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 500, fig.showtext = TRUE)
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(patchwork)
+library(sysfonts)
+library(showtext)
+font_add_google("Roboto Slab", "Roboto")
+theme_set(theme_minimal())
+theme_update(plot.title = element_text(hjust = 0.5),
+             plot.subtitle = element_text(hjust = 0.5),
+             text = element_text(family = "Roboto"))
+showtext_auto()
+```
+
+```{r, message = FALSE}
+data <- read_csv("~/DataAnalysis/Car Accidents/FilteredAccidents.csv") %>% 
+  rename_with(tolower)
+```
+
+```{r}
+data %>% count(severity, sort = TRUE)
+```
+
