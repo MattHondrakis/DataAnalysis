@@ -34,3 +34,42 @@ data <- read_csv("~/DataAnalysis/FilteredAccidents.csv") %>%
 data %>% count(severity, sort = TRUE)
 ```
 
+```{r}
+set.seed(123)
+library(tidymodels)
+library(textrecipes)
+
+splits <- initial_split(data %>% 
+                          select(severity, description) %>% 
+                          filter(severity %in% c(1,4)) %>% 
+                          mutate(severity = factor(severity)))
+
+training(splits) %>% count(severity)
+```
+
+```{r}
+glm_workflow <- 
+  recipe(formula = severity ~ description, data = training(splits)) %>% 
+  step_tokenize(description) %>%
+  step_stopwords(description, custom_stopword_source = stopwords::stopwords()) %>% 
+  step_tokenfilter(description, max_tokens = 1e2) %>% 
+  step_tfidf(description) %>% 
+  workflow(logistic_reg(mode = "classification", engine = "glm"))
+
+glm_fit <- glm_workflow %>% last_fit(splits)
+```
+
+```{r}
+glm_fit %>% collect_metrics()
+
+glm_fit %>% 
+  collect_predictions() %>% 
+  roc_curve(severity, .pred_1) %>% 
+  autoplot()
+
+glm_fit %>% 
+  collect_predictions()  %>% 
+  conf_mat(severity, .pred_class) %>% 
+  autoplot(type = 'heatmap')
+```
+
