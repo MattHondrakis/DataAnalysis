@@ -73,3 +73,15 @@ glm_fit %>%
   autoplot(type = 'heatmap')
 ```
 
+```{r}
+glm_fit %>% 
+  extract_fit_parsnip() %>% 
+  broom::tidy() %>% 
+  filter(term != "(Intercept)") %>%
+  mutate(term = str_remove(term, "tfidf_description_")) %>% 
+  slice_max(abs(estimate), n = 20) %>% 
+  ggplot(aes(abs(estimate), fct_reorder(term, abs(estimate)), fill = ifelse(estimate < 0, "A", "B"))) + geom_col(color = "black") +
+  scale_fill_discrete(direction = -1) +
+  labs(fill = "Class", y = "", title = str_to_title("Importance of words in predicting class"))
+```
+

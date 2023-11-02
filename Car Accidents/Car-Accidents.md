@@ -46,7 +46,7 @@ library(tidymodels)
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
     ## x tune::tune()      masks parsnip::tune()
-    ## * Use tidymodels_prefer() to resolve common conflicts.
+    ## * Learn how to get started at https://www.tidymodels.org/start/
 
 ``` r
 library(textrecipes)
@@ -106,3 +106,17 @@ glm_fit %>%
 ```
 
 ![](Car-Accidents_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+
+``` r
+glm_fit %>% 
+  extract_fit_parsnip() %>% 
+  broom::tidy() %>% 
+  filter(term != "(Intercept)") %>%
+  mutate(term = str_remove(term, "tfidf_description_")) %>% 
+  slice_max(abs(estimate), n = 20) %>% 
+  ggplot(aes(abs(estimate), fct_reorder(term, abs(estimate)), fill = ifelse(estimate < 0, "A", "B"))) + geom_col(color = "black") +
+  scale_fill_discrete(direction = -1) +
+  labs(fill = "Class", y = "", title = str_to_title("Importance of words in predicting class"))
+```
+
+![](Car-Accidents_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
