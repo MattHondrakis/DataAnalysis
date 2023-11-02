@@ -46,7 +46,7 @@ library(tidymodels)
     ## x yardstick::spec() masks readr::spec()
     ## x recipes::step()   masks stats::step()
     ## x tune::tune()      masks parsnip::tune()
-    ## * Learn how to get started at https://www.tidymodels.org/start/
+    ## * Use suppressPackageStartupMessages() to eliminate package startup messages
 
 ``` r
 library(textrecipes)
@@ -114,9 +114,9 @@ glm_fit %>%
   filter(term != "(Intercept)") %>%
   mutate(term = str_remove(term, "tfidf_description_")) %>% 
   slice_max(abs(estimate), n = 20) %>% 
-  ggplot(aes(abs(estimate), fct_reorder(term, abs(estimate)), fill = ifelse(estimate < 0, "A", "B"))) + geom_col(color = "black") +
+  ggplot(aes(abs(estimate), fct_reorder(term, abs(estimate)), fill = ifelse(estimate < 0, "1", "4"))) + geom_col(color = "black") +
   scale_fill_discrete(direction = -1) +
-  labs(fill = "Class", y = "", title = str_to_title("Importance of words in predicting class"))
+  labs(fill = "Class", y = "", title = str_to_title("Importance of words in predicting Accident Severity"), x = "")
 ```
 
 ![](Car-Accidents_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
